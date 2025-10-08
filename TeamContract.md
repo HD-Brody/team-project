@@ -30,7 +30,6 @@ This contract sets out shared expectations and commitments for how our team will
 
 * Convey ideas as clear as possible to avoid misunderstandings
 
-
 ---
 
 ## Decision Making
@@ -57,4 +56,4 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 
 Team Member Signatures:
 
-Leo Wang, 
+Leo Wang, Brody Honigman Deltoff
