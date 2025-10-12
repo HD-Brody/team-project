@@ -56,4 +56,4 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 
 Team Member Signatures:
 
-Leo Wang, Brody Honigman Deltoff, Eric Lin, Mike Xu
+Leo Wang, Brody Honigman Deltoff, Eric Lin, Mike Xu, Andy B. Chen
