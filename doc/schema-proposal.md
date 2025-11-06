@@ -1,43 +1,34 @@
-# Syllabus Assistant — Team M.A.R.B.L.E.
+# Schema Proposal — Syllabus Assistant
 
-## Overview
-Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository follows a Clean Architecture layout to keep domain rules independent from technical adapters.
+## Purpose
+This document defines the relational schema that anchors persistence for the Syllabus Assistant. It aligns with the domain entities captured in `doc/project-blueprint.md` and the sequencing described in `doc/timeline-proposal.md`. All tables target SQLite for local development while keeping the design portable to other relational engines.
 
-## Core User Stories & Leads
-- Upload syllabus PDFs and extract assessments — **Brody**
-- View and edit tasks and due dates — **Rayan**
-- Calculate grade targets using course weighting — **Mike**
-- Export tasks to calendar formats — **Andy**
-- Persist user/course/task data between sessions — **Leo**
-- Support user login and account creation — **Eric**
-- (Future) Recommend task prioritization — pending assignment
+## Design Principles
+- **Stable identifiers** — Every table uses externally generated `TEXT` primary keys (UUID-friendly) to keep services deterministic across imports.
+- **Layer alignment** — Table names map directly to aggregates in `domain/model`, simplifying repository implementations.
+- **Cascade hygiene** — Foreign keys employ `ON DELETE CASCADE` or `SET NULL` so dependent records cannot orphan when upstream data is removed.
+- **Enum safety** — `CHECK` constraints specify valid values for status and type columns to catch invalid writes early.
 
-## Technology & Integrations
-- Build tool: Maven (`pom.xml`) targeting Java 11
-- Persistence: SQLite via JDBC adapters
-- Document parsing: Apache PDFBox
-- AI-assisted syllabus parsing: Google Gemini API
-- Calendar export: iCal4j and Google Calendar API
+## Table Overview
+![picture](./database-tables.png)
+- **`users`** — Stores authentication and profile information, including hashed passwords and time zone preferences used for schedule rendering.
+- **`courses`** — Represents a course owned by a user, capturing metadata such as term and instructor.
+- **`syllabi`** — Tracks uploaded syllabus sources, parsed timestamps, and raw text snapshots for reprocessing or auditing.
+- **`marking_schemes`** — Holds grading blueprints per course; multiple schemes allow alternative grading policies.
+- **`marking_scheme_components`** — Normalizes weight components (assignments, exams, etc.) for each scheme.
+- **`assessments`** — Individual assessments extracted from syllabi, optionally tied to a scheme component.
+- **`tasks`** — Actionable items surfaced to the user, linked to assessments when applicable.
+- **`grade_entries`** — Logged grades for assessments, enabling projections and historical tracking.
+- **`schedule_events`** — Events exported to calendars, tagged by source (`ASSESSMENT` or `TASK`) for traceability.
 
-## Current Status & Next Milestones
-- Week 0 (Complete): Repository structure, planning documents, and timeline drafted.
-- Week 1: Stand up persistence layer, connect syllabus ingestion stubs, define authentication primitives.
-- Week 2: Integrate PDF/AI ingestion, harden persistence, implement task editing, and progress on grade calculation.
-- Week 3: Finalize task endpoints, grade projections, and calendar export adapters; execute end-to-end QA.
+## Relationships & Indexes
+- `courses.user_id → users.user_id` cascades deletes to child records.
+- `assessments` reference both `courses` and optional `marking_scheme_components`.
+- `tasks` bridge users, courses, and assessments to support personal prioritization.
+- Secondary indexes accelerate common lookups (e.g., tasks by user/status, assessments by course).
 
-Refer to `doc/timeline-proposal.md` for the detailed schedule and dependencies between workstreams.
-
-## Repository Layout
-- `src/main/java` — Application code organized into `adapter`, `application`, `domain`, `infrastructure`, and `shared` packages.
-- `src/main/resources` — Configuration, database migrations, and static assets.
-- `src/test/java` & `src/test/resources` — Unit and integration tests with supporting fixtures.
-- `doc/` — Project documentation, including the blueprint, timeline, and structure proposal (`doc/structure-proposal.md`).
-- `target/` — Maven build output (not committed).
-
-See `doc/structure-proposal.md` for a plain-language guide to these directories and how to extend them during development.
-
-## Database Schema (SQLite)
-The core tables capture users, courses, parsed syllabus data, assessments, tasks, grades, and calendar exports. Relationships cascade deletes so dependent records are cleaned automatically.
+## Proposed DDL
+The following DDL is synchronized with the section in `README.md` and applied to `src/main/resources/db/syllabus_assistant.db` for local development.
 
 ```sql
 PRAGMA foreign_keys = ON;
@@ -164,16 +155,3 @@ CREATE INDEX idx_tasks_user_status ON tasks(user_id, status);
 CREATE INDEX idx_grade_entries_assessment ON grade_entries(assessment_id);
 CREATE INDEX idx_schedule_events_user ON schedule_events(user_id);
 ```
-
-## Build & Test
-```bash
-mvn clean compile   # validate sources
-mvn test            # run the JUnit 5 test suite
-mvn clean verify    # full build plus integration checks before pushing
-```
-
-## Additional Documentation
-- `doc/project-blueprint.md` — Product vision, user stories, and proposed domain entities.
-- `doc/timeline-proposal.md` — Development phases, ownership, and QA expectations.
-- `doc/TeamContract.md` — Collaboration norms and responsibilities.
-- `doc/schema-proposal.md` — Database rationale, table ownership, and migration guidance.
