@@ -1,4 +1,4 @@
 /**
  * Cross-layer test utilities.
  */
-package shared;
+package test_support;
