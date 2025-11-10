@@ -1,7 +1,7 @@
 # Syllabus Assistant — Team M.A.R.B.L.E.
 
 ## Overview
-Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository uses a simplified four-folder layout to keep responsibilities clear and independent.
+Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository uses a simplified six-folder layout to keep responsibilities clear and independent.
 
 ## Core User Stories & Leads
 - Upload syllabus PDFs and extract assessments — **Brody**
