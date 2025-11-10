@@ -6,7 +6,7 @@ public class LoginInteractor implements LoginInputBoundary {
     LoginOutputBoundary loginOutputBoundary;
 
     @Override
-    void execute(LoginInputData loginInputData) {
+    public void execute(LoginInputData loginInputData) {
         final String username = loginInputData.getUsername();
         final String password = loginInputData.getPassword();
 
