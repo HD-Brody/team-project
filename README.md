@@ -1,7 +1,7 @@
 # Syllabus Assistant — Team M.A.R.B.L.E.
 
 ## Overview
-Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository follows a Clean Architecture layout to keep domain rules independent from technical adapters.
+Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository uses a simplified four-folder layout to keep responsibilities clear and independent.
 
 ## Core User Stories & Leads
 - Upload syllabus PDFs and extract assessments — **Brody**
@@ -28,7 +28,13 @@ Syllabus Assistant is a Java 11 application that ingests course syllabi, builds 
 Refer to `doc/timeline-proposal.md` for the detailed schedule and dependencies between workstreams.
 
 ## Repository Layout
-- `src/main/java` — Application code organized into `adapter`, `application`, `domain`, `infrastructure`, and `shared` packages.
+- `src/main/java` — Application code organized into:
+  - `app/` — Application bootstrap and configuration.
+  - `data_access/` — Gateways and integrations (persistence, parsing, AI, calendar, config).
+  - `entity/` — Core domain entities, value types, enums, and exceptions.
+  - `interface_adapter/` — Controllers, presenters, and outbound adapters.
+  - `use_case/` — Use case services, ports, repositories, and DTOs.
+  - `view/` — UI entry points (e.g., CLI `view/cli/Main.java`).
 - `src/main/resources` — Configuration, database migrations, and static assets.
 - `src/test/java` & `src/test/resources` — Unit and integration tests with supporting fixtures.
 - `doc/` — Project documentation, including the blueprint, timeline, and structure proposal (`doc/structure-proposal.md`).

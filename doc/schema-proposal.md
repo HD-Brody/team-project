@@ -1,11 +1,11 @@
 # Schema Proposal — Syllabus Assistant
-
+_Prepared on Nov 9, 2025 by Andy Chen_
 ## Purpose
 This document defines the relational schema that anchors persistence for the Syllabus Assistant. It aligns with the domain entities captured in `doc/project-blueprint.md` and the sequencing described in `doc/timeline-proposal.md`. All tables target SQLite for local development while keeping the design portable to other relational engines.
 
 ## Design Principles
 - **Stable identifiers** — Every table uses externally generated `TEXT` primary keys (UUID-friendly) to keep services deterministic across imports.
-- **Layer alignment** — Table names map directly to aggregates in `domain/model`, simplifying repository implementations.
+- **Layer alignment** — Table names map directly to aggregates in `entity`, simplifying repository implementations and keeping `use_case` ports independent from data access concerns.
 - **Cascade hygiene** — Foreign keys employ `ON DELETE CASCADE` or `SET NULL` so dependent records cannot orphan when upstream data is removed.
 - **Enum safety** — `CHECK` constraints specify valid values for status and type columns to catch invalid writes early.
 
