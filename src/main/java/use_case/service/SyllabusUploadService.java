@@ -75,7 +75,7 @@ public class SyllabusUploadService implements UploadSyllabusInputBoundary {
                     data.getSourceFilePath(),
                     Instant.now()
         );
-        List<Assessment> assessments = mapAssessments(syllabusId, parsedResult.getAssessments(), data.getCourseId());
+        List<Assessment> assessments = draftAssessmentsToAssessments(syllabusId, parsedResult.getAssessments(), data.getCourseId());
         MarkingScheme markingScheme = mapMarkingScheme(syllabusId, parsedResult.getWeightComponents());
 
         // Persist entities using the repositories
@@ -84,7 +84,7 @@ public class SyllabusUploadService implements UploadSyllabusInputBoundary {
         markingSchemeRepository.save(markingScheme);
     }
 
-    private List<Assessment> mapAssessments(String syllabusId, List<AssessmentDraft> drafts, String courseId) {
+    private List<Assessment> draftAssessmentsToAssessments(String syllabusId, List<AssessmentDraft> drafts, String courseId) {
         List<Assessment> assessments = new ArrayList<>();
         for (AssessmentDraft draft : drafts) {
 
