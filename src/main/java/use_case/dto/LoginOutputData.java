@@ -1,4 +1,4 @@
-package use_case.Login;
+package use_case.dto;
 
 public class LoginOutputData {
 

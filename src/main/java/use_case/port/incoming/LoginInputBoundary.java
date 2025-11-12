@@ -1,4 +1,6 @@
-package use_case.Login;
+package use_case.port.incoming;
+
+import use_case.dto.LoginInputData;
 
 public interface LoginInputBoundary {
 

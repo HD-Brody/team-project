@@ -1,7 +1,7 @@
 package interface_adapter.Login;
 
-import use_case.Login.LoginInputData;
-import use_case.Login.LoginInteractor;
+import use_case.dto.LoginInputData;
+import use_case.service.LoginInteractor;
 
 public class LoginController {
 

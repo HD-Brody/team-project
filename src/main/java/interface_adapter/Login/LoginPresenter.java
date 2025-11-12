@@ -1,7 +1,7 @@
 package interface_adapter.Login;
 
-import use_case.Login.LoginOutputBoundary;
-import use_case.Login.LoginOutputData;
+import use_case.port.outgoing.LoginOutputBoundary;
+import use_case.dto.LoginOutputData;
 
 public class LoginPresenter implements LoginOutputBoundary {
 
