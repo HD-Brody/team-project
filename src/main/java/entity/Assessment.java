@@ -11,8 +11,8 @@ public final class Assessment {
     private final String courseId;
     private final String title;
     private final AssessmentType type;
-    private final Instant startsAt;
-    private final Instant endsAt;
+    private final String startsAt;
+    private final String endsAt;
     private final Long durationMinutes;
     private final Double weight;
     private final String schemeComponentId;
@@ -20,7 +20,7 @@ public final class Assessment {
     private final String notes;
 
     public Assessment(String assessmentId, String courseId, String title, AssessmentType type,
-                      Instant startsAt, Instant endsAt, Long durationMinutes, Double weight,
+                      String startsAt, String endsAt, Long durationMinutes, Double weight,
                       String schemeComponentId, String location, String notes) {
         this.assessmentId = Objects.requireNonNull(assessmentId, "assessmentId");
         this.courseId = Objects.requireNonNull(courseId, "courseId");
@@ -51,11 +51,11 @@ public final class Assessment {
         return type;
     }
 
-    public Instant getStartsAt() {
+    public String getStartsAt() {
         return startsAt;
     }
 
-    public Instant getEndsAt() {
+    public String getEndsAt() {
         return endsAt;
     }
 
