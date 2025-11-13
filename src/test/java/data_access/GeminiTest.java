@@ -51,7 +51,7 @@ class GeminiTest {
 
         System.out.println("\n--- Weight Components ---");
         result.getWeightComponents().forEach(component -> {
-            System.out.println("• " + component.getComponentName() + ": " + (component.getWeight() * 100) + "%");
+            System.out.println("• " + component.getName() + ": " + (component.getWeight() * 100) + "%");
         });
         System.out.println("======================");
     }

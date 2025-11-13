@@ -35,7 +35,4 @@ public final class WeightComponentDraft {
         return expectedCount;
     }
 
-    public String getComponentName() {
-        return name;
-    }
 }

@@ -53,10 +53,11 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
             "    - \"title\": (String) The name of the assessment (e.g., \"Assignment 1: Logic Puzzles\").\n" +
             "    - \"type\": (String) The type of the assessment (MUST BE ONE OF THE FOLLOWING: 'TEST','ASSIGNMENT','EXAM','QUIZ','PROJECT','OTHER').\n" +
             "    - \"weight\": (Double) The grade percentage as a decimal (e.g., 0.15 for 15%%).\n" +
-            "    - \"dueDate\": (String) The due date in ISO 8601 format (e.g., \"2025-12-15T23:59:00Z\"). If no date is found, use null.\n\n" +
+            "    - \"dueDateIso\": (String) ISO-8601 string. If the syllabus only has month/day, infer the year from the term/year in the text; if none, use the current year. Default the time to 23:59:00 local, output as ISO-8601 (e.g., 2025-10-15T23:59:00Z). If no date is present, null.\\n" +
+            "    - \"schemeComponentName\": (String) Used to group together assessments of a similar type.\n\n" +
             "2.  \"weightComponents\": An array of objects describing the grade breakdown. Each object must have these keys:\n" +
-            "    - \"componentName\": (String) The name of the category (e.g., \"Assignments\", \"Midterm Exam\").\n" +
-            "    - \"weight\": (Double) The total weight of this category as a decimal (e.g., 0.40 for 40%%).\n\n" +
+            "    - \"name\": (String) Should include names from assessments schemeComponentName.\n" +
+            "    - \"weight\": (Double) The total weight of this category as a decimal (e.g., 0.40 for 40%%). All the weights should total 1.00 (unless there are bonus marks of some sort)\n\n" +
             "Here is the syllabus text:\n" +
             "---\n" +
             "%s",
