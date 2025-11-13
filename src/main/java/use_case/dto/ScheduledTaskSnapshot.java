@@ -8,6 +8,7 @@ import java.util.Objects;
  */
 public final class ScheduledTaskSnapshot {
     private final String taskId;
+    private final String userId;
     private final String courseId;
     private final String title;
     private final Instant dueAt;
@@ -16,10 +17,11 @@ public final class ScheduledTaskSnapshot {
     private final String location;
     private final String notes;
 
-    public ScheduledTaskSnapshot(String taskId, String courseId, String title, Instant dueAt,
-                                 Integer estimatedEffortMins, Double weightPercent,
-                                 String location, String notes) {
+    public ScheduledTaskSnapshot(String taskId, String userId, String courseId, String title,
+                                 Instant dueAt, Integer estimatedEffortMins,
+                                 Double weightPercent, String location, String notes) {
         this.taskId = Objects.requireNonNull(taskId, "taskId");
+        this.userId = Objects.requireNonNull(userId, "userId");
         this.courseId = courseId;
         this.title = Objects.requireNonNull(title, "title");
         this.dueAt = dueAt;
@@ -31,6 +33,10 @@ public final class ScheduledTaskSnapshot {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
     public String getCourseId() {
