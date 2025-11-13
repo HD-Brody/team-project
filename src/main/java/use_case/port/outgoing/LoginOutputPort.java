@@ -2,7 +2,7 @@ package use_case.port.outgoing;
 
 import use_case.dto.LoginOutputData;
 
-public interface LoginOutputBoundary {
+public interface LoginOutputPort {
 
     void prepareSuccessView(LoginOutputData loginOutputData);
 

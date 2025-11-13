@@ -12,4 +12,6 @@ public interface UserRepository {
     void save(User user);
 
     User getUserByUsername(String username);
+
+    String getPasswordByUserID(String userID);
 }

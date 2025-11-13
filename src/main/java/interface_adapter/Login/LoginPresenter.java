@@ -1,9 +1,9 @@
 package interface_adapter.Login;
 
-import use_case.port.outgoing.LoginOutputBoundary;
+import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginOutputData;
 
-public class LoginPresenter implements LoginOutputBoundary {
+public class LoginPresenter implements LoginOutputPort {
 
     @Override
     public void prepareSuccessView(LoginOutputData loginOutputData) {

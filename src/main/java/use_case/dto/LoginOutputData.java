@@ -3,12 +3,22 @@ package use_case.dto;
 public class LoginOutputData {
 
     private final String username;
+    private final String message;
 
     public LoginOutputData(String username) {
+        this(username, "");
+    }
+
+    public LoginOutputData(String username, String message) {
         this.username = username;
+        this.message = message;
     }
 
     public String getUsername() {
         return username;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }
