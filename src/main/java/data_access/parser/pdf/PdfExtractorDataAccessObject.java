@@ -1,13 +1,13 @@
 package data_access.parser.pdf;
 
-import use_case.port.outgoing.PdfExtractionPort;
+import use_case.port.outgoing.PdfExtractionDataAccessInterface;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
 
-public class PdfBoxPdfExtractor implements PdfExtractionPort {
+public class PdfExtractorDataAccessObject implements PdfExtractionDataAccessInterface {
     @Override
     public String extractText(String sourceFilePath) {
         File file = new File(sourceFilePath);

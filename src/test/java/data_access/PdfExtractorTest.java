@@ -1,21 +1,16 @@
 package data_access;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import data_access.parser.pdf.PdfExtractorDataAccessObject;
 
-import data_access.parser.pdf.PdfBoxPdfExtractor;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PdfExtractorTest {
     @Test
-    void extractText_validPdf_returnsText(@TempDir Path tempDir) throws IOException {
-        PdfBoxPdfExtractor extractor = new PdfBoxPdfExtractor();
+    void extractText_validPdf_returnsText() throws IOException {
+        PdfExtractorDataAccessObject extractor = new PdfExtractorDataAccessObject();
         
         String samplePdfPath = "src/test/resources/sample-syllabus.pdf";
         
@@ -26,6 +21,6 @@ public class PdfExtractorTest {
         assertTrue(result.length() > 0);
         
         // Print for manual verification
-        System.out.println("Extracted: " + result.substring(0, Math.min(200, result.length())) + "...");
+        System.out.println("Extracted: " + result.substring(0, Math.min(10000, result.length())) + "...");
     }
 }

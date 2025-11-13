@@ -1,12 +1,12 @@
 package use_case.service;
 
 import use_case.dto.AssessmentDraft;
-import use_case.dto.SyllabusParseResult;
+import use_case.dto.SyllabusParseResultData;
 import use_case.dto.UploadSyllabusData;
 import use_case.dto.WeightComponentDraft;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
-import use_case.port.outgoing.AiExtractionPort;
-import use_case.port.outgoing.PdfExtractionPort;
+import use_case.port.outgoing.AiExtractionDataAccessInterface;
+import use_case.port.outgoing.PdfExtractionDataAccessInterface;
 import use_case.port.outgoing.SyllabusParsingPort;
 import use_case.port.outgoing.TransactionalPersistencePort;
 import use_case.repository.AssessmentRepository;
@@ -29,9 +29,9 @@ import entity.WeightComponent;
 /**
  * Coordinates the ingestion pipeline from raw syllabus files to domain entities.
  */
-public class SyllabusUploadService implements UploadSyllabusInputBoundary {
-    private final PdfExtractionPort pdfExtractionPort;
-    private final AiExtractionPort aiExtractionPort;
+public class SyllabusUploadInteractor implements UploadSyllabusInputBoundary {
+    private final PdfExtractionDataAccessInterface pdfExtractionPort;
+    private final AiExtractionDataAccessInterface aiExtractionPort;
     // private final SyllabusParsingPort syllabusParsingPort; // Removed for simplification
     private final CourseRepository courseRepository;
     private final SyllabusRepository syllabusRepository;
@@ -39,8 +39,8 @@ public class SyllabusUploadService implements UploadSyllabusInputBoundary {
     private final MarkingSchemeRepository markingSchemeRepository;
     // private final TransactionalPersistencePort transactionalPersistencePort; // Removed for simplification
 
-    public SyllabusUploadService(PdfExtractionPort pdfExtractionPort,
-                                 AiExtractionPort aiExtractionPort,
+    public SyllabusUploadInteractor(PdfExtractionDataAccessInterface pdfExtractionPort,
+                                 AiExtractionDataAccessInterface aiExtractionPort,
                                  SyllabusParsingPort syllabusParsingPort,
                                  CourseRepository courseRepository,
                                  SyllabusRepository syllabusRepository,
@@ -65,7 +65,7 @@ public class SyllabusUploadService implements UploadSyllabusInputBoundary {
         String rawText = pdfExtractionPort.extractText(data.getSourceFilePath());
         
         // Parse structured data using AI
-        SyllabusParseResult parsedResult = aiExtractionPort.extractStructuredData(rawText);
+        SyllabusParseResultData parsedResult = aiExtractionPort.extractStructuredData(rawText);
 
         // Create entities
         String syllabusId = UUID.randomUUID().toString();

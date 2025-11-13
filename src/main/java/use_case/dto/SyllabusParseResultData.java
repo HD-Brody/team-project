@@ -7,14 +7,14 @@ import java.util.Objects;
 /**
  * Result of parsing a syllabus into structured data prior to domain mapping.
  */
-public final class SyllabusParseResult {
+public final class SyllabusParseResultData {
     private final String courseCode;
     private final String courseName;
     private final List<AssessmentDraft> assessments;
     private final List<WeightComponentDraft> weightComponents;
     private final List<String> warnings;
 
-    public SyllabusParseResult(String courseCode, String courseName,
+    public SyllabusParseResultData(String courseCode, String courseName,
                                List<AssessmentDraft> assessments,
                                List<WeightComponentDraft> weightComponents,
                                List<String> warnings) {
