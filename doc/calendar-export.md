@@ -46,6 +46,7 @@ Files.write(Path.of(response.getFilename()), response.getPayload());
 ## Testing
 - `CalendarExportServiceTest` exercises validation paths, task/event aggregation, and renderer delegation with fakes.
 - `IcsCalendarRendererTest` generates a sample ICS payload and parses it back with `CalendarBuilder` to verify emitted properties, following the examples referenced in `/ical4j/ical4j-user-guide`.
+- `IcsCalendarRendererTest.writesFixtureFileForManualInspection` also writes the rendered bytes to `src/test/resources/fixtures/ics-calendar-renderer-output.ics`; after running `mvn -q -Dtest=IcsCalendarRendererTest test` you can open that file with any calendar client to inspect the output.
 - Run `mvn test` (JUnit 5 + Surefire 3.2.5) to execute the suite.
 
 ## Next Steps

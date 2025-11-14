@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import entity.ScheduleEvent;
 import entity.SourceKind;
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -82,5 +84,38 @@ class IcsCalendarRendererTest {
         );
 
         assertThrows(IllegalArgumentException.class, () -> renderer.render(renderRequest));
+    }
+
+    @Test
+    void writesFixtureFileForManualInspection() throws Exception {
+        Clock clock = Clock.fixed(Instant.parse("2026-02-01T12:00:00Z"), ZoneId.of("UTC"));
+        IcsCalendarRenderer renderer = new IcsCalendarRenderer(clock);
+        ScheduleEvent event = new ScheduleEvent(
+                "fixture-1",
+                "user-99",
+                "Fixture Event",
+                Instant.parse("2026-04-01T12:00:00Z"),
+                Instant.parse("2026-04-01T13:00:00Z"),
+                "BA 2000",
+                "This file is for manual inspection.",
+                SourceKind.ASSESSMENT,
+                "assessment-fixture"
+        );
+        CalendarRenderRequest request = new CalendarRenderRequest(
+                "-//MARBLE//Calendar Export//EN",
+                ZoneId.of("America/Toronto"),
+                "fixture-calendar",
+                List.of(event)
+        );
+
+        var result = renderer.render(request);
+
+        Path fixtureDir = Path.of("src/test/resources/fixtures");
+        Files.createDirectories(fixtureDir);
+        Path fixtureFile = fixtureDir.resolve("ics-calendar-renderer-output.ics");
+        Files.write(fixtureFile, result.getPayload());
+
+        assertTrue(Files.exists(fixtureFile), "Fixture file should exist for manual inspection");
+        assertTrue(Files.size(fixtureFile) > 0, "Fixture file should not be empty");
     }
 }
