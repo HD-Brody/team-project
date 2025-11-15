@@ -1,4 +1,4 @@
-package interface_adapter.outbound.Login;
+package data_access.persistence.in_memory;
 
 /*
 * Mock storage for test purposes.
@@ -9,12 +9,12 @@ import use_case.repository.UserRepository;
 
 import java.util.HashMap;
 
-public class InMemoryUserInfoStorage implements UserRepository {
+public class InMemoryUserInfoStorageDataAccessObject implements UserRepository {
 
     // mock db for storage
     private final HashMap<String, String> db;
 
-    public InMemoryUserInfoStorage() {
+    public InMemoryUserInfoStorageDataAccessObject() {
         this.db = new HashMap<String, String>();
     }
 

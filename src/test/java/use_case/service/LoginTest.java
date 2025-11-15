@@ -1,26 +1,22 @@
 package use_case.service;
 
-import interface_adapter.outbound.Login.InMemoryUserInfoStorage;
-import interface_adapter.outbound.Login.LoginPresenter;
+import data_access.persistence.in_memory.InMemoryUserInfoStorageDataAccessObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import use_case.dto.LoginInputData;
 import use_case.dto.LoginOutputData;
 import use_case.port.outgoing.LoginOutputPort;
-import use_case.repository.UserRepository;
-
-import java.util.InputMismatchException;
 
 public class LoginTest {
 
     private LoginService loginService;
-    private InMemoryUserInfoStorage userRepository;
+    private InMemoryUserInfoStorageDataAccessObject userRepository;
     private MockPresenter loginPresenter;
 
     @BeforeEach
     void setup() {
-        userRepository = new InMemoryUserInfoStorage();
+        userRepository = new InMemoryUserInfoStorageDataAccessObject();
         loginPresenter = new MockPresenter();
         loginService = new LoginService(userRepository, loginPresenter);
 
