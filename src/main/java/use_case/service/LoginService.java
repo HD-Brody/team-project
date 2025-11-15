@@ -29,6 +29,12 @@ public class LoginService implements LoginUseCase {
         String usernameDB;
         String passwordHashDB;
         User userDB = userRepository.getUserByUsername(username);
+
+        if (userDB == null) {
+            loginOutputPort.prepareFailView(new LoginOutputData(username, "User not found"));
+            return;
+        }
+
         usernameDB = userDB.getUserId();
         passwordHashDB = userRepository.getPasswordByUserID(username);
 
@@ -40,12 +46,11 @@ public class LoginService implements LoginUseCase {
         catch (Exception e) {
             if (e instanceof IllegalArgumentException) {
                 loginOutputPort.prepareFailView(new LoginOutputData(username, "Password can't be empty"));
-            }
-            else if(e instanceof NoSuchAlgorithmException) {
-                loginOutputPort.prepareFailView(new LoginOutputData(username, "test msg pimba"));
+                return;
             }
             else {
                 loginOutputPort.prepareFailView(new LoginOutputData(username, "Unexpected error, please try again"));
+                return;
             }
         }
 
@@ -58,8 +63,8 @@ public class LoginService implements LoginUseCase {
         return;
     }
 
-    private String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException{
-        if(s == null) {
+    public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException{
+        if(s == null || s.isEmpty()) {
             throw new IllegalArgumentException("input can't be null");
         }
 
