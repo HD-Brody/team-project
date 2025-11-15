@@ -1,4 +1,4 @@
-package interface_adapter.Login;
+package interface_adapter.inbound.Login;
 
 import use_case.dto.LoginInputData;
 import use_case.service.LoginService;
