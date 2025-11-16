@@ -12,7 +12,7 @@ public class PdfExtractorTest {
     void extractText_validPdf_returnsText() throws IOException {
         PdfExtractorDataAccessObject extractor = new PdfExtractorDataAccessObject();
         
-        String samplePdfPath = "src/test/resources/sample-syllabus.pdf";
+        String samplePdfPath = "src/test/resources/sample-syllabus-STA237.pdf";
         
         String result = extractor.extractText(samplePdfPath);
         

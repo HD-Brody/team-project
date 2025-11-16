@@ -17,6 +17,7 @@ import use_case.repository.SyllabusRepository;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,40 +76,67 @@ public class SyllabusUploadInteractor implements UploadSyllabusInputBoundary {
                     data.getSourceFilePath(),
                     Instant.now()
         );
-        List<Assessment> assessments = draftAssessmentsToAssessments(syllabusId, parsedResult.getAssessments(), data.getCourseId());
-        MarkingScheme markingScheme = mapMarkingScheme(syllabusId, parsedResult.getWeightComponents());
+        MarkingScheme markingScheme = draftWeightsToMarkingScheme(syllabusId, parsedResult.getWeightComponents());
+
+        List<Assessment> assessments = draftAssessmentsToAssessments(markingScheme, parsedResult.getAssessments(), data.getCourseId());
 
         // Persist entities using the repositories
         syllabusRepository.save(syllabus);
-        assessmentRepository.saveAll(assessments);
         markingSchemeRepository.save(markingScheme);
+        assessmentRepository.saveAll(assessments);
     }
 
-    private List<Assessment> draftAssessmentsToAssessments(String syllabusId, List<AssessmentDraft> drafts, String courseId) {
+    private List<Assessment> draftAssessmentsToAssessments(MarkingScheme markingScheme, List<AssessmentDraft> drafts, String courseId) {
+        // Create a map from Component Name to Component ID
+        Map<String, String> componentNameToIdMap = markingScheme.getComponents().stream()
+            .collect(Collectors.toMap(WeightComponent::getName, WeightComponent::getComponentId));
+
         List<Assessment> assessments = new ArrayList<>();
         for (AssessmentDraft draft : drafts) {
+            // Use the map to find the correct component ID
+            String componentId = componentNameToIdMap.get(draft.getSchemeComponentName());
+
+            if (componentId == null) {
+                System.err.println("Warning: Could not find component ID for name: '" + draft.getSchemeComponentName() + "'. Skipping assessment: '" + draft.getTitle() + "'");
+                continue;
+            }
 
             Assessment assessment = new Assessment(
                     UUID.randomUUID().toString(),
                     courseId,
                     draft.getTitle(),
                     draft.getType(),
-                    Instant.now().toString(),
-                    draft.getDueDateIso(),
-                    0L, // Placeholder for duration
+                    null, // null for placeholder
+                    draft.getDueDateIso(), // endsAt is the due date
+                    0L,
                     draft.getWeight(),
-                    draft.getSchemeComponentName(),
-                    "TBD", // Placeholder for location
-                    "" // Placeholder for notes
+                    componentId, 
+                    "TBD", // location placeholder
+                    "" // notes placeholder
             );
             assessments.add(assessment);
         }
         return assessments;
     }
 
-    private MarkingScheme mapMarkingScheme(String syllabusId, List<WeightComponentDraft> weightComponents) {
-        // TODO: Implement mapping from weight components to marking scheme
-        return new MarkingScheme(UUID.randomUUID().toString(), syllabusId, new ArrayList<>());
+    private MarkingScheme draftWeightsToMarkingScheme(String syllabusId, List<WeightComponentDraft> weightComponents) {
+        List<WeightComponent> components = new ArrayList<>();
+        
+        String schemeId = UUID.randomUUID().toString();
+        
+        for (WeightComponentDraft draft : weightComponents) {
+            WeightComponent component = new WeightComponent(
+                UUID.randomUUID().toString(),   // componentId
+                schemeId,                       // schemeId (links to the MarkingScheme)
+                draft.getName(),                // name
+                draft.getType(),                // type
+                draft.getWeight(),              // weight
+                draft.getExpectedCount()        // count
+            );
+            components.add(component);
+        }
+        
+        return new MarkingScheme(schemeId, syllabusId, components);
     }
 }
     

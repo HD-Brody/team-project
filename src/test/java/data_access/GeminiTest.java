@@ -15,7 +15,7 @@ class GeminiTest {
     void testPdfToGemini() {
         // Extract text from PDF
         PdfExtractorDataAccessObject pdfExtractor = new PdfExtractorDataAccessObject();
-        String pdfPath = "src/test/resources/sample-syllabus.pdf";
+        String pdfPath = "src/test/resources/sample-syllabus-MAT237.pdf";
         String extractedText = pdfExtractor.extractText(pdfPath);
 
         System.out.println("=== EXTRACTED TEXT ===");
