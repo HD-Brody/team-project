@@ -25,17 +25,17 @@ public class SignUpService implements SignUpUseCase {
         String username = signUpInputData.getUsername();
         String password = signUpInputData.getPassword();
 
-        UUID uuid = UUID.randomUUID();
+        UUID uuid = UUID.randomUUID(); // replace to actual email in the future
 
         if(password == null || password.isEmpty()) {
-            signUpPort.prepareFailView(new SignUpOutputData(username, "password is empty, please try again"));
+            signUpPort.prepareFailView(new SignUpOutputData(username, "Password is empty, please try again"));
         }
         else {
             signUpRepository.saveUser(
-                    new User(uuid.toString(),
-                            username,
-                            uuid.toString(),
-                            TimeZone.getDefault().getID()),
+                    username,
+                    username,
+                    uuid.toString(),
+                    TimeZone.getDefault().getID(),
                     password);
             signUpPort.prepareSuccessView(new SignUpOutputData(username, "success"));
         }

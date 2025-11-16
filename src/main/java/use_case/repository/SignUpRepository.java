@@ -4,6 +4,6 @@ import entity.User;
 
 public interface SignUpRepository {
 
-    void saveUser(User user, String password);
+    void saveUser(String userID, String name, String email, String timezone, String password);
 
 }
