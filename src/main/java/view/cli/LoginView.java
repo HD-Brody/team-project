@@ -1,12 +1,5 @@
 package view.cli;
 
-import interface_adapter.inbound.Login.LoginController;
-import interface_adapter.Login.LoginViewModel;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-
 public class LoginView { //extends JPanel implements ActionListener, PropertyChangeListener{
 
 //    private final String viewName = "Login";
