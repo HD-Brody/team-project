@@ -27,13 +27,13 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        String passwordDB = db.get(username);
+    public User getUserByUserID(String userID) {
+        String passwordDB = db.get(userID);
         if(passwordDB == null) {
             return null;
         }
         else {
-            return new User(username, passwordDB, "123", "123");
+            return new User(userID, passwordDB, "123", "123");
         }
     }
 

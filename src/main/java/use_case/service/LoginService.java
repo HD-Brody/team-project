@@ -28,7 +28,7 @@ public class LoginService implements LoginUseCase {
 
         String usernameDB;
         String passwordHashDB;
-        User userDB = userRepository.getUserByUsername(username);
+        User userDB = userRepository.getUserByUserID(username);
 
         if (userDB == null) {
             loginOutputPort.prepareFailView(new LoginOutputData(username, "User not found"));

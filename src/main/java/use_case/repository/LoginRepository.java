@@ -7,7 +7,7 @@ import entity.User;
  */
 public interface LoginRepository {
 
-    User getUserByUsername(String username);
+    User getUserByUserID(String userID);
 
     String getPasswordByUserID(String userID);
 }
