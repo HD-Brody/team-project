@@ -17,7 +17,7 @@ This document defines the relational schema that anchors persistence for the Syl
 - **`marking_schemes`** — Holds grading blueprints per course; multiple schemes allow alternative grading policies.
 - **`marking_scheme_components`** — Normalizes weight components (assignments, exams, etc.) for each scheme.
 - **`assessments`** — Individual assessments extracted from syllabi, optionally tied to a scheme component.
-- **`tasks`** — Actionable items surfaced to the user, linked to assessments when applicable.
+- **`tasks`** — (Similar to assessments, this table will be added once everything is complete) Actionable items surfaced to the user, linked to assessments when applicable.
 - **`grade_entries`** — Logged grades for assessments, enabling projections and historical tracking.
 - **`schedule_events`** — Events exported to calendars, tagged by source (`ASSESSMENT` or `TASK`) for traceability.
 
