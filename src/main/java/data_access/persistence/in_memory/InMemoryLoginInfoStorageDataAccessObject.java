@@ -5,16 +5,16 @@ package data_access.persistence.in_memory;
 * */
 
 import entity.User;
-import use_case.repository.UserRepository;
+import use_case.repository.LoginRepository;
 
 import java.util.HashMap;
 
-public class InMemoryUserInfoStorageDataAccessObject implements UserRepository {
+public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository {
 
     // mock db for storage
     private final HashMap<String, String> db;
 
-    public InMemoryUserInfoStorageDataAccessObject() {
+    public InMemoryLoginInfoStorageDataAccessObject() {
         this.db = new HashMap<String, String>();
     }
 

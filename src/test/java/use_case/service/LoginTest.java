@@ -1,6 +1,6 @@
 package use_case.service;
 
-import data_access.persistence.in_memory.InMemoryUserInfoStorageDataAccessObject;
+import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,12 +11,12 @@ import use_case.port.outgoing.LoginOutputPort;
 public class LoginTest {
 
     private LoginService loginService;
-    private InMemoryUserInfoStorageDataAccessObject userRepository;
+    private InMemoryLoginInfoStorageDataAccessObject userRepository;
     private MockPresenter loginPresenter;
 
     @BeforeEach
     void setup() {
-        userRepository = new InMemoryUserInfoStorageDataAccessObject();
+        userRepository = new InMemoryLoginInfoStorageDataAccessObject();
         loginPresenter = new MockPresenter();
         loginService = new LoginService(userRepository, loginPresenter);
 

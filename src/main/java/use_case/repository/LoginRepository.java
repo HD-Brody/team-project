@@ -5,7 +5,7 @@ import entity.User;
 /**
  * Persistence boundary for users.
  */
-public interface UserRepository {
+public interface LoginRepository {
 
     User getUserByUsername(String username);
 

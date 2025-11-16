@@ -4,7 +4,7 @@ import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginInputData;
 import use_case.port.incoming.LoginUseCase;
-import use_case.repository.UserRepository;
+import use_case.repository.LoginRepository;
 import use_case.dto.LoginOutputData;
 
 import java.nio.charset.StandardCharsets;
@@ -13,11 +13,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class LoginService implements LoginUseCase {
 
-    private final UserRepository userRepository;
+    private final LoginRepository userRepository;
     private final LoginOutputPort loginOutputPort;
 
-    public LoginService(UserRepository userRepository, LoginOutputPort loginOutputPort) {
-        this.userRepository = userRepository;
+    public LoginService(LoginRepository loginRepository, LoginOutputPort loginOutputPort) {
+        this.userRepository = loginRepository;
         this.loginOutputPort = loginOutputPort;
     }
 

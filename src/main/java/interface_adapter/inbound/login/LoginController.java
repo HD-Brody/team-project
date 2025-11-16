@@ -1,13 +1,13 @@
-package interface_adapter.inbound.Login;
+package interface_adapter.inbound.login;
 
 import use_case.dto.LoginInputData;
-import use_case.service.LoginService;
+import use_case.port.incoming.LoginUseCase;
 
 public class LoginController {
 
-    private final LoginService loginService;
+    private final LoginUseCase loginService;
 
-    public LoginController(LoginService loginService) {
+    public LoginController(LoginUseCase loginService) {
         this.loginService = loginService;
     }
 
