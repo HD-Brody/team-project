@@ -18,10 +18,11 @@ public final class Assessment {
     private final String schemeComponentId;
     private final String location;
     private final String notes;
+    private final Double grade;
 
     public Assessment(String assessmentId, String courseId, String title, AssessmentType type,
                       Instant startsAt, Instant endsAt, Long durationMinutes, Double weight,
-                      String schemeComponentId, String location, String notes) {
+                      String schemeComponentId, String location, String notes, Double grade) {
         this.assessmentId = Objects.requireNonNull(assessmentId, "assessmentId");
         this.courseId = Objects.requireNonNull(courseId, "courseId");
         this.title = Objects.requireNonNull(title, "title");
@@ -33,6 +34,7 @@ public final class Assessment {
         this.schemeComponentId = schemeComponentId;
         this.location = location;
         this.notes = notes;
+        this.grade = grade;
     }
 
     public String getAssessmentId() {
