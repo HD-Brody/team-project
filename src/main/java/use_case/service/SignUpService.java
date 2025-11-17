@@ -1,12 +1,14 @@
 package use_case.service;
 
-import entity.User;
 import use_case.dto.SignUpInputData;
 import use_case.dto.SignUpOutputData;
 import use_case.port.incoming.SignUpUseCase;
 import use_case.port.outgoing.SignUpPort;
 import use_case.repository.SignUpRepository;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -31,14 +33,40 @@ public class SignUpService implements SignUpUseCase {
             signUpPort.prepareFailView(new SignUpOutputData(username, "Password is empty, please try again"));
         }
         else {
+            String pwdHash = "";
+            try {
+                pwdHash = passwordHashing(password);
+            }
+            catch (Exception e) {
+                signUpPort.prepareFailView(new SignUpOutputData(username, "Unknown Error occurred, please try again"));
+            }
+
             signUpRepository.saveUser(
                     username,
                     username,
                     uuid.toString(),
                     TimeZone.getDefault().getID(),
-                    password);
+                    pwdHash);
             signUpPort.prepareSuccessView(new SignUpOutputData(username, "success"));
         }
         return;
+    }
+
+    public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException {
+        if(s == null || s.isEmpty()) {
+            throw new IllegalArgumentException("input can't be null");
+        }
+
+        // compute hash with SHA-1
+        MessageDigest sha = MessageDigest.getInstance("SHA-1");
+        byte[] hashBytes = sha.digest(s.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
     }
 }
