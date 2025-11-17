@@ -20,7 +20,7 @@ public class LoginTest {
         loginPresenter = new MockPresenter();
         loginService = new LoginService(userRepository, loginPresenter);
 
-        userRepository.setUserByUserID("123", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
+        userRepository.setUserByUsername("123", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
     }
 
     @Test

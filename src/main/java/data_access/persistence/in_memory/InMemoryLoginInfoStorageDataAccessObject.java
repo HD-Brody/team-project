@@ -8,6 +8,7 @@ import entity.User;
 import use_case.repository.LoginRepository;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository {
 
@@ -22,23 +23,28 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
         db.put(user.getUserId(), password);
     }
 
-    public void setUserByUserID(String userID, String password) {
-        db.put(userID, password);
+    public void setUserByUsername(String username, String password) {
+        db.put(username, password);
     }
 
     @Override
-    public User getUserByUserID(String userID) {
-        String passwordDB = db.get(userID);
+    public User getUserByUsername(String username) {
+        String passwordDB = db.get(username);
         if(passwordDB == null) {
             return null;
         }
         else {
-            return new User(userID, passwordDB, "123", "123");
+            return new User("", username, "123", "123");
         }
     }
 
     @Override
+    public String getPasswordByUsername(String username) {
+        return db.get(username);
+    }
+
+    @Override
     public String getPasswordByUserID(String userID) {
-        return db.get(userID);
+        return "";
     }
 }

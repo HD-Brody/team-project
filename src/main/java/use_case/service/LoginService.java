@@ -28,15 +28,15 @@ public class LoginService implements LoginUseCase {
 
         String usernameDB;
         String passwordHashDB;
-        User userDB = userRepository.getUserByUserID(username);
+        User userDB = userRepository.getUserByUsername(username);
 
         if (userDB == null) {
             loginOutputPort.prepareFailView(new LoginOutputData(username, "User not found"));
             return;
         }
 
-        usernameDB = userDB.getUserId();
-        passwordHashDB = userRepository.getPasswordByUserID(username);
+        usernameDB = userDB.getName();
+        passwordHashDB = userRepository.getPasswordByUsername(username);
 
         String passwordHash = "";
 
@@ -46,12 +46,11 @@ public class LoginService implements LoginUseCase {
         catch (Exception e) {
             if (e instanceof IllegalArgumentException) {
                 loginOutputPort.prepareFailView(new LoginOutputData(username, "Password can't be empty"));
-                return;
             }
             else {
                 loginOutputPort.prepareFailView(new LoginOutputData(username, "Unexpected error, please try again"));
-                return;
             }
+            return;
         }
 
         if (username.equals(usernameDB) && passwordHash.equals(passwordHashDB)) {
