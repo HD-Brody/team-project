@@ -3,19 +3,23 @@ package use_case.dto;
 
 public class SignUpInputData {
 
-    private final String username;
+    private final String email;
     private final String password;
+    private final String nickname;
 
-    public SignUpInputData(String username, String password) {
-        this.username = username;
+    public SignUpInputData(String email, String password, String nickname) {
+        this.email = email;
         this.password = password;
+        this.nickname = nickname;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
     public String getPassword() {
         return password;
     }
+
+    public String getNickname() { return nickname; }
 }

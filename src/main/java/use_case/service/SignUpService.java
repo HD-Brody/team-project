@@ -24,13 +24,14 @@ public class SignUpService implements SignUpUseCase {
 
     @Override
     public void execute(SignUpInputData signUpInputData) {
-        String username = signUpInputData.getUsername();
+        String email = signUpInputData.getEmail();
         String password = signUpInputData.getPassword();
+        String name = signUpInputData.getNickname();
 
-        UUID uuid = UUID.randomUUID(); // replace to actual email in the future
+        UUID uuid = UUID.randomUUID(); // user id
 
         if(password == null || password.isEmpty()) {
-            signUpPort.prepareFailView(new SignUpOutputData(username, "Password is empty, please try again"));
+            signUpPort.prepareFailView(new SignUpOutputData(email, "Password is empty, please try again"));
         }
         else {
             String pwdHash = "";
@@ -38,16 +39,16 @@ public class SignUpService implements SignUpUseCase {
                 pwdHash = passwordHashing(password);
             }
             catch (Exception e) {
-                signUpPort.prepareFailView(new SignUpOutputData(username, "Unknown Error occurred, please try again"));
+                signUpPort.prepareFailView(new SignUpOutputData(email, "Unknown Error occurred, please try again"));
             }
 
             signUpRepository.saveUser(
-                    null,
-                    username,
                     uuid.toString(),
+                    name,
+                    email,
                     TimeZone.getDefault().getID(),
                     pwdHash);
-            signUpPort.prepareSuccessView(new SignUpOutputData(username, "success"));
+            signUpPort.prepareSuccessView(new SignUpOutputData(email, "success"));
         }
         return;
     }
