@@ -23,20 +23,20 @@ public class LoginService implements LoginUseCase {
 
     @Override
     public void execute(LoginInputData loginInputData) {
-        final String username = loginInputData.getUsername();
+        final String email = loginInputData.getEmail();
         final String password = loginInputData.getPassword();
 
-        String usernameDB;
+        String emailDB;
         String passwordHashDB;
-        User userDB = userRepository.getUserByUsername(username);
+        User userDB = userRepository.getUserByEmail(email);
 
         if (userDB == null) {
-            loginOutputPort.prepareFailView(new LoginOutputData(username, "User not found"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, "User not found"));
             return;
         }
 
-        usernameDB = userDB.getName();
-        passwordHashDB = userRepository.getPasswordByUsername(username);
+        emailDB = userDB.getEmail();
+        passwordHashDB = userRepository.getPasswordByEmail(email);
 
         String passwordHash = "";
 
@@ -45,19 +45,19 @@ public class LoginService implements LoginUseCase {
         }
         catch (Exception e) {
             if (e instanceof IllegalArgumentException) {
-                loginOutputPort.prepareFailView(new LoginOutputData(username, "Password can't be empty"));
+                loginOutputPort.prepareFailView(new LoginOutputData(email, "Password can't be empty"));
             }
             else {
-                loginOutputPort.prepareFailView(new LoginOutputData(username, "Unexpected error, please try again"));
+                loginOutputPort.prepareFailView(new LoginOutputData(email, "Unexpected error, please try again"));
             }
             return;
         }
 
-        if (username.equals(usernameDB) && passwordHash.equals(passwordHashDB)) {
-            loginOutputPort.prepareSuccessView(new LoginOutputData(username));
+        if (email.equals(emailDB) && passwordHash.equals(passwordHashDB)) {
+            loginOutputPort.prepareSuccessView(new LoginOutputData(email));
         }
         else {
-            loginOutputPort.prepareFailView(new LoginOutputData(username, "Password don't match, please try again"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, "Password don't match, please try again"));
         }
         return;
     }

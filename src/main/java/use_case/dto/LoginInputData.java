@@ -2,16 +2,16 @@ package use_case.dto;
 
 public class LoginInputData {
 
-    private final String username;
+    private final String email;
     private final String password;
 
-    public LoginInputData(String username, String password) {
-        this.username = username;
+    public LoginInputData(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
     public String getPassword() {
         return password;

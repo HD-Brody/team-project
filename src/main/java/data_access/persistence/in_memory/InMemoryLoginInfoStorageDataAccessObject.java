@@ -23,28 +23,23 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
         db.put(user.getUserId(), password);
     }
 
-    public void setUserByUsername(String username, String password) {
-        db.put(username, password);
+    public void setUserByEmail(String email, String password) {
+        db.put(email, password);
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        String passwordDB = db.get(username);
+    public User getUserByEmail(String email) {
+        String passwordDB = db.get(email);
         if(passwordDB == null) {
             return null;
         }
         else {
-            return new User("", username, "123", "123");
+            return new User("", email, "123", "123");
         }
     }
 
     @Override
-    public String getPasswordByUsername(String username) {
-        return db.get(username);
-    }
-
-    @Override
-    public String getPasswordByUserID(String userID) {
-        return "";
+    public String getPasswordByEmail(String email) {
+        return db.get(email);
     }
 }

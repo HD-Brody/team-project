@@ -11,8 +11,8 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    public void execute(String username, String password) {
-        final LoginInputData loginInputData = new LoginInputData(username, password);
+    public void execute(String email, String password) {
+        final LoginInputData loginInputData = new LoginInputData(email, password);
 
         this.loginService.execute(loginInputData);
         return;
