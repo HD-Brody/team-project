@@ -12,6 +12,8 @@ public final class Main {
         // Utility class
     }
 
+    Connection currentConnection = SQLiteConnectionFactory().get_connection();
+
     public static void main(String[] args) {
         System.out.println("Syllabus Assistant launcher placeholder.");
         System.out.println("Implement the UI and wire it up via interface_adapter and use_case.");
