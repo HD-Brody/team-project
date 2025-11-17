@@ -42,7 +42,7 @@ public class SignUpService implements SignUpUseCase {
             }
 
             signUpRepository.saveUser(
-                    username,
+                    null,
                     username,
                     uuid.toString(),
                     TimeZone.getDefault().getID(),

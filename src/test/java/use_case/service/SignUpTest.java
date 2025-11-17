@@ -44,7 +44,7 @@ public class SignUpTest {
         signUpService.execute(new SignUpInputData("123", "123123"));
         assertTrue(signUpPresenter.getIsSuccess());
         assertEquals("success", signUpPresenter.getMessage());
-        assertEquals("123", db.getUserByUsername("123").getUserId());
+        assertEquals("123", db.getUserByUsername("123").getName());
     }
 
     private static class MockPresenter implements SignUpPort {
