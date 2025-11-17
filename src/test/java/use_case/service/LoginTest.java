@@ -64,7 +64,7 @@ public class LoginTest {
         loginService.execute(new LoginInputData("123", "123213123"));
         assertTrue(loginPresenter.getfailCalled());
         assertFalse(loginPresenter.getSuccessCalled());
-        assertEquals("Password don't match, please try again", loginPresenter.getFailDataMsg());
+        assertEquals("Password doesn't match, please try again", loginPresenter.getFailDataMsg());
     }
 
     @Test
