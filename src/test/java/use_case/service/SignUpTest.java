@@ -1,6 +1,8 @@
 package use_case.service;
 
 import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import use_case.dto.SignUpInputData;
@@ -25,24 +27,24 @@ public class SignUpTest {
 
     @Test
     void SignUpServicePwdEmptyTest() {
-        signUpService.execute(new SignUpInputData("123", null, "1111"));
+        signUpService.execute(new SignUpInputData("123", null));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
 
     @Test
     void SignUpServicePwdEmptyStringTest() {
-        signUpService.execute(new SignUpInputData("123", "", "1111"));
+        signUpService.execute(new SignUpInputData("123", ""));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
 
     @Test
     void SignUpServiceSuccessTest() {
-        signUpService.execute(new SignUpInputData("123", "123123", "1111"));
+        signUpService.execute(new SignUpInputData("123", "123123"));
         assertTrue(signUpPresenter.getIsSuccess());
         assertEquals("success", signUpPresenter.getMessage());
-        assertEquals("123", db.getUserByEmail("123").getName());
+        assertEquals("123", db.getUserByUsername("123").getName());
     }
 
     private static class MockPresenter implements SignUpPort {
