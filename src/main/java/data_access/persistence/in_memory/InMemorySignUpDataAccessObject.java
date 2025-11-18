@@ -4,7 +4,6 @@ import entity.User;
 import use_case.repository.SignUpRepository;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 /**
  * Mock db for test purposes
@@ -22,14 +21,13 @@ public class InMemorySignUpDataAccessObject implements SignUpRepository {
 
     @Override
     public void saveUser(String userID, String name, String email, String timezone, String password) {
-        UUID uuid = UUID.randomUUID();
-        db.put(name, password);
-        usernameToUserIDDB.put(name, uuid.toString());
+        db.put(email, password);
+        usernameToUserIDDB.put(email, userID);
     }
 
-    public User getUserByUsername(String username) {
-        if(db.containsKey(username))
-            return new User(usernameToUserIDDB.get(username), username, "123", "123");
+    public User getUserByEmail(String email) {
+        if(db.containsKey(email))
+            return new User(usernameToUserIDDB.get(email), "123", email, "123");
         else
             return null;
     }

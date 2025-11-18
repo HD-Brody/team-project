@@ -2,16 +2,16 @@ package use_case.dto;
 
 public class SignUpOutputData {
 
-    private final String username;
+    private final String email;
     private final String message;
 
     public SignUpOutputData(String username, String message) {
-        this.username = username;
+        this.email = username;
         this.message = message;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
     public String getMessage() {

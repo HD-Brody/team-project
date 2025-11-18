@@ -4,13 +4,13 @@ import use_case.dto.SignUpInputData;
 import use_case.port.incoming.SignUpUseCase;
 
 public class SignUpController {
-    private SignUpUseCase signUpUseCase;
+    private final SignUpUseCase signUpUseCase;
 
     public SignUpController(SignUpUseCase signUpUseCase) {
         this.signUpUseCase = signUpUseCase;
     }
 
-    public void execute(String username, String password) {
-        signUpUseCase.execute(new SignUpInputData(username, password));
+    public void execute(String username, String password, String nickname) {
+        signUpUseCase.execute(new SignUpInputData(username, password, nickname));
     }
 }
