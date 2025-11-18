@@ -49,11 +49,6 @@ public class SignUpTest {
         private boolean isSuccess = false;
         private String message = "";
 
-        public MockPresenter() {
-            isSuccess = false;
-            message = "";
-        }
-
         @Override
         public void prepareFailView(SignUpOutputData signUpOutputData) {
             message = signUpOutputData.getMessage();

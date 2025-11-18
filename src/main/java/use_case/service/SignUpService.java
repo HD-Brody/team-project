@@ -40,6 +40,7 @@ public class SignUpService implements SignUpUseCase {
             }
             catch (Exception e) {
                 signUpPort.prepareFailView(new SignUpOutputData(email, "Unknown Error occurred, please try again"));
+                return;
             }
 
             signUpRepository.saveUser(
