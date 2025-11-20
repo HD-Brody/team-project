@@ -10,12 +10,14 @@ public final class User {
     private final String name;
     private final String email;
     private final String timezone;
+    private final String passwordHash;
 
-    public User(String userId, String name, String email, String timezone) {
+    public User(String userId, String name, String email, String timezone, String passwordHash) {
         this.userId = Objects.requireNonNull(userId, "userId");
         this.name = Objects.requireNonNull(name, "name");
         this.email = Objects.requireNonNull(email, "email");
         this.timezone = Objects.requireNonNull(timezone, "timezone");
+        this.passwordHash = Objects.requireNonNull(passwordHash, "passwordHash");
     }
 
     public String getUserId() {
@@ -32,5 +34,9 @@ public final class User {
 
     public String getTimezone() {
         return timezone;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 }

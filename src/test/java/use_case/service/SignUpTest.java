@@ -20,7 +20,6 @@ public class SignUpTest {
         db = new InMemorySignUpDataAccessObject();
         signUpPresenter = new MockPresenter();
         signUpService = new SignUpService(db, signUpPresenter);
-
     }
 
     @Test

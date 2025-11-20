@@ -34,7 +34,7 @@ public class SignUpService implements SignUpUseCase {
             signUpPort.prepareFailView(new SignUpOutputData(email, "Password is empty, please try again"));
         }
         else {
-            String pwdHash = "";
+            String pwdHash;
             try {
                 pwdHash = passwordHashing(password);
             }
@@ -51,7 +51,7 @@ public class SignUpService implements SignUpUseCase {
                     pwdHash);
             signUpPort.prepareSuccessView(new SignUpOutputData(email, "success"));
         }
-        return;
+
     }
 
     public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException {
