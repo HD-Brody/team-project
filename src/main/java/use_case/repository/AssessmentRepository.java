@@ -12,5 +12,5 @@ public interface AssessmentRepository {
 
     List<Assessment> findByCourseId(String courseId);
 
-    void saveAll(List<Assessment> assessments);
+    void saveAll(Assessment assessments);
 }

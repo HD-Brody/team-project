@@ -14,7 +14,7 @@ public class Signup {
     void saveUser(String userID, String name, String email, String timezone, String password) {
         try {
             Statement stmt = connection.createStatement();
-            String storeUser = "insert into userid values ('" +userID+ "', '" +name+ "', '" +email+ "', '" +timezone+ "', '"  + password + "')";
+            String storeUser = "insert into users values ('" +userID+ "', '" +name+ "', '" +email+ "', '" +timezone+ "', '"  + password + "')";
             int x = stmt.executeUpdate(storeUser);
         } catch (Exception e) {
             System.out.println(e);

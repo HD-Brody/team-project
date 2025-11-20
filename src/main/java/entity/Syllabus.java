@@ -10,7 +10,6 @@ public final class Syllabus {
     private final String syllabusId;
     private final String courseId;
     private final String sourceFilePath;
-    private final Instant parsedAt;
 
     public Syllabus(String syllabusId, String courseId, String sourceFilePath, Instant parsedAt) {
         this.syllabusId = Objects.requireNonNull(syllabusId, "syllabusId");

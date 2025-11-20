@@ -1,5 +1,9 @@
 package view.cli;
 
+import java.sql.*;
+
+
+
 /**
  * Temporary launcher to avoid confusion while the real UI is under development.
  *
@@ -8,13 +12,29 @@ package view.cli;
  * actual Swing bootstrap once the presentation layer is ready.</p>
  */
 public final class Main {
+    private static final String DB_URL = "jdbc:sqlite:src/main/resources/db/syllabus_assistant.db";
+    private static Connection currentConnection;
+
     private Main() {
         // Utility class
     }
 
-    Connection currentConnection = SQLiteConnectionFactory().get_connection();
+    public static Connection getConnection() {
+        return currentConnection;
+    }
 
     public static void main(String[] args) {
+        /**
+         * This creates a DB connection
+         */
+        try {
+            currentConnection = DriverManager.getConnection(DB_URL);
+        }catch (Exception e) {
+            System.out.println("Database connection failed");
+        }
+
+
+
         System.out.println("Syllabus Assistant launcher placeholder.");
         System.out.println("Implement the UI and wire it up via interface_adapter and use_case.");
     }
