@@ -1,10 +1,11 @@
-package use_case.port.outgoing;
+// package use_case.port.outgoing;
 
-import use_case.dto.SyllabusParseResultData;
+// import use_case.dto.SyllabusParseResultData;
 
-/**
- * Parses raw syllabus resources into structured data.
- */
-public interface SyllabusParsingPort {
-    SyllabusParseResultData parse(String sourceFilePath);
-}
+// /**
+//  * Parses raw syllabus resources into structured data.
+//  */
+// public interface SyllabusParsingPort {
+//     SyllabusParseResultData parse(String sourceFilePath);
+// }
+// NOT USED ANYMORE

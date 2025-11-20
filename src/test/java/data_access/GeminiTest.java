@@ -15,7 +15,7 @@ class GeminiTest {
     void testPdfToGemini() {
         // Extract text from PDF
         PdfExtractorDataAccessObject pdfExtractor = new PdfExtractorDataAccessObject();
-        String pdfPath = "src/test/resources/sample-syllabus-MAT237.pdf";
+        String pdfPath = "src/test/resources/sample-syllabus-STA237.pdf";
         String extractedText = pdfExtractor.extractText(pdfPath);
 
         System.out.println("=== EXTRACTED TEXT ===");
@@ -37,22 +37,20 @@ class GeminiTest {
 
         // Print what Gemini returned
         System.out.println("=== GEMINI RESPONSE ===");
+        System.out.println("\n--- Course Information ---");
+        System.out.println("Course Code: " + result.getCourseCode());
+        System.out.println("Course Name: " + result.getCourseName());
+        System.out.println("Term: " + result.getTerm());
+        System.out.println("Instructor: " + result.getInstructor());
         System.out.println("Assessments found: " + result.getAssessments().size());
-        System.out.println("Weight components found: " + result.getWeightComponents().size());
         System.out.println("\n--- Assessments ---");
         result.getAssessments().forEach(assessment -> {
             System.out.println("• " + assessment.getTitle());
             System.out.println("  Type: " + assessment.getType());
             System.out.println("  Weight: " + (assessment.getWeight() * 100) + "%");
             System.out.println("  Due: " + assessment.getDueDateIso());
-            System.out.println("  Component: " + assessment.getSchemeComponentName());
             System.out.println();
         });
 
-        System.out.println("\n--- Weight Components ---");
-        result.getWeightComponents().forEach(component -> {
-            System.out.println("• " + component.getName() + ": " + (component.getWeight() * 100) + "%");
-        });
-        System.out.println("======================");
     }
 }

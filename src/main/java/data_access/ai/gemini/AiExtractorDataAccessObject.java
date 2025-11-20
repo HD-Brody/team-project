@@ -48,16 +48,19 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
         return String.format(
             "Extract the following information from the syllabus text provided below.\n" +
             "Return ONLY a single, valid JSON object. Do not include any explanatory text before or after the JSON.\n\n" +
-            "The JSON object must have two top-level keys: \"assessments\" and \"weightComponents\".\n\n" +
-            "1.  \"assessments\": An array of objects. Each object represents a single graded item (like an assignment, exam, or quiz) and must have these keys:\n" +
+            "The JSON object must have two top-level keys: courseCode, courseName, term, instructor, assessments.\n\n" +
+            "1.  \"courseCode\": (String) The course code (e.g., \"CS101\").\n" +
+            "2.  \"courseName\": (String) The full name of the course (e.g., \"Introduction to Computer Science\").\n" +
+            "3.  \"term\": (String) The academic term (e.g., \"Fall 2023\").\n" +
+            "4.  \"instructor\": (String) The name of the course instructor (e.g., \"Dr. Jane Smith\").\n" +
+            "5.  \"assessments\": An array of objects. Each object represents a single graded item (like an assignment, exam, or quiz) and must have these keys:\n" +
+            "    IMPORTANT: If the syllabus mentions repeated assessments (e.g., \"Tutorial Activities 1-5\" or \"5 Assignments\"), create a SEPARATE object for each instance.\n" +
+            "    If the syllabus states that some are dropped (e.g., \"best 5 of 6 tutorials count\"), only create objects for the number that count (5 in this example).\n" +
+            "    Each assessment object must have these keys:\n" +
             "    - \"title\": (String) The name of the assessment (e.g., \"Assignment 1: Logic Puzzles\").\n" +
             "    - \"type\": (String) The type of the assessment (MUST BE ONE OF THE FOLLOWING: 'TEST','ASSIGNMENT','EXAM','QUIZ','PROJECT','OTHER').\n" +
             "    - \"weight\": (Double) The grade percentage as a decimal (e.g., 0.15 for 15%%).\n" +
-            "    - \"dueDateIso\": (String) ISO-8601 string. If the syllabus only has month/day, infer the year from the term/year in the text; if none, use the current year. Default the time to 23:59:00 local, output as ISO-8601 (e.g., 2025-10-15T23:59:00Z). If no date is present, null.\\n" +
-            "    - \"schemeComponentName\": (String) Used to group together assessments of a similar type.\n\n" +
-            "2.  \"weightComponents\": An array of objects describing the grade breakdown. Each object must have these keys:\n" +
-            "    - \"name\": (String) Should include names from assessments schemeComponentName.\n" +
-            "    - \"weight\": (Double) The total weight of this category as a decimal (e.g., 0.40 for 40%%). All the weights should total 1.00 (unless there are bonus marks of some sort)\n\n" +
+            "    - \"dueDateIso\": (String) ISO-8601 string. If the syllabus only has month/day, infer the year from the term/year in the text; if none, use the current year. Default the time to 23:59:00 local, output as ISO-8601 (e.g., 2025-10-15T23:59:00Z). If no date is present, null.\n" +
             "Here is the syllabus text:\n" +
             "---\n" +
             "%s",

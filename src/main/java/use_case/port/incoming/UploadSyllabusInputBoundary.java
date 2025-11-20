@@ -6,5 +6,5 @@ import use_case.dto.UploadSyllabusData;
  * Handles ingesting a syllabus file and mapping it into domain entities.
  */
 public interface UploadSyllabusInputBoundary {
-    void uploadSyllabus(UploadSyllabusData uploadSyllabusData);
+    void execute(UploadSyllabusData uploadSyllabusData);
 }

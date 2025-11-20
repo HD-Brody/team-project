@@ -11,17 +11,15 @@ public final class Course {
     private final String code;
     private final String name;
     private final String term;
-    private final String meetingInfo;
     private final String instructor;
 
     public Course(String courseId, String userId, String code, String name, String term,
-                  String meetingInfo, String instructor) {
+                  String instructor) {
         this.courseId = Objects.requireNonNull(courseId, "courseId");
         this.userId = Objects.requireNonNull(userId, "userId");
         this.code = Objects.requireNonNull(code, "code");
         this.name = Objects.requireNonNull(name, "name");
         this.term = Objects.requireNonNull(term, "term");
-        this.meetingInfo = Objects.requireNonNull(meetingInfo, "meetingInfo");
         this.instructor = Objects.requireNonNull(instructor, "instructor");
     }
 
@@ -43,10 +41,6 @@ public final class Course {
 
     public String getTerm() {
         return term;
-    }
-
-    public String getMeetingInfo() {
-        return meetingInfo;
     }
 
     public String getInstructor() {

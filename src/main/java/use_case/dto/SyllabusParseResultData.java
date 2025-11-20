@@ -10,22 +10,21 @@ import java.util.Objects;
 public final class SyllabusParseResultData {
     private final String courseCode;
     private final String courseName;
+    private final String term; 
+    private final String instructor;
     private final List<AssessmentDraft> assessments;
-    private final List<WeightComponentDraft> weightComponents;
-    private final List<String> warnings;
 
-    public SyllabusParseResultData(String courseCode, String courseName,
-                               List<AssessmentDraft> assessments,
-                               List<WeightComponentDraft> weightComponents,
-                               List<String> warnings) {
+    public SyllabusParseResultData(String courseCode,
+                                   String courseName,
+                                   String term,
+                                   String instructor,
+                                   List<AssessmentDraft> assessments) {
         this.courseCode = courseCode;
         this.courseName = courseName;
+        this.term = term;
+        this.instructor = instructor;
         this.assessments = Collections.unmodifiableList(
                 Objects.requireNonNull(assessments, "assessments"));
-        this.weightComponents = Collections.unmodifiableList(
-                Objects.requireNonNull(weightComponents, "weightComponents"));
-        this.warnings = Collections.unmodifiableList(
-                Objects.requireNonNull(warnings, "warnings"));
     }
 
     public String getCourseCode() {
@@ -36,15 +35,16 @@ public final class SyllabusParseResultData {
         return courseName;
     }
 
+    public String getTerm() {
+        return term;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
     public List<AssessmentDraft> getAssessments() {
         return assessments;
     }
 
-    public List<WeightComponentDraft> getWeightComponents() {
-        return weightComponents;
-    }
-
-    public List<String> getWarnings() {
-        return warnings;
-    }
 }
