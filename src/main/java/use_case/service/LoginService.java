@@ -1,24 +1,32 @@
 package use_case.service;
 
+import entity.Session;
 import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginInputData;
 import use_case.port.incoming.LoginUseCase;
+import use_case.port.outgoing.SessionPort;
 import use_case.repository.LoginRepository;
 import use_case.dto.LoginOutputData;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginService implements LoginUseCase {
 
     private final LoginRepository userRepository;
     private final LoginOutputPort loginOutputPort;
+    private final SessionPort sessionPort;
 
-    public LoginService(LoginRepository loginRepository, LoginOutputPort loginOutputPort) {
+    public LoginService(LoginRepository loginRepository,
+                        LoginOutputPort loginOutputPort,
+                        SessionPort sessionPort) {
         this.userRepository = loginRepository;
         this.loginOutputPort = loginOutputPort;
+        this.sessionPort = sessionPort;
     }
 
     @Override
@@ -26,20 +34,30 @@ public class LoginService implements LoginUseCase {
         final String email = loginInputData.getEmail();
         final String password = loginInputData.getPassword();
 
+        // When email is not valid
+        if (!validateEmail(email)) {
+            loginOutputPort.prepareFailView(new LoginOutputData(email, "Email is not valid, please try again"));
+            return;
+        }
+
+        // Login main use case
         String emailDB;
         String passwordHashDB;
         User userDB = userRepository.getUserByEmail(email);
 
+        // When user not found
         if (userDB == null) {
             loginOutputPort.prepareFailView(new LoginOutputData(email, "User not found"));
             return;
         }
 
+        // Extract user info
         emailDB = userDB.getEmail();
         passwordHashDB = userRepository.getPasswordByEmail(email);
 
-        String passwordHash = "";
+        String passwordHash;
 
+        // Hash input password
         try {
             passwordHash = passwordHashing(password);
         }
@@ -53,13 +71,20 @@ public class LoginService implements LoginUseCase {
             return;
         }
 
+        // Check input password hash and hashed password from db
         if (email.equals(emailDB) && passwordHash.equals(passwordHashDB)) {
             loginOutputPort.prepareSuccessView(new LoginOutputData(email));
+
+            // Create and set session
+            sessionPort.setSession(new Session(
+                    userDB.getUserId(),
+                    userDB.getName(),
+                    userDB.getEmail(),
+                    System.currentTimeMillis()));
         }
         else {
             loginOutputPort.prepareFailView(new LoginOutputData(email, "Password don't match, please try again"));
         }
-        return;
     }
 
     public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException{
@@ -78,5 +103,16 @@ public class LoginService implements LoginUseCase {
         }
 
         return hexString.toString();
+    }
+
+    public boolean validateEmail(String email) {
+        final String EMAIL_REGEX =
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }
