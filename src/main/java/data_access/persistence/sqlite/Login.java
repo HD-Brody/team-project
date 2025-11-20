@@ -2,10 +2,11 @@ package data_access.persistence.sqlite;
 
 import java.sql.*;
 import entity.User;
+import view.cli.Main;
 
 public class Login {
 
-    private final Connection connection;
+    private final Connection connection = Main.getConnection();;
 
     /**
      * Core functionalities

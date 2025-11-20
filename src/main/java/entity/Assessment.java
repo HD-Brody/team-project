@@ -78,4 +78,5 @@ public final class Assessment {
     public String getNotes() {
         return notes;
     }
+
 }
