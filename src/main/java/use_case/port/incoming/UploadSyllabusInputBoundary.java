@@ -1,10 +1,10 @@
 package use_case.port.incoming;
 
-import use_case.dto.UploadSyllabusData;
+import use_case.dto.SyllabusUploadInputData;
 
 /**
  * Handles ingesting a syllabus file and mapping it into domain entities.
  */
 public interface UploadSyllabusInputBoundary {
-    void execute(UploadSyllabusData uploadSyllabusData);
+    void execute(SyllabusUploadInputData uploadSyllabusData);
 }

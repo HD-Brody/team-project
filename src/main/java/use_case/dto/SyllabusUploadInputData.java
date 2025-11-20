@@ -5,11 +5,11 @@ import java.util.Objects;
 /**
  * Command carrying data to ingest a syllabus resource.
  */
-public final class UploadSyllabusData {
+public final class SyllabusUploadInputData {
     private final String userId;
     private final String sourceFilePath;
 
-    public UploadSyllabusData(String userId, String sourceFilePath) {
+    public SyllabusUploadInputData(String userId, String sourceFilePath) {
         this.userId = Objects.requireNonNull(userId, "userId");
         this.sourceFilePath = Objects.requireNonNull(sourceFilePath, "sourceFilePath");
     }
