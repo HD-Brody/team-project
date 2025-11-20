@@ -53,7 +53,7 @@ public class LoginService implements LoginUseCase {
 
         // Extract user info
         emailDB = userDB.getEmail();
-        passwordHashDB = userRepository.getPasswordByEmail(email);
+        passwordHashDB = userDB.getPasswordHash();
 
         String passwordHash;
 

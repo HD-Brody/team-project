@@ -29,12 +29,7 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
             return null;
         }
         else {
-            return new User("", "123", email, "123");
+            return new User("", "123", email, "123", passwordDB);
         }
-    }
-
-    @Override
-    public String getPasswordByEmail(String email) {
-        return db.get(email);
     }
 }
