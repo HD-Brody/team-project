@@ -106,9 +106,20 @@ public class LoginService implements LoginUseCase {
     }
 
     public boolean validateEmail(String email) {
+        // Improved regex: no leading/trailing dot in local part, no consecutive dots, no consecutive dots in domain, at least one dot in domain, TLD at least 2 chars
         final String EMAIL_REGEX =
-                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+                "^(?![.])[A-Za-z0-9+_.-]+(?<![.])@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
         if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        // Check for consecutive dots in local or domain part
+        String[] parts = email.split("@", -1);
+        if (parts.length != 2) {
+            return false;
+        }
+        String local = parts[0];
+        String domain = parts[1];
+        if (local.contains("..") || domain.contains("..")) {
             return false;
         }
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
