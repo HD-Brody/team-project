@@ -28,7 +28,8 @@ public class InMemorySignUpDataAccessObject implements SignUpRepository {
     public User getUserByEmail(String email) {
         if(db.containsKey(email))
             return new User(usernameToUserIDDB.get(email), "123", email, "123", db.get(email));
-        else
+        else {
             return null;
+        }
     }
 }
