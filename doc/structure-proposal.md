@@ -6,7 +6,7 @@ _Prepared on Nov 9, 2025 by Andy Chen, to explain how the existing skeleton shou
 This document provides a plain guide to the repository layout, describing how each directory supports the Syllabus Assistant project outlined in `doc/project-blueprint.md` and sequenced in `doc/timeline-proposal.md`. Use it as a reference when planning features, wiring services, or onboarding new contributors.
 
 ## 2. Root Layout
-- `pom.xml` — Maven build descriptor for the single Java 11 module; keep dependencies and plugins aligned with the agreed tooling stack.
+- `pom.xml` — Maven build descriptor for the single Java 25 module; keep dependencies and plugins aligned with the agreed tooling stack.
 - `README.md` — Introductory project overview; extend with setup instructions once the first executable milestone is available.
 - `doc/` — Team-facing documentation. Top-level files record the blueprint, timeline, and team contract.
 - `src/` — All source code and tests. The subdirectories follow a six-folder layout: `app/`, `data_access/`, `entity/`, `interface_adapter/`, `use_case/`, `view/`.

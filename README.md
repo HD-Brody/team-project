@@ -1,7 +1,7 @@
 # Syllabus Assistant — Team M.A.R.B.L.E.
 
 ## Overview
-Syllabus Assistant is a Java 11 application that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository uses a simplified six-folder layout to keep responsibilities clear and independent.
+Syllabus Assistant is a Java application (currently targeting Java 25 per the Maven compiler config) that ingests course syllabi, builds a consolidated task plan, projects grades, and exports prioritized schedules to calendar tools. The repository uses a simplified six-folder layout to keep responsibilities clear and independent.
 
 ## Core User Stories & Leads
 - Upload syllabus PDFs and extract assessments — **Brody**
@@ -13,7 +13,7 @@ Syllabus Assistant is a Java 11 application that ingests course syllabi, builds 
 - (Future) Recommend task prioritization — pending assignment
 
 ## Technology & Integrations
-- Build tool: Maven (`pom.xml`) targeting Java 11
+- Build tool: Maven (`pom.xml`) targeting Java 25
 - Persistence: SQLite via JDBC adapters
 - Document parsing: Apache PDFBox
 - AI-assisted syllabus parsing: Google Gemini API
@@ -34,7 +34,7 @@ Refer to `doc/timeline-proposal.md` for the detailed schedule and dependencies b
   - `entity/` — Core domain entities, value types, enums, and exceptions.
   - `interface_adapter/` — Controllers, presenters, and outbound adapters.
   - `use_case/` — Use case services, ports, repositories, and DTOs.
-  - `view/` — UI entry points (e.g., CLI `view/cli/Main.java`).
+  - `view/` — UI entry points (e.g., CLI `view/cli/Main.java`; calendar export Swing demo `view/calendar/CalendarExportSwingDemo.java`).
 - `src/main/resources` — Configuration, database migrations, and static assets.
 - `src/test/java` & `src/test/resources` — Unit and integration tests with supporting fixtures.
 - `doc/` — Project documentation, including the blueprint, timeline, and structure proposal (`doc/structure-proposal.md`).
