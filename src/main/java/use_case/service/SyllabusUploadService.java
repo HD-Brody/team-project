@@ -8,7 +8,6 @@ import use_case.port.outgoing.SyllabusParsingPort;
 import use_case.port.outgoing.TransactionalPersistencePort;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
-import use_case.repository.MarkingSchemeRepository;
 import use_case.repository.SyllabusRepository;
 import java.util.Objects;
 

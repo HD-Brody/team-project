@@ -3,8 +3,9 @@ package data_access.persistence.sqlite;
 import java.sql.*;
 import entity.User;
 import view.cli.Main;
+import use_case.repository.SignupRepository
 
-public class Signup {
+public class Signup implements SignUpRepository{
 
     private final Connection connection = Main.getConnection();;
 
@@ -21,4 +22,5 @@ public class Signup {
             System.out.println(e);
         }
     }
+
 }
