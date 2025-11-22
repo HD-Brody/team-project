@@ -11,10 +11,12 @@ public class InMemorySessionInfoDataAccessObject implements SessionPort {
         session = null;
     }
 
+    @Override
     public void setSession(Session session) {
         this.session = session;
     }
 
+    @Override
     public Session getSession() {
         return session;
     }

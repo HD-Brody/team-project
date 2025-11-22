@@ -1,4 +1,4 @@
-package view.cli;
+package app;
 
 /**
  * Temporary launcher to avoid confusion while the real UI is under development.
