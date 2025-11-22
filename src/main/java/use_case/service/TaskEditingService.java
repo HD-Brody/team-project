@@ -42,7 +42,6 @@ public class TaskEditingService implements TaskEditingUseCase {
 
     @Override
     public void updateTask(TaskUpdateCommand command) {
-        // TODO: load, mutate, validate, and persist the task aggregate.
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(command.getTaskId(), "taskId");
 
@@ -66,13 +65,10 @@ public class TaskEditingService implements TaskEditingUseCase {
         );
 
         taskRepository.save(updatedTask);
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void deleteTask(String taskId) {
-        // TODO: delegate to repository after verifying authorization.
-
         Objects.requireNonNull(taskId, "taskId");
 
         if (!taskRepository.findById(taskId).isPresent()) {
@@ -80,7 +76,5 @@ public class TaskEditingService implements TaskEditingUseCase {
         }
 
         taskRepository.deleteById(taskId);
-
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 }
