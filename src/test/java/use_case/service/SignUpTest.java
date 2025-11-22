@@ -24,24 +24,41 @@ public class SignUpTest {
 
     @Test
     void SignUpServicePwdEmptyTest() {
-        signUpService.execute(new SignUpInputData("123", null, "1111"));
+        signUpService.execute(new SignUpInputData("123@abc.com", null, "1111"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
 
     @Test
     void SignUpServicePwdEmptyStringTest() {
-        signUpService.execute(new SignUpInputData("123", "", "1111"));
+        signUpService.execute(new SignUpInputData("123@abc.com", "", "1111"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
 
     @Test
     void SignUpServiceSuccessTest() {
-        signUpService.execute(new SignUpInputData("123", "123123", "1111"));
+        signUpService.execute(new SignUpInputData("123@abc.com", "123123", "1111"));
         assertTrue(signUpPresenter.getIsSuccess());
         assertEquals("success", signUpPresenter.getMessage());
-        assertEquals("123", db.getUserByEmail("123").getEmail());
+        assertEquals("123@abc.com", db.getUserByEmail("123@abc.com").getEmail());
+    }
+
+    @Test
+    void SignUpServiceEmailInvalidTest() {
+        signUpService.execute(new SignUpInputData("123", "123123", "1111"));
+        assertFalse(signUpPresenter.getIsSuccess());
+        assertEquals("Email is invalid, please try again", signUpPresenter.getMessage());
+    }
+
+    @Test
+    void SignUpServicenicknameInvalidTest() {
+        signUpService.execute(new SignUpInputData("123@abc.com", "123123", ""));
+        assertFalse(signUpPresenter.getIsSuccess());
+        assertEquals("Name is empty, please try again", signUpPresenter.getMessage());
+        signUpService.execute(new SignUpInputData("123@abc.com", "123123", null));
+        assertFalse(signUpPresenter.getIsSuccess());
+        assertEquals("Name is empty, please try again", signUpPresenter.getMessage());
     }
 
     private static class MockPresenter implements SignUpPort {

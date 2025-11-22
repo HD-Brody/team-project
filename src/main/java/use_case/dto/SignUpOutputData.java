@@ -5,8 +5,8 @@ public class SignUpOutputData {
     private final String email;
     private final String message;
 
-    public SignUpOutputData(String username, String message) {
-        this.email = username;
+    public SignUpOutputData(String email, String message) {
+        this.email = email;
         this.message = message;
     }
 
