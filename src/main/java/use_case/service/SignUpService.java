@@ -55,12 +55,18 @@ public class SignUpService implements SignUpUseCase {
                 return;
             }
 
-            signUpRepository.saveUser(
-                    uuid.toString(),
-                    name,
-                    email,
-                    TimeZone.getDefault().getID(),
-                    pwdHash);
+            try{
+                signUpRepository.saveUser(
+                        uuid.toString(),
+                        name,
+                        email,
+                        TimeZone.getDefault().getID(),
+                        pwdHash);
+            }
+            catch (Exception e) {
+                signUpPort.prepareFailView(new SignUpOutputData(email, "Name has been used, please try again"));
+                return;
+            }
             signUpPort.prepareSuccessView(new SignUpOutputData(email, "success"));
         }
 
