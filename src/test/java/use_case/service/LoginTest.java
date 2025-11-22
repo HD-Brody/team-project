@@ -64,7 +64,7 @@ public class LoginTest {
     void LoginServiceExecutePwdDontMatchTest() {
         loginService.execute(new LoginInputData("123@abc.com", "123213123"));
         assertFalse(loginPresenter.getSuccessCalled());
-        assertEquals("Password doesn't match, please try again", loginPresenter.getFailDataMsg());
+        assertEquals("Password doesn't match, please try again", loginPresenter.getSuccessDataMsg());
     }
 
     @Test
