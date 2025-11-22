@@ -1,9 +1,9 @@
 package data_access.persistence.in_memory;
 
 import entity.Session;
-import use_case.port.outgoing.SessionPort;
+import use_case.repository.SessionRepository;
 
-public class InMemorySessionInfoDataAccessObject implements SessionPort {
+public class InMemorySessionInfoDataAccessObject implements SessionRepository {
 
     private Session session;
 

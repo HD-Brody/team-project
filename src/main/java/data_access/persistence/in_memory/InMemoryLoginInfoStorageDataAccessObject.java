@@ -16,6 +16,8 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
 
     public InMemoryLoginInfoStorageDataAccessObject() {
         this.db = new HashMap<String, String>();
+
+        db.put("admin@proj.com", "d033e22ae348aeb5660fc2140aec35850c4da997");
     }
 
     public void setUserByEmail(String email, String password) {
@@ -29,7 +31,7 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
             return null;
         }
         else {
-            return new User("", "123", email, "123", passwordDB);
+            return new User("", "notAUser", email, "", passwordDB);
         }
     }
 }

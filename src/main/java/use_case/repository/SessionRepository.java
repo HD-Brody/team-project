@@ -1,8 +1,8 @@
-package use_case.port.outgoing;
+package use_case.repository;
 
 import entity.Session;
 
-public interface SessionPort {
+public interface SessionRepository {
 
     void setSession(Session session);
 

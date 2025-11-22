@@ -5,7 +5,7 @@ import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginInputData;
 import use_case.port.incoming.LoginUseCase;
-import use_case.port.outgoing.SessionPort;
+import use_case.repository.SessionRepository;
 import use_case.repository.LoginRepository;
 import use_case.dto.LoginOutputData;
 
@@ -19,14 +19,15 @@ public class LoginService implements LoginUseCase {
 
     private final LoginRepository userRepository;
     private final LoginOutputPort loginOutputPort;
-    private final SessionPort sessionPort;
+    private final SessionRepository sessionRepository;
 
     public LoginService(LoginRepository loginRepository,
-                        LoginOutputPort loginOutputPort,
-                        SessionPort sessionPort) {
+                        SessionRepository sessionRepository,
+                        LoginOutputPort loginOutputPort
+                        ) {
         this.userRepository = loginRepository;
         this.loginOutputPort = loginOutputPort;
-        this.sessionPort = sessionPort;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
@@ -36,7 +37,7 @@ public class LoginService implements LoginUseCase {
 
         // When email is not valid
         if (!validateEmail(email)) {
-            loginOutputPort.prepareFailView(new LoginOutputData(email, "Email is not valid, please try again"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Email is not valid, please try again"));
             return;
         }
 
@@ -47,7 +48,7 @@ public class LoginService implements LoginUseCase {
 
         // When user not found
         if (userDB == null) {
-            loginOutputPort.prepareFailView(new LoginOutputData(email, "User not found"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "User not found"));
             return;
         }
 
@@ -63,10 +64,10 @@ public class LoginService implements LoginUseCase {
         }
         catch (Exception e) {
             if (e instanceof IllegalArgumentException) {
-                loginOutputPort.prepareFailView(new LoginOutputData(email, "Password can't be empty"));
+                loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password can't be empty"));
             }
             else {
-                loginOutputPort.prepareFailView(new LoginOutputData(email, "Unexpected error, please try again"));
+                loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Unexpected error, please try again"));
             }
             return;
         }
@@ -76,14 +77,14 @@ public class LoginService implements LoginUseCase {
             loginOutputPort.prepareSuccessView(new LoginOutputData(email));
 
             // Create and set session
-            sessionPort.setSession(new Session(
+            sessionRepository.setSession(new Session(
                     userDB.getUserId(),
                     userDB.getName(),
                     userDB.getEmail(),
                     System.currentTimeMillis()));
         }
         else {
-            loginOutputPort.prepareFailView(new LoginOutputData(email, "Password don't match, please try again"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password don't match, please try again"));
         }
     }
 
