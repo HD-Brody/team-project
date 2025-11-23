@@ -10,5 +10,5 @@ import java.util.Optional;
  */
 public interface SyllabusRepository {
     public List<Syllabus> findSyllabusByCourseID(String courseID);
-    void save(Syllabus syllabus);
+    public void save(Syllabus syllabus);
 }

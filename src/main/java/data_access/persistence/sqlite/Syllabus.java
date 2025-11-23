@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import use_case.repository.SyllabusRepository;
-import use_case.repository.AssessmentRepository;
 
 
 public class Syllabus implements SyllabusRepository  {
@@ -37,7 +36,7 @@ public class Syllabus implements SyllabusRepository  {
      * List<entity.Syllabus> findSyllabusByCourseID(String courseID):
      *     Retrieves all the syllabus related to a course.
      * @param courseID: the course
-     * @return null.
+     * @return a list of Syllabus.
      */
     @Override
     public List<entity.Syllabus> findSyllabusByCourseID(String courseID) {
@@ -53,7 +52,6 @@ public class Syllabus implements SyllabusRepository  {
                 String retrieved_course_id = result.getString("course_id"); // Use a different var name
                 String source_file_path = result.getString("source_file_path");
 
-                // 4. Create a new Syllabus instance and add it to the list
                 entity.Syllabus syllabus = new entity.Syllabus(syllabus_id, retrieved_course_id, source_file_path);
                 syllabusList.add(syllabus);
             }

@@ -16,7 +16,7 @@ public class Signup implements SignUpRepository{
      * @param (userID, name, email, timezone, password)
      * @return null
      */
-    void saveUser(String userID, String name, String email, String timezone, String password) {
+    public void saveUser(String userID, String name, String email, String timezone, String password) {
         try {
             Statement stmt = connection.createStatement();
             String storeUser = "insert into users values ('" +userID+ "', '" +name+ "', '" +email+ "', '" +timezone+ "', '"  + password + "')";

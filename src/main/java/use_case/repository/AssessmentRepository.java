@@ -9,5 +9,5 @@ import java.util.Optional;
  */
 public interface AssessmentRepository {
     public List<Assessment> findByCourseID(String courseID);
-    void save(Assessment assessment);
+    public void save(Assessment assessment);
 }
