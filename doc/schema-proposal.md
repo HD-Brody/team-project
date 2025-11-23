@@ -1,5 +1,7 @@
 # Schema Proposal — Syllabus Assistant
 _Prepared on Nov 9, 2025 by Andy Chen_
+
+_Modified on Nov 21, 2025 by Leo Wang to accommodate the new changes_
 ## Purpose
 This document defines the relational schema that anchors persistence for the Syllabus Assistant. It aligns with the domain entities captured in `doc/project-blueprint.md` and the sequencing described in `doc/timeline-proposal.md`. All tables target SQLite for local development while keeping the design portable to other relational engines.
 
@@ -10,7 +12,8 @@ This document defines the relational schema that anchors persistence for the Syl
 - **Enum safety** — `CHECK` constraints specify valid values for status and type columns to catch invalid writes early.
 
 ## Table Overview
-![picture](./database-tables.png)
+
+[//]: # (![picture]&#40;./database-tables.png&#41;)
 - **`users`** — Stores authentication and profile information, including hashed passwords and time zone preferences used for schedule rendering.
 - **`courses`** — Represents a course owned by a user, capturing metadata such as term and instructor.
 - **`syllabi`** — Tracks uploaded syllabus sources, parsed timestamps, and raw text snapshots for reprocessing or auditing.
@@ -26,9 +29,12 @@ This document defines the relational schema that anchors persistence for the Syl
 
 ## Relationships & Indexes
 - `courses.user_id → users.user_id` cascades deletes to child records.
-- `assessments` reference both `courses` and optional `marking_scheme_components`.
-- `tasks` bridge users, courses, and assessments to support personal prioritization.
-- Secondary indexes accelerate common lookups (e.g., tasks by user/status, assessments by course).
+
+[//]: # (- `assessments` reference both `courses` and optional `marking_scheme_components`.)
+
+[//]: # (- `tasks` bridge users, courses, and assessments to support personal prioritization.)
+
+[//]: # (- Secondary indexes accelerate common lookups &#40;e.g., tasks by user/status, assessments by course&#41;.)
 
 ## Proposed DDL
 The following DDL is synchronized with the section in `README.md` and applied to `src/main/resources/db/syllabus_assistant.db` for local development.
