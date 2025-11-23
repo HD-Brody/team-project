@@ -3,7 +3,7 @@ package data_access.persistence.sqlite;
 import java.sql.*;
 import entity.User;
 import view.cli.Main;
-import use_case.repository.SignupRepository
+import use_case.repository.SignupRepository;
 
 public class Signup implements SignUpRepository{
 
@@ -11,7 +11,10 @@ public class Signup implements SignUpRepository{
 
     /**
      * Core functionalities
-     * saveUser
+     * saveUser(String userID, String name, String email, String timezone, String password):
+     *     Saves user
+     * @param (userID, name, email, timezone, password)
+     * @return null
      */
     void saveUser(String userID, String name, String email, String timezone, String password) {
         try {
