@@ -1,10 +1,12 @@
 package data_access.persistence.sqlite;
 
 import use_case.repository.AssessmentRepository;
-
 import java.sql.Statement;
 
 public class Assessment implements AssessmentRepository {
+
+    List<Assessment> findByCourseID(String courseID);
+    void save(Assessment assessment);
 
     @Override
     public void save(Assessment assessments) {}
