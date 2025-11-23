@@ -17,7 +17,7 @@ public class Course implements CourseRepository {
     /**
      * Core functionalities
      * findByCourseID(String userID): Retrieves all the Course a user has.
-     * @param courseID: the course
+     * @param userID: the user
      * @return a list of Assessment.
      */
     @Override
@@ -54,7 +54,7 @@ public class Course implements CourseRepository {
     }
 
 
-
+    @Override
     public void save(entity.Course course) {
         try {
             Statement stmt = connection.createStatement();
