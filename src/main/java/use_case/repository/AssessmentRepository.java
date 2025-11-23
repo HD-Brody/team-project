@@ -8,5 +8,7 @@ import java.util.Optional;
  * Persistence boundary for assessments.
  */
 public interface AssessmentRepository {
-    void saveAll(Assessment assessments);
+
+
+    void save(Assessment assessments);
 }
