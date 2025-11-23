@@ -1,4 +1,4 @@
-package interface_adapter.inbound.sign_up;
+package interface_adapter.sign_up;
 
 import use_case.dto.SignUpInputData;
 import use_case.port.incoming.SignUpUseCase;
@@ -10,7 +10,7 @@ public class SignUpController {
         this.signUpUseCase = signUpUseCase;
     }
 
-    public void execute(String username, String password, String nickname) {
-        signUpUseCase.execute(new SignUpInputData(username, password, nickname));
+    public void execute(String email, String password, String nickname) {
+        signUpUseCase.execute(new SignUpInputData(email, password, nickname));
     }
 }

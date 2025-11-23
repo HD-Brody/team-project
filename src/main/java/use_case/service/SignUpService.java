@@ -34,15 +34,15 @@ public class SignUpService implements SignUpUseCase {
         UUID uuid = UUID.randomUUID(); // user id
 
         if(!validateEmail(email)) { // email validation
-            signUpPort.prepareFailView(new SignUpOutputData(email, "Email is invalid, please try again"));
+            signUpPort.prepareFailView(new SignUpOutputData(email, false, "Email is invalid, please try again"));
             return;
         }
         if (password == null || password.isEmpty()) { // password validation
-            signUpPort.prepareFailView(new SignUpOutputData(email, "Password is empty, please try again"));
+            signUpPort.prepareFailView(new SignUpOutputData(email, false, "Password is empty, please try again"));
             return;
         }
         if (name == null || name.isEmpty()) {
-            signUpPort.prepareFailView(new SignUpOutputData(email, "Name is empty, please try again"));
+            signUpPort.prepareFailView(new SignUpOutputData(email, false, "Name is empty, please try again"));
             return;
         }
         else {
@@ -51,7 +51,7 @@ public class SignUpService implements SignUpUseCase {
                 pwdHash = passwordHashing(password);
             }
             catch (Exception e) {
-                signUpPort.prepareFailView(new SignUpOutputData(email, "Unknown Error occurred, please try again"));
+                signUpPort.prepareFailView(new SignUpOutputData(email, false, "Unknown Error occurred, please try again"));
                 return;
             }
 
@@ -64,16 +64,16 @@ public class SignUpService implements SignUpUseCase {
                         pwdHash);
             }
             catch (Exception e) {
-                signUpPort.prepareFailView(new SignUpOutputData(email, "Name has been used, please try again"));
+                signUpPort.prepareFailView(new SignUpOutputData(email, false, "Name has been used, please try again"));
                 return;
             }
-            signUpPort.prepareSuccessView(new SignUpOutputData(email, "success"));
+            signUpPort.prepareSuccessView(new SignUpOutputData(email, true, "success"));
         }
 
     }
 
     public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException {
-        if(s == null || s.isEmpty()) {
+        if (s == null || s.isEmpty()) {
             throw new IllegalArgumentException("input can't be null");
         }
 
