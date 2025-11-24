@@ -2,8 +2,8 @@ package data_access.persistence.sqlite;
 
 import java.sql.*;
 import entity.User;
-import use_case.repository.SignUpRepository;
 import app.Main;
+import use_case.repository.SignUpRepository;
 
 public class Signup implements SignUpRepository {
 

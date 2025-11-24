@@ -22,6 +22,7 @@ public class ScheduleEvent implements ScheduleEventRepository {
      * @param userId: the user
      * @return a list of ScheduleEvent.
      */
+
     @Override
     public List<entity.ScheduleEvent> findByUserId(String userId) {
         List<entity.ScheduleEvent> eventList = new ArrayList<>();

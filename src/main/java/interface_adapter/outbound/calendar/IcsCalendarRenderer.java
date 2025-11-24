@@ -89,8 +89,8 @@ public class IcsCalendarRenderer implements CalendarRenderPort {
         ZoneId zoneId = timeZone == null
                 ? ZoneId.of("UTC")
                 : ZoneId.of(timeZone.getID());
-        ZonedDateTime start = event.getStartsAt().atZone(zoneId);
-        ZonedDateTime end = event.getEndsAt().atZone(zoneId);
+        ZonedDateTime start = Instant.parse(event.getStartsAt()).atZone(zoneId);
+        ZonedDateTime end = Instant.parse(event.getEndsAt()).atZone(zoneId);
         VEvent vEvent = new VEvent(start, end, event.getTitle());
 
         vEvent.add(new Uid(event.getEventId()));
