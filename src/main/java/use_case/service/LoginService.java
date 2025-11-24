@@ -84,7 +84,7 @@ public class LoginService implements LoginUseCase {
                     System.currentTimeMillis()));
         }
         else {
-            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password don't match, please try again"));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password doesn't match, please try again"));
         }
     }
 

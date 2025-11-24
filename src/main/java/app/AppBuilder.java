@@ -63,7 +63,7 @@ public class AppBuilder {
     // Data Access Objects
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
-    final InMemorySignUpDataAccessObject userDB = new InMemorySignUpDataAccessObject();
+    final InMemorySignUpDataAccessObject signUpDB = new InMemorySignUpDataAccessObject();
     
     // Repositories - Using IN-MEMORY implementations for testing
     private final SyllabusRepository syllabusRepository = new InMemorySyllabusRepository();
@@ -140,12 +140,13 @@ public class AppBuilder {
         );
 
         final SignUpUseCase interactor = new SignUpService(
-                userDB,
+                signUpDB,
                 outputBoundary
         );
 
         final SignUpController controller = new SignUpController(interactor);
         signUpView.setSignUpController(controller);
+        return this;
     }
 
     public AppBuilder addSyllabusUploadView() {
