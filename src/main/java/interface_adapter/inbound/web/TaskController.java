@@ -2,9 +2,11 @@ package interface_adapter.inbound.web;
 
 import entity.Task;
 import entity.TaskStatus;
+import interface_adapter.inbound.web.dto.TaskCreationRequest;
 import interface_adapter.inbound.web.dto.TaskResponse;
 import interface_adapter.inbound.web.dto.TaskUpdateRequest;
 import interface_adapter.inbound.web.exception.TaskNotFoundException;
+import use_case.dto.TaskCreationCommand;
 import use_case.dto.TaskUpdateCommand;
 import use_case.port.incoming.TaskEditingUseCase;
 
@@ -32,6 +34,47 @@ public class TaskController {
 
     public TaskController(TaskEditingUseCase taskEditingUseCase) {
         this.taskEditingUseCase = Objects.requireNonNull(taskEditingUseCase, "taskEditingUseCase");
+    }
+
+    /**
+     * Create a new task.
+     * 
+     * @param request Task creation request data
+     * @return Created task response with generated taskId
+     * @throws NullPointerException if request or required fields are null
+     * @throws IllegalArgumentException if validation fails (e.g., priority out of range)
+     */
+    public TaskResponse createTask(TaskCreationRequest request) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request.getUserId(), "userId");
+        Objects.requireNonNull(request.getCourseId(), "courseId");
+        Objects.requireNonNull(request.getTitle(), "title");
+        
+        // Validate priority if provided
+        if (request.getPriority() != null && 
+            (request.getPriority() < 1 || request.getPriority() > 5)) {
+            throw new IllegalArgumentException(
+                "Priority must be between 1 and 5, got: " + request.getPriority());
+        }
+        
+        // Convert request DTO to use case command
+        TaskCreationCommand command = new TaskCreationCommand(
+                request.getUserId(),
+                request.getCourseId(),
+                request.getAssessmentId(),
+                request.getTitle(),
+                parseInstant(request.getDueAt()),
+                request.getEstimatedEffortMins(),
+                request.getPriority(),
+                request.getStatus() != null ? request.getStatus() : TaskStatus.TODO,
+                request.getNotes()
+        );
+        
+        // Delegate to use case
+        Task createdTask = taskEditingUseCase.createTask(command);
+        
+        // Convert domain entity to response DTO
+        return new TaskResponse(createdTask);
     }
 
     /**

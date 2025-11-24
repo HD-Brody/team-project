@@ -2,23 +2,55 @@ package use_case.service;
 
 import entity.Task;
 import entity.TaskStatus;
+import use_case.dto.TaskCreationCommand;
 import use_case.dto.TaskUpdateCommand;
 import use_case.port.incoming.TaskEditingUseCase;
 import use_case.repository.TaskRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
 /**
- * Handles updates to user-managed tasks.
+ * Handles creating, viewing, updating, and deleting user-managed tasks.
  */
 public class TaskEditingService implements TaskEditingUseCase {
     private final TaskRepository taskRepository;
 
     public TaskEditingService(TaskRepository taskRepository) {
         this.taskRepository = Objects.requireNonNull(taskRepository, "taskRepository");
+    }
+
+    @Override
+    public Task createTask(TaskCreationCommand command) {
+        Objects.requireNonNull(command, "command");
+        Objects.requireNonNull(command.getUserId(), "userId");
+        Objects.requireNonNull(command.getCourseId(), "courseId");
+        Objects.requireNonNull(command.getTitle(), "title");
+        
+        // Generate new task ID
+        String taskId = UUID.randomUUID().toString();
+        
+        // Create new task entity
+        Task newTask = new Task(
+                taskId,
+                command.getUserId(),
+                command.getCourseId(),
+                command.getAssessmentId(),
+                command.getTitle(),
+                command.getDueAt(),
+                command.getEstimatedEffortMins(),
+                command.getPriority(),
+                command.getStatus(),
+                command.getNotes()
+        );
+        
+        // Save to repository
+        taskRepository.save(newTask);
+        
+        return newTask;
     }
 
     @Override
