@@ -7,6 +7,8 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             AppBuilder appBuilder = new AppBuilder();
             JFrame application = appBuilder
+                    .addSignUpView()
+                    .addSignUpUseCase()
                     .addSyllabusUploadView()
                     .addSyllabusUploadUseCase()
                     .build();

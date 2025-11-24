@@ -1,5 +1,18 @@
 package app;
 
+import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.sign_up.SignUpController;
+import interface_adapter.sign_up.SignUpPresenter;
+import interface_adapter.sign_up.SignUpViewModel;
+import use_case.port.incoming.SignUpUseCase;
+import use_case.port.outgoing.SignUpPort;
+import use_case.service.SignUpService;
+import view.SignUpView;
+import view.ViewManager;
+
+import javax.swing.*;
+import java.awt.*;
 import data_access.ai.gemini.AiExtractorDataAccessObject;
 import data_access.parser.pdf.PdfExtractorDataAccessObject;
 import interface_adapter.ViewManagerModel;
@@ -34,6 +47,7 @@ public class AppBuilder {
     // Data Access Objects
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
+    final InMemorySignUpDataAccessObject userDB = new InMemorySignUpDataAccessObject();
     
     // Repositories - Using IN-MEMORY implementations for testing
     private final SyllabusRepository syllabusRepository = new InMemorySyllabusRepository();
@@ -43,6 +57,9 @@ public class AppBuilder {
     // Views
     private SyllabusUploadView syllabusUploadView;
     private SyllabusUploadViewModel syllabusUploadViewModel;
+      
+    private SignUpView signUpView;
+    private SignUpViewModel signUpViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -67,6 +84,28 @@ public class AppBuilder {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load API key: " + e.getMessage(), e);
         }
+    }
+      
+    public AppBuilder addSignUpView() {
+        signUpViewModel = new SignUpViewModel();
+        signUpView = new SignUpView(signUpViewModel);
+        cardPanel.add(signUpView, signUpView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addSignUpUseCase() {
+        final SignUpPort outputBoundary = new SignUpPresenter(
+                viewManagerModel,
+                signUpViewModel
+        );
+
+        final SignUpUseCase interactor = new SignUpService(
+                userDB,
+                outputBoundary
+        );
+
+        final SignUpController controller = new SignUpController(interactor);
+        signUpView.setSignUpController(controller);
     }
 
     public AppBuilder addSyllabusUploadView() {
@@ -97,11 +136,11 @@ public class AppBuilder {
     }
 
     public JFrame build() {
-        final JFrame application = new JFrame("Course Assessment Manager");
+        final JFrame application = new JFrame("Sign Up");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         application.add(cardPanel);
 
-        viewManagerModel.setState(syllabusUploadView.getViewName());
+        viewManagerModel.setState(signUpView.getViewName());
         viewManagerModel.firePropertyChange();
 
         return application;

@@ -34,7 +34,7 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
             return null;
         }
         else {
-            return new User("", email, "123", "123");
+            return new User("", email, "123", "123", "111");
         }
     }
 
