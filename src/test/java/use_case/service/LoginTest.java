@@ -21,7 +21,7 @@ public class LoginTest {
         userRepository = new InMemoryLoginInfoStorageDataAccessObject();
         loginPresenter = new MockPresenter();
         sessionStorage = new InMemorySessionInfoDataAccessObject();
-        loginService = new LoginService(userRepository, loginPresenter, sessionStorage);
+        loginService = new LoginService(userRepository, sessionStorage, loginPresenter);
 
         userRepository.setUserByEmail("123@abc.com", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
     }
