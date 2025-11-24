@@ -3,7 +3,7 @@ package data_access.persistence.sqlite;
 import entity.SourceKind;
 import entity.SourceKind;
 import use_case.repository.ScheduleEventRepository;
-import view.cli.Main;
+import app.Main;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

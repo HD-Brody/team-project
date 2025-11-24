@@ -1,7 +1,7 @@
 package data_access.persistence.sqlite;
 import entity.Assessment;
 import entity.User;
-import view.cli.Main;
+import app.Main;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

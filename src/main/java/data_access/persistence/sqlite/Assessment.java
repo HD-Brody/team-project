@@ -2,7 +2,7 @@ package data_access.persistence.sqlite;
 
 import entity.AssessmentType;
 import use_case.repository.AssessmentRepository;
-import view.cli.Main;
+import app.Main;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

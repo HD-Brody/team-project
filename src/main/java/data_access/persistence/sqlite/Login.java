@@ -2,7 +2,7 @@ package data_access.persistence.sqlite;
 
 import java.sql.*;
 import entity.User;
-import view.cli.Main;
+import app.Main;
 import use_case.repository.LoginRepository;
 
 public class Login implements LoginRepository {
