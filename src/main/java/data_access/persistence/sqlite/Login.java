@@ -16,7 +16,7 @@ public class Login implements LoginRepository {
      * @return a User entity of the user with the email.
      */
 
-    public User getUserByEmail(String email) {
+    public User getUserByEmail(String email) throws SQLException {
         try {
             Statement stmt = connection.createStatement();
             String getUser = "select * from users WHERE email = '" + email +
@@ -30,8 +30,7 @@ public class Login implements LoginRepository {
 
             return new User(userId, name, email, timezone, passwordHash);
         } catch (Exception e) {
-            System.out.println(e);
+            throw(e);
         }
-        return null;
     }
 }
