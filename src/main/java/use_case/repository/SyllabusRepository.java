@@ -1,11 +1,14 @@
 package use_case.repository;
 
 import entity.Syllabus;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Persistence boundary for syllabus metadata.
  */
 public interface SyllabusRepository {
-    void save(Syllabus syllabus);
+    public List<Syllabus> findSyllabusByCourseID(String courseID);
+    public void save(Syllabus syllabus);
 }

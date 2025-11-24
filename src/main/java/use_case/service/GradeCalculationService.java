@@ -5,7 +5,6 @@ import use_case.dto.GradeCalculationResponse;
 import use_case.port.incoming.GradeCalculationUseCase;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.GradeEntryRepository;
-import use_case.repository.MarkingSchemeRepository;
 import entity.Assessment;
 import java.util.Objects;
 import use_case.port.outgoing.AssignmentListPort;
