@@ -1,6 +1,7 @@
 package use_case.service;
 
 import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
+import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,14 +14,16 @@ public class LoginTest {
     private LoginService loginService;
     private InMemoryLoginInfoStorageDataAccessObject userRepository;
     private MockPresenter loginPresenter;
+    private InMemorySessionInfoDataAccessObject sessionStorage;
 
     @BeforeEach
     void setup() {
         userRepository = new InMemoryLoginInfoStorageDataAccessObject();
         loginPresenter = new MockPresenter();
-        loginService = new LoginService(userRepository, loginPresenter);
+        sessionStorage = new InMemorySessionInfoDataAccessObject();
+        loginService = new LoginService(userRepository, loginPresenter, sessionStorage);
 
-        userRepository.setUserByEmail("123", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
+        userRepository.setUserByEmail("123@abc.com", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
     }
 
     @Test
@@ -46,69 +49,77 @@ public class LoginTest {
 
     @Test
     void LoginServiceExecuteSuccessTest() {
-        loginService.execute(new LoginInputData("123", "123"));
+        loginService.execute(new LoginInputData("123@abc.com", "123"));
         assertTrue(loginPresenter.getSuccessCalled());
-        assertFalse(loginPresenter.getfailCalled());
     }
 
     @Test
     void LoginServiceExecuteFailTest() {
-        loginService.execute(new LoginInputData("1", "123"));
-        assertTrue(loginPresenter.getfailCalled());
+        loginService.execute(new LoginInputData("12111111113@abc.com", "123"));
         assertFalse(loginPresenter.getSuccessCalled());
-        assertEquals("User not found", loginPresenter.getFailDataMsg());
+        assertEquals("User not found", loginPresenter.getSuccessDataMsg());
     }
 
     @Test
     void LoginServiceExecutePwdDontMatchTest() {
-        loginService.execute(new LoginInputData("123", "123213123"));
-        assertTrue(loginPresenter.getfailCalled());
+        loginService.execute(new LoginInputData("123@abc.com", "123213123"));
         assertFalse(loginPresenter.getSuccessCalled());
-        assertEquals("Password doesn't match, please try again", loginPresenter.getFailDataMsg());
+        assertEquals("Password doesn't match, please try again", loginPresenter.getSuccessDataMsg());
     }
 
     @Test
     void LoginServiceExecutePwdEmptyTest() {
-        loginService.execute(new LoginInputData("123", null));
-        assertTrue(loginPresenter.getfailCalled());
+        loginService.execute(new LoginInputData("123@abc.com", null));
         assertFalse(loginPresenter.getSuccessCalled());
-        assertEquals("Password can't be empty", loginPresenter.getFailDataMsg());
+        assertEquals("Password can't be empty", loginPresenter.getSuccessDataMsg());
+    }
+
+    @Test
+    void LoginSuccessfulStoreSessionTest() {
+        loginService.execute(new LoginInputData("123@abc.com", "123"));
+        assertEquals("123@abc.com", sessionStorage.getSession().getEmail());
+    }
+
+    @Test
+    void ValidateEmailSuccessfulTest() {
+        assertTrue(loginService.validateEmail("123@abc.com"));
+        assertTrue(loginService.validateEmail("15823121@163.com"));
+    }
+
+    @Test
+    void ValidateEmailFailTest() {
+        assertFalse(loginService.validateEmail("12@b"));
+        assertFalse(loginService.validateEmail("12"));
+        assertFalse(loginService.validateEmail("12@"));
+        assertFalse(loginService.validateEmail("@b"));
+        assertFalse(loginService.validateEmail(""));
+        assertFalse(loginService.validateEmail(null));
+        assertFalse(loginService.validateEmail("@"));
+        assertFalse(loginService.validateEmail(".abc"));
     }
 
     private static final class MockPresenter implements LoginOutputPort {
         private boolean successCalled = false;
-        private boolean failCalled = false;
-        private LoginOutputData successData = null;
-        private LoginOutputData failData = null;
+        private LoginOutputData data = null;
 
         @Override
         public void prepareSuccessView(LoginOutputData loginOutputData) {
             successCalled = true;
-            successData = loginOutputData;
-            return;
+            data = loginOutputData;
         }
 
         @Override
         public void prepareFailView(LoginOutputData loginOutputData) {
-            failCalled = true;
-            failData = loginOutputData;
-            return;
+            successCalled = false;
+            data = loginOutputData;
         }
 
         public boolean getSuccessCalled() {
             return successCalled;
         }
 
-        public boolean getfailCalled() {
-            return failCalled;
-        }
-
         public String getSuccessDataMsg() {
-            return successData.getMessage();
-        }
-
-        public String getFailDataMsg() {
-            return failData.getMessage();
+            return data.getMessage();
         }
     }
 }

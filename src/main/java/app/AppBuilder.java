@@ -1,5 +1,16 @@
 package app;
 
+import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
+import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.login.LoginController;
+import interface_adapter.login.LoginPresenter;
+import interface_adapter.login.LoginViewModel;
+import use_case.dto.LoginInputData;
+import use_case.port.incoming.LoginUseCase;
+import use_case.port.outgoing.LoginOutputPort;
+import use_case.service.LoginService;
+import view.LoginView;
 import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.sign_up.SignUpController;
@@ -44,6 +55,11 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
+    final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
+    final InMemoryLoginInfoStorageDataAccessObject userDB = new InMemoryLoginInfoStorageDataAccessObject();
+
+    private LoginView loginView;
+    private LoginViewModel loginViewModel;
     // Data Access Objects
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
@@ -85,7 +101,31 @@ public class AppBuilder {
             throw new RuntimeException("Failed to load API key: " + e.getMessage(), e);
         }
     }
-      
+    
+    public AppBuilder addLoginView() {
+        loginViewModel = new LoginViewModel();
+        loginView = new LoginView(loginViewModel);
+        cardPanel.add(loginView, loginView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addLoginUseCase() {
+        final LoginOutputPort outputBoundary = new LoginPresenter(
+                viewManagerModel,
+                loginViewModel
+        );
+
+        final LoginUseCase interactor = new LoginService(
+                userDB,
+                sessionDB,
+                outputBoundary
+        );
+
+        final LoginController controller = new LoginController(interactor);
+        loginView.setLoginController(controller);
+        return this;
+    }
+    
     public AppBuilder addSignUpView() {
         signUpViewModel = new SignUpViewModel();
         signUpView = new SignUpView(signUpViewModel);
