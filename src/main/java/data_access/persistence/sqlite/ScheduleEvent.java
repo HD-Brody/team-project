@@ -33,7 +33,6 @@ public class ScheduleEvent implements ScheduleEventRepository {
             ResultSet result = stmt.executeQuery(getEvent);
             while (result.next()) {
                 String eventId = result.getString("event_id"); // Use a different var name
-                String userId = result.getString("user_id");
                 String title = result.getString("title");
                 String startsAt = result.getString("starts_at");
                 String endsAt = result.getString("ends_at");
