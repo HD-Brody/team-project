@@ -1,5 +1,6 @@
 package use_case.service;
 
+import data_access.persistence.sqlite.Login;
 import entity.Session;
 import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
@@ -44,7 +45,15 @@ public class LoginService implements LoginUseCase {
         // Login main use case
         String emailDB;
         String passwordHashDB;
-        User userDB = userRepository.getUserByEmail(email);
+
+        User userDB = null;
+        try {
+            userDB = userRepository.getUserByEmail(email);
+        }
+        catch (Exception e) {
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, ""));
+            return;
+        }
 
         // When user not found
         if (userDB == null) {
