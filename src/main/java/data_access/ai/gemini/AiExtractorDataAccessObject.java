@@ -82,26 +82,37 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
     }
     
     private boolean isValidResponse(SyllabusParseResultData result) {
+        // Check if the result object exists
         if (result == null) {
             System.err.println("Validation failed: result is null");
             return false;
         }
+        
+        // Course code is required - without it we can't identify the course
         if (result.getCourseCode() == null || result.getCourseCode().trim().isEmpty()) {
             System.err.println("Validation failed: courseCode is missing");
             return false;
         }
+        
+        // Course name is required - must have a descriptive name for the course
         if (result.getCourseName() == null || result.getCourseName().trim().isEmpty()) {
             System.err.println("Validation failed: courseName is missing");
             return false;
         }
+        
+        // Assessments array must exist (can't be null)
         if (result.getAssessments() == null) {
             System.err.println("Validation failed: assessments array is null");
             return false;
         }
+        
+        // Must have at least one assessment - a syllabus with no assessments is not useful
         if (result.getAssessments().isEmpty()) {
             System.err.println("Validation failed: no assessments found");
             return false;
         }
+        
+        // All validations passed
         return true;
     }
 
@@ -164,38 +175,45 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
 
     private SyllabusParseResultData parseGeminiResponse(String rawApiResponse) {
         try {
+            // Parse the outer API response wrapper
             JsonObject jsonObject = gson.fromJson(rawApiResponse, JsonObject.class);
             
-            // Safely navigate the response structure with null checks
+            // Validate the root JSON object exists
             if (jsonObject == null) {
                 throw new RuntimeException("Response is not valid JSON");
             }
             
+            // Navigate to the "candidates" array - Gemini returns multiple candidate responses
             JsonArray candidates = jsonObject.getAsJsonArray("candidates");
             if (candidates == null || candidates.isEmpty()) {
                 throw new RuntimeException("No candidates in response. Full response: " + rawApiResponse);
             }
             
+            // Get the first (best) candidate response
             JsonObject candidate = candidates.get(0).getAsJsonObject();
             if (candidate == null) {
                 throw new RuntimeException("First candidate is null");
             }
             
+            // Navigate to the "content" object within the candidate
             JsonObject content = candidate.getAsJsonObject("content");
             if (content == null) {
                 throw new RuntimeException("Content is null in candidate");
             }
             
+            // Navigate to the "parts" array - content can have multiple parts
             JsonArray parts = content.getAsJsonArray("parts");
             if (parts == null || parts.isEmpty()) {
                 throw new RuntimeException("No parts in content");
             }
             
+            // Get the first part (should contain our text response)
             JsonObject part = parts.get(0).getAsJsonObject();
             if (part == null) {
                 throw new RuntimeException("First part is null");
             }
             
+            // Extract the actual text content from the part
             JsonElement textElement = part.get("text");
             if (textElement == null || !textElement.isJsonPrimitive()) {
                 throw new RuntimeException("Text element is missing or not a string");
@@ -203,7 +221,7 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
             
             String extracted = textElement.getAsString().trim();
             
-            // Remove markdown code blocks if present
+            // Handle case where AI wraps JSON in markdown code blocks (```json ... ```)
             if (extracted.startsWith("```")) {
                 System.out.println("Response wrapped in code blocks, extracting...");
                 int start = extracted.indexOf('{');
@@ -225,8 +243,10 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
                 extracted = extracted.substring(firstBrace, lastBrace + 1);
             }
             
-            System.out.println("Extracted JSON: " + extracted.substring(0, Math.min(200, extracted.length())) + "...");
+            // Log a preview of the extracted JSON for debugging
+            System.out.println("Extracted JSON: " + extracted);
             
+            // Parse the cleaned JSON into our DTO
             return gson.fromJson(extracted, SyllabusParseResultData.class);
             
         } catch (JsonSyntaxException e) {

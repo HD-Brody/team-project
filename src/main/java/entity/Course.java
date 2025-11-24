@@ -19,8 +19,8 @@ public final class Course {
         this.userId = Objects.requireNonNull(userId, "userId");
         this.code = Objects.requireNonNull(code, "code");
         this.name = Objects.requireNonNull(name, "name");
-        this.term = Objects.requireNonNull(term, "term");
-        this.instructor = Objects.requireNonNull(instructor, "instructor");
+        this.term = term;
+        this.instructor = instructor;
     }
 
     public String getCourseId() {

@@ -5,8 +5,8 @@ import use_case.port.outgoing.SyllabusUploadOutputBoundary;
 import use_case.dto.SyllabusUploadOutputData;
 
 public class SyllabusUploadPresenter implements SyllabusUploadOutputBoundary {
-    private final SyllabusUploadViewModel syllabusUploadViewModel;
     private final ViewManagerModel viewManagerModel;
+    private final SyllabusUploadViewModel syllabusUploadViewModel;
 
     public SyllabusUploadPresenter(ViewManagerModel viewManagerModel,
                                    SyllabusUploadViewModel syllabusUploadViewModel) {
