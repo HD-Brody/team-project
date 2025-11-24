@@ -3,7 +3,7 @@ package data_access.persistence.sqlite;
 import java.sql.*;
 import entity.User;
 import view.cli.Main;
-import use_case.repository.SignupRepository;
+import use_case.repository.SignUpRepository;
 
 public class Signup implements SignUpRepository{
 
