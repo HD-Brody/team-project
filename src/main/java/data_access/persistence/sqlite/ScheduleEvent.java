@@ -23,12 +23,12 @@ public class ScheduleEvent implements ScheduleEventRepository {
      * @return a list of ScheduleEvent.
      */
     @Override
-    public List<entity.ScheduleEvent> findByUserID(String userId) {
+    public List<entity.ScheduleEvent> findByUserId(String userId) {
         List<entity.ScheduleEvent> eventList = new ArrayList<>();
 
         try {
             Statement stmt = connection.createStatement();
-            String getEvent = "select * from schedule_events WHERE user_id = '" + userID +
+            String getEvent = "select * from schedule_events WHERE user_id = '" + userId +
                     "'";
             ResultSet result = stmt.executeQuery(getEvent);
             while (result.next()) {
