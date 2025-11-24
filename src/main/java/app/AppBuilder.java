@@ -13,6 +13,30 @@ import view.ViewManager;
 
 import javax.swing.*;
 import java.awt.*;
+import data_access.ai.gemini.AiExtractorDataAccessObject;
+import data_access.parser.pdf.PdfExtractorDataAccessObject;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.syllabus_upload.SyllabusUploadController;
+import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
+import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import use_case.port.incoming.UploadSyllabusInputBoundary;
+import use_case.port.outgoing.AiExtractionDataAccessInterface;
+import use_case.port.outgoing.PdfExtractionDataAccessInterface;
+import use_case.port.outgoing.SyllabusUploadOutputBoundary;
+import use_case.repository.AssessmentRepository;
+import use_case.repository.CourseRepository;
+import use_case.repository.SyllabusRepository;
+import use_case.repository.InMemoryAssessmentRepository;
+import use_case.repository.InMemoryCourseRepository;
+import use_case.repository.InMemorySyllabusRepository;
+import use_case.service.SyllabusUploadInteractor;
+import view.ViewManager;
+import view.SyllabusUploadView;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
@@ -20,16 +44,48 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
-    // data access obj, in memory for testing
+    // Data Access Objects
+    private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
+    private final AiExtractionDataAccessInterface aiExtractor;
     final InMemorySignUpDataAccessObject userDB = new InMemorySignUpDataAccessObject();
-
+    
+    // Repositories - Using IN-MEMORY implementations for testing
+    private final SyllabusRepository syllabusRepository = new InMemorySyllabusRepository();
+    private final AssessmentRepository assessmentRepository = new InMemoryAssessmentRepository();
+    private final CourseRepository courseRepository = new InMemoryCourseRepository();
+    
+    // Views
+    private SyllabusUploadView syllabusUploadView;
+    private SyllabusUploadViewModel syllabusUploadViewModel;
+      
     private SignUpView signUpView;
     private SignUpViewModel signUpViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
+        
+        // Load Gemini API key from config
+        String apiKey = loadApiKey();
+        aiExtractor = new AiExtractorDataAccessObject(apiKey);
     }
 
+    private String loadApiKey() {
+        Properties config = new Properties();
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) {
+                throw new RuntimeException("config.properties not found in resources folder");
+            }
+            config.load(input);
+            String key = config.getProperty("gemini.api.key");
+            if (key == null || key.trim().isEmpty()) {
+                throw new RuntimeException("gemini.api.key not found in config.properties");
+            }
+            return key;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load API key: " + e.getMessage(), e);
+        }
+    }
+      
     public AppBuilder addSignUpView() {
         signUpViewModel = new SignUpViewModel();
         signUpView = new SignUpView(signUpViewModel);
@@ -50,6 +106,32 @@ public class AppBuilder {
 
         final SignUpController controller = new SignUpController(interactor);
         signUpView.setSignUpController(controller);
+    }
+
+    public AppBuilder addSyllabusUploadView() {
+        syllabusUploadViewModel = new SyllabusUploadViewModel();
+        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel);
+        cardPanel.add(syllabusUploadView, syllabusUploadView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addSyllabusUploadUseCase() {
+        final SyllabusUploadOutputBoundary outputBoundary = new SyllabusUploadPresenter(
+            viewManagerModel,
+            syllabusUploadViewModel
+        );
+        
+        final UploadSyllabusInputBoundary interactor = new SyllabusUploadInteractor(
+            pdfExtractor,
+            aiExtractor,
+            courseRepository,
+            syllabusRepository,
+            assessmentRepository,
+            outputBoundary
+        );
+
+        final SyllabusUploadController controller = new SyllabusUploadController(interactor);
+        syllabusUploadView.setSyllabusUploadController(controller);
         return this;
     }
 
