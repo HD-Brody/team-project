@@ -7,18 +7,18 @@ import use_case.port.incoming.AuthenticationUseCase;
 import use_case.port.outgoing.PasswordHashingPort;
 import use_case.port.outgoing.TokenProviderPort;
 import entity.User;
-import use_case.repository.UserRepository;
+import use_case.repository.LoginRepository;
 import java.util.Objects;
 
 /**
  * Implements login and registration flows.
  */
 public class AuthenticationService implements AuthenticationUseCase {
-    private final UserRepository userRepository;
+    private final LoginRepository userRepository;
     private final PasswordHashingPort passwordHashingPort;
     private final TokenProviderPort tokenProviderPort;
 
-    public AuthenticationService(UserRepository userRepository,
+    public AuthenticationService(LoginRepository userRepository,
                                  PasswordHashingPort passwordHashingPort,
                                  TokenProviderPort tokenProviderPort) {
         this.userRepository = Objects.requireNonNull(userRepository, "userRepository");

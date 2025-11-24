@@ -5,31 +5,37 @@ import use_case.dto.GradeCalculationResponse;
 import use_case.port.incoming.GradeCalculationUseCase;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.GradeEntryRepository;
-
+import entity.Assessment;
 import java.util.Objects;
+import use_case.port.outgoing.AssignmentListPort;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+
 
 /**
  * Provides weighted grade projections for a course.
  */
 public class GradeCalculationService implements GradeCalculationUseCase {
-    private final AssessmentRepository assessmentRepository;
-    private final GradeEntryRepository gradeEntryRepository;
-    private final MarkingSchemeRepository markingSchemeRepository;
+    private final List<Assessment> allAssessments;
 
-    public GradeCalculationService(AssessmentRepository assessmentRepository,
-                                   GradeEntryRepository gradeEntryRepository,
-                                   MarkingSchemeRepository markingSchemeRepository) {
-        this.assessmentRepository = Objects.requireNonNull(assessmentRepository,
-                "assessmentRepository");
-        this.gradeEntryRepository = Objects.requireNonNull(gradeEntryRepository,
-                "gradeEntryRepository");
-        this.markingSchemeRepository = Objects.requireNonNull(markingSchemeRepository,
-                "markingSchemeRepository");
+    public GradeCalculationService(List<Assessment> allAssessments) {
+        this.allAssessments = allAssessments;
     }
 
     @Override
     public GradeCalculationResponse calculateTargets(GradeCalculationRequest request) {
         // TODO: implement weighted grade calculation logic.
+        Objects.requireNonNull(request, "GradeCalculationRequest must not be null");
+        String userID = request.getUserId();
+        String courseID = request.getCourseId();
+        double targetPercent =  request.getTargetPercent();
+        List<Assessment> assessments = allAssessments;
+
+
+        // return new (GradeCalculationResponse
+        // requiredScores
+        // projectedPercent);
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }
