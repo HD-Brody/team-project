@@ -18,7 +18,6 @@ public final class Assessment {
     private final Double weight;
     private final String location;
     private final String notes;
-    private final Double grade;
 
     public Assessment(String assessmentId, String courseId, String title, AssessmentType type, double grade,
                       String startsAt, String endsAt, Long durationMinutes, Double weight, String location, String notes) {
