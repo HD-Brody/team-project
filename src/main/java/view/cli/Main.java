@@ -29,8 +29,9 @@ public final class Main {
          */
         try {
             currentConnection = DriverManager.getConnection(DB_URL);
-        }catch (Exception e) {
-            System.out.println("Database connection failed");
+        } catch (SQLException e) {
+            System.err.println("Database connection failed: " + e.getMessage());
+            e.printStackTrace();
         }
 
 
