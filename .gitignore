@@ -40,3 +40,5 @@ build/
 
 ### Others ###
 doc/others
+
+src/main/resources/config.properties

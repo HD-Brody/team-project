@@ -11,17 +11,16 @@ public final class Assessment {
     private final String courseId;
     private final String title;
     private final AssessmentType type;
-    private final Instant startsAt;
-    private final Instant endsAt;
+    private final double grade;
+    private final String startsAt;
+    private final String endsAt;
     private final Long durationMinutes;
     private final Double weight;
-    private final String schemeComponentId;
     private final String location;
     private final String notes;
 
-    public Assessment(String assessmentId, String courseId, String title, AssessmentType type,
-                      Instant startsAt, Instant endsAt, Long durationMinutes, Double weight,
-                      String schemeComponentId, String location, String notes) {
+    public Assessment(String assessmentId, String courseId, String title, AssessmentType type, double grade,
+                      String startsAt, String endsAt, Long durationMinutes, Double weight, String location, String notes) {
         this.assessmentId = Objects.requireNonNull(assessmentId, "assessmentId");
         this.courseId = Objects.requireNonNull(courseId, "courseId");
         this.title = Objects.requireNonNull(title, "title");
@@ -30,9 +29,9 @@ public final class Assessment {
         this.endsAt = endsAt;
         this.durationMinutes = durationMinutes;
         this.weight = weight;
-        this.schemeComponentId = schemeComponentId;
         this.location = location;
         this.notes = notes;
+        this.grade = grade;
     }
 
     public String getAssessmentId() {
@@ -51,11 +50,15 @@ public final class Assessment {
         return type;
     }
 
-    public Instant getStartsAt() {
+    public double getGrade() {
+        return grade;
+    }
+
+    public String getStartsAt() {
         return startsAt;
     }
 
-    public Instant getEndsAt() {
+    public String getEndsAt() {
         return endsAt;
     }
 
@@ -67,10 +70,6 @@ public final class Assessment {
         return weight;
     }
 
-    public String getSchemeComponentId() {
-        return schemeComponentId;
-    }
-
     public String getLocation() {
         return location;
     }
@@ -78,4 +77,5 @@ public final class Assessment {
     public String getNotes() {
         return notes;
     }
+
 }

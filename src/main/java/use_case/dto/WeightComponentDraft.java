@@ -34,4 +34,5 @@ public final class WeightComponentDraft {
     public Integer getExpectedCount() {
         return expectedCount;
     }
+
 }

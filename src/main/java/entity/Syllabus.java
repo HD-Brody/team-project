@@ -10,13 +10,11 @@ public final class Syllabus {
     private final String syllabusId;
     private final String courseId;
     private final String sourceFilePath;
-    private final Instant parsedAt;
 
-    public Syllabus(String syllabusId, String courseId, String sourceFilePath, Instant parsedAt) {
+    public Syllabus(String syllabusId, String courseId, String sourceFilePath) {
         this.syllabusId = Objects.requireNonNull(syllabusId, "syllabusId");
         this.courseId = Objects.requireNonNull(courseId, "courseId");
         this.sourceFilePath = Objects.requireNonNull(sourceFilePath, "sourceFilePath");
-        this.parsedAt = Objects.requireNonNull(parsedAt, "parsedAt");
     }
 
     public String getSyllabusId() {
@@ -31,7 +29,4 @@ public final class Syllabus {
         return sourceFilePath;
     }
 
-    public Instant getParsedAt() {
-        return parsedAt;
-    }
 }
