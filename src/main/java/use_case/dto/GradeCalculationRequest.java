@@ -1,6 +1,9 @@
 package use_case.dto;
 
+import entity.Assessment;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,15 +14,14 @@ public final class GradeCalculationRequest {
     private final String courseId;
     private final String userId;
     private final double targetPercent;
-    private final Map<String, Double> anticipatedScores;
+    private final List<Assessment> allAssessments;
 
     public GradeCalculationRequest(String courseId, String userId, double targetPercent,
-                                   Map<String, Double> anticipatedScores) {
+                                   List<Assessment> allAssessments) {
         this.courseId = Objects.requireNonNull(courseId, "courseId");
         this.userId = Objects.requireNonNull(userId, "userId");
         this.targetPercent = targetPercent;
-        this.anticipatedScores = Collections.unmodifiableMap(
-                Objects.requireNonNull(anticipatedScores, "anticipatedScores"));
+        this.allAssessments = allAssessments;
     }
 
     public String getCourseId() {
@@ -34,7 +36,7 @@ public final class GradeCalculationRequest {
         return targetPercent;
     }
 
-    public Map<String, Double> getAnticipatedScores() {
-        return anticipatedScores;
+    public List<Assessment> getAllAssessments() {
+        return allAssessments;
     }
 }

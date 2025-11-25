@@ -4,14 +4,16 @@ public class LoginOutputData {
 
     private final String email;
     private final String message;
+    private final boolean isSuccess;
 
     public LoginOutputData(String email) {
-        this(email, "");
+        this(email, true, "");
     }
 
-    public LoginOutputData(String email, String message) {
+    public LoginOutputData(String email, boolean isSuccess, String message) {
         this.email = email;
         this.message = message;
+        this.isSuccess = isSuccess;
     }
 
     public String getEmail() {
@@ -20,5 +22,9 @@ public class LoginOutputData {
 
     public String getMessage() {
         return message;
+    }
+
+    public boolean getIsSuccess() {
+        return isSuccess;
     }
 }

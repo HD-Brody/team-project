@@ -8,9 +8,6 @@ import java.util.Optional;
  * Persistence boundary for assessments.
  */
 public interface AssessmentRepository {
-    Optional<Assessment> findById(String assessmentId);
-
-    List<Assessment> findByCourseId(String courseId);
-
-    void saveAll(List<Assessment> assessments);
+    public List<Assessment> findByCourseID(String courseID);
+    public void save(Assessment assessment);
 }
