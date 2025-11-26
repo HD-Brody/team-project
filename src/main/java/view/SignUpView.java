@@ -35,6 +35,9 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         this.signUpViewModel.addPropertyChangeListener(this);
 
         // panel setup
+        final JPanel padding = new JPanel(); // for better look
+        padding.setAlignmentX(CENTER_ALIGNMENT);
+        padding.setPreferredSize(new Dimension(30, 0));
         final JPanel emailPanel = new JPanel();
         emailPanel.add(emailLabel);
         emailPanel.add(emailField);
@@ -155,6 +158,7 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         });
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(padding);
         this.add(emailPanel);
         this.add(namePanel);
         this.add(passwordPanel);
@@ -183,6 +187,11 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+        else {
+            emailField.setText("");
+            nameField.setText("");
+            passwordField.setText("");
         }
     }
 

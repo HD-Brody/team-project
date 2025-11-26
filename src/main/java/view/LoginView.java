@@ -33,6 +33,9 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         this.loginViewModel.addPropertyChangeListener(this);
 
         // panel setup
+        final JPanel padding = new JPanel(); // for better look
+        padding.setAlignmentX(CENTER_ALIGNMENT);
+        padding.setPreferredSize(new Dimension(30, 0));
         final JPanel emailPanel = new JPanel();
         emailPanel.add(emailLabel);
         emailPanel.add(emailField);
@@ -124,6 +127,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         });
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(padding);
         this.add(emailPanel);
         this.add(passwordPanel);
         this.add(buttons);
@@ -145,6 +149,10 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+        else {
+            emailField.setText("");
+            passwordField.setText("");
         }
     }
 

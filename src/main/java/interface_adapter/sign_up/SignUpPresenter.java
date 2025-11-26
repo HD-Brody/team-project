@@ -16,6 +16,13 @@ public class SignUpPresenter implements SignUpPort {
 
     @Override
     public void prepareSuccessView(SignUpOutputData signUpOutputData) {
+        SignUpState state = new SignUpState();
+        state.setEmail(signUpOutputData.getEmail());
+        state.setErrorMessage(signUpOutputData.getMessage());
+        state.setIsSuccess(signUpOutputData.getIsSuccess());
+        signUpViewModel.setState(state);
+        signUpViewModel.firePropertyChange();
+
         viewManagerModel.setState("welcome");
         viewManagerModel.firePropertyChange();
     }

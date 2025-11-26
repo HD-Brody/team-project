@@ -19,7 +19,6 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
     private WelcomeController welcomeController;
 
     private JLabel welcomeLabel = new JLabel("Time Til Test");
-    private JLabel padding = new JLabel("");
 
     private JButton signUpButton;
     private JButton loginButton;
@@ -29,8 +28,9 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
         this.welcomeViewModel.addPropertyChangeListener(this);
 
         // set padding to look better
+        JPanel padding = new JPanel();
         padding.setAlignmentX(CENTER_ALIGNMENT);
-        padding.setPreferredSize(new Dimension(500, 150));
+        padding.setPreferredSize(new Dimension(500, 0));
 
         // set label font
         welcomeLabel.setFont(new Font("Serif", Font.BOLD, 40));
