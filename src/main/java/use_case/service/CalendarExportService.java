@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import use_case.dto.CalendarExportRequest;
 import use_case.dto.CalendarExportResponse;
 import use_case.dto.CalendarRenderRequest;
@@ -48,16 +49,7 @@ public class CalendarExportService implements CalendarExportUseCase {
         Objects.requireNonNull(request, "request");
 
         ZoneId zoneId = parseZone(request.getTimezoneId());
-        List<ScheduleEvent> events = composeEvents(request.getEvents());
-
-        if (events.isEmpty()) {
-            events = composeEvents(
-                    assessmentsToEvents(loadAssessments(request), request.getUserId(),
-                            request.getWindowStart(), request.getWindowEnd()),
-                    filterEventsByWindow(loadScheduleEvents(request), request.getWindowStart(),
-                            request.getWindowEnd())
-            );
-        }
+        List<ScheduleEvent> events = resolveEvents(request);
 
         if (events.isEmpty()) {
             throw new IllegalArgumentException(
@@ -82,12 +74,44 @@ public class CalendarExportService implements CalendarExportUseCase {
         );
     }
 
+    /**
+     * Builds human-readable preview strings for the events that would be exported.
+     * Intended for UI preview panes before generating the ICS file.
+     */
+    public List<String> generatePreviewTexts(CalendarExportRequest request,
+                                             PreviewType previewType) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(previewType, "previewType");
+
+        ZoneId zoneId = parseZone(request.getTimezoneId());
+        List<ScheduleEvent> events = resolveEvents(request);
+        List<ScheduleEvent> filtered = filterByType(events, previewType);
+
+        return filtered.stream()
+                .map(event -> formatPreviewLine(event, zoneId))
+                .collect(Collectors.toList());
+    }
+
     private ZoneId parseZone(String timezoneId) {
         try {
             return ZoneId.of(timezoneId);
         } catch (DateTimeException ex) {
             throw new IllegalArgumentException("Unsupported timezone: " + timezoneId, ex);
         }
+    }
+
+    private List<ScheduleEvent> resolveEvents(CalendarExportRequest request) {
+        List<ScheduleEvent> events = composeEvents(request.getEvents());
+
+        if (events.isEmpty()) {
+            events = composeEvents(
+                    assessmentsToEvents(loadAssessments(request), request.getUserId(),
+                            request.getWindowStart(), request.getWindowEnd()),
+                    filterEventsByWindow(loadScheduleEvents(request), request.getWindowStart(),
+                            request.getWindowEnd())
+            );
+        }
+        return events;
     }
 
     private List<Assessment> loadAssessments(CalendarExportRequest request) {
@@ -165,6 +189,39 @@ public class CalendarExportService implements CalendarExportUseCase {
             }
         }
         return filtered;
+    }
+
+    private List<ScheduleEvent> filterByType(List<ScheduleEvent> events, PreviewType previewType) {
+        if (previewType == PreviewType.ALL) {
+            return events;
+        }
+        List<ScheduleEvent> filtered = new ArrayList<>();
+        for (ScheduleEvent event : events) {
+            boolean isAssessment = event.getSource() == SourceKind.ASSESSMENT
+                    || event.getEventId().startsWith("assessment-");
+            if (previewType == PreviewType.ASSESSMENT && isAssessment) {
+                filtered.add(event);
+            } else if (previewType == PreviewType.SCHEDULE_EVENT && !isAssessment) {
+                filtered.add(event);
+            }
+        }
+        return filtered;
+    }
+
+    private String formatPreviewLine(ScheduleEvent event, ZoneId zoneId) {
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern(
+                "yyyy-MM-dd HH:mm").withZone(zoneId);
+        StringBuilder builder = new StringBuilder();
+        builder.append(formatter.format(event.getStartsAt()))
+                .append(" - ")
+                .append(formatter.format(event.getEndsAt()))
+                .append(" | ")
+                .append(event.getTitle());
+        if (event.getLocation() != null && !event.getLocation().isBlank()) {
+            builder.append(" @ ").append(event.getLocation());
+        }
+        builder.append(" [").append(event.getSource().name()).append(']');
+        return builder.toString();
     }
 
     private boolean withinWindow(Instant instant, Optional<Instant> windowStart,

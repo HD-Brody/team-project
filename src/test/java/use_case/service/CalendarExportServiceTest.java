@@ -23,6 +23,7 @@ import use_case.dto.CalendarRenderResult;
 import use_case.port.outgoing.CalendarRenderPort;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.ScheduleEventRepository;
+import use_case.service.PreviewType;
 
 /**
  * Unit tests for {@link CalendarExportService}.
@@ -185,6 +186,60 @@ class CalendarExportServiceTest {
         );
 
         assertThrows(IllegalArgumentException.class, () -> service.exportCalendar(request));
+    }
+
+    @Test
+    void generatesPreviewTextsWithTypeFiltering() {
+        Assessment assessment = new Assessment(
+                "assessment-1",
+                "CSC207",
+                "Design Doc",
+                AssessmentType.ASSIGNMENT,
+                Instant.parse("2026-03-01T17:00:00Z"),
+                null,
+                60L,
+                10.0,
+                null,
+                "Online",
+                "Submit PDF"
+        );
+        assessmentRepository.addAssessment(assessment);
+
+        ScheduleEvent scheduled = new ScheduleEvent(
+                "event-77",
+                "user-1",
+                "Team Meeting",
+                Instant.parse("2026-02-28T15:00:00Z"),
+                Instant.parse("2026-02-28T16:00:00Z"),
+                "BA 1130",
+                "Finalize slides",
+                SourceKind.TASK,
+                "task-44"
+        );
+        scheduleEventRepository.addEvent(scheduled);
+
+        CalendarExportRequest request = new CalendarExportRequest(
+                "user-1",
+                "UTC",
+                List.of("CSC207"),
+                null,
+                null,
+                List.of(),
+                "preview"
+        );
+
+        List<String> allPreviews = service.generatePreviewTexts(request, PreviewType.ALL);
+        assertEquals(2, allPreviews.size());
+        assertTrue(allPreviews.get(0).contains("Design Doc"));
+        assertTrue(allPreviews.get(1).contains("Team Meeting"));
+
+        List<String> assessmentOnly = service.generatePreviewTexts(request, PreviewType.ASSESSMENT);
+        assertEquals(1, assessmentOnly.size());
+        assertTrue(assessmentOnly.get(0).contains("[ASSESSMENT]"));
+
+        List<String> scheduleOnly = service.generatePreviewTexts(request, PreviewType.SCHEDULE_EVENT);
+        assertEquals(1, scheduleOnly.size());
+        assertTrue(scheduleOnly.get(0).contains("[TASK]"));
     }
 
     private static final class StubAssessmentRepository implements AssessmentRepository {
