@@ -1,5 +1,6 @@
 package use_case.service;
 
+import entity.Assessment;
 import entity.ScheduleEvent;
 import entity.SourceKind;
 import java.time.DateTimeException;
@@ -10,35 +11,34 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import use_case.dto.CalendarExportRequest;
 import use_case.dto.CalendarExportResponse;
 import use_case.dto.CalendarRenderRequest;
 import use_case.dto.CalendarRenderResult;
-import use_case.dto.ScheduleEventSnapshot;
-import use_case.dto.ScheduledTaskSnapshot;
 import use_case.port.incoming.CalendarExportUseCase;
 import use_case.port.outgoing.CalendarRenderPort;
-import use_case.port.outgoing.ScheduleEventQueryPort;
-import use_case.port.outgoing.ScheduledTaskQueryPort;
+import use_case.repository.AssessmentRepository;
+import use_case.repository.ScheduleEventRepository;
 
 /**
- * Aggregates events and tasks before exporting them through a calendar renderer.
+ * Aggregates assessments and events before exporting them through a calendar renderer.
  */
 public class CalendarExportService implements CalendarExportUseCase {
     private static final String DEFAULT_PRODUCT_ID = "-//MARBLE//Calendar Export//EN";
-    private static final Duration DEFAULT_TASK_DURATION = Duration.ofHours(1);
+    private static final Duration DEFAULT_DURATION = Duration.ofHours(1);
 
-    private final ScheduledTaskQueryPort scheduledTaskQueryPort;
-    private final ScheduleEventQueryPort scheduleEventQueryPort;
+    private final AssessmentRepository assessmentRepository;
+    private final ScheduleEventRepository scheduleEventRepository;
     private final CalendarRenderPort calendarRenderPort;
 
-    public CalendarExportService(ScheduledTaskQueryPort scheduledTaskQueryPort,
-                                 ScheduleEventQueryPort scheduleEventQueryPort,
+    public CalendarExportService(AssessmentRepository assessmentRepository,
+                                 ScheduleEventRepository scheduleEventRepository,
                                  CalendarRenderPort calendarRenderPort) {
-        this.scheduledTaskQueryPort = Objects.requireNonNull(scheduledTaskQueryPort,
-                "scheduledTaskQueryPort");
-        this.scheduleEventQueryPort = Objects.requireNonNull(scheduleEventQueryPort,
-                "scheduleEventQueryPort");
+        this.assessmentRepository = Objects.requireNonNull(assessmentRepository,
+                "assessmentRepository");
+        this.scheduleEventRepository = Objects.requireNonNull(scheduleEventRepository,
+                "scheduleEventRepository");
         this.calendarRenderPort = Objects.requireNonNull(calendarRenderPort,
                 "calendarRenderPort");
     }
@@ -52,8 +52,10 @@ public class CalendarExportService implements CalendarExportUseCase {
 
         if (events.isEmpty()) {
             events = composeEvents(
-                    tasksToEvents(loadTasks(request), request.getUserId()),
-                    snapshotsToEvents(loadScheduleEvents(request))
+                    assessmentsToEvents(loadAssessments(request), request.getUserId(),
+                            request.getWindowStart(), request.getWindowEnd()),
+                    filterEventsByWindow(loadScheduleEvents(request), request.getWindowStart(),
+                            request.getWindowEnd())
             );
         }
 
@@ -88,50 +90,58 @@ public class CalendarExportService implements CalendarExportUseCase {
         }
     }
 
-    private List<ScheduledTaskSnapshot> loadTasks(CalendarExportRequest request) {
-        return scheduledTaskQueryPort.findTasksForExport(
-                request.getUserId(),
-                request.getCourseIds(),
-                request.getWindowStart(),
-                request.getWindowEnd()
-        );
+    private List<Assessment> loadAssessments(CalendarExportRequest request) {
+        List<Assessment> assessments = new ArrayList<>();
+        for (String courseId : request.getCourseIds()) {
+            assessments.addAll(assessmentRepository.findByCourseId(courseId));
+        }
+        return assessments;
     }
 
-    private List<ScheduleEventSnapshot> loadScheduleEvents(CalendarExportRequest request) {
-        return scheduleEventQueryPort.findScheduleEvents(
-                request.getUserId(),
-                request.getCourseIds(),
-                request.getWindowStart(),
-                request.getWindowEnd()
-        );
+    private List<ScheduleEvent> loadScheduleEvents(CalendarExportRequest request) {
+        return scheduleEventRepository.findByUserId(request.getUserId());
     }
 
-    private List<ScheduleEvent> tasksToEvents(List<ScheduledTaskSnapshot> snapshots,
-                                              String userId) {
+    private List<ScheduleEvent> assessmentsToEvents(List<Assessment> assessments,
+                                                    String userId,
+                                                    Optional<Instant> windowStart,
+                                                    Optional<Instant> windowEnd) {
         List<ScheduleEvent> events = new ArrayList<>();
-        for (ScheduledTaskSnapshot snapshot : snapshots) {
-            Instant dueAt = snapshot.getDueAt();
-            if (dueAt == null) {
+        for (Assessment assessment : assessments) {
+            String startsAt = assessment.getStartsAt();
+            if (startsAt == null) {
+                continue;
+            }
+            if (!withinWindow(startsAt, windowStart, windowEnd)) {
                 continue;
             }
 
-            Instant endsAt = dueAt.plus(DEFAULT_TASK_DURATION);
-            String notes = enrichNotesWithWeight(snapshot.getNotes(),
-                    snapshot.getWeightPercent());
+            Instant endsAt = resolveEnd(assessment, startsAt);
+            String notes = enrichNotesWithWeight(assessment.getNotes(), assessment.getWeight());
 
             events.add(new ScheduleEvent(
-                    "task-" + snapshot.getTaskId(),
+                    "assessment-" + assessment.getAssessmentId(),
                     userId,
-                    snapshot.getTitle(),
-                    dueAt.toString(),
-                    endsAt.toString(),
-                    snapshot.getLocation(),
+                    assessment.getTitle(),
+                    startsAt,
+                    endsAt,
+                    assessment.getLocation(),
                     notes,
-                    SourceKind.TASK,
-                    snapshot.getTaskId()
+                    SourceKind.ASSESSMENT,
+                    assessment.getAssessmentId()
             ));
         }
         return events;
+    }
+
+    private Instant resolveEnd(Assessment assessment, Instant startsAt) {
+        if (assessment.getEndsAt() != null) {
+            return assessment.getEndsAt();
+        }
+        if (assessment.getDurationMinutes() != null) {
+            return startsAt.plus(Duration.ofMinutes(assessment.getDurationMinutes()));
+        }
+        return startsAt.plus(DEFAULT_DURATION);
     }
 
     private String enrichNotesWithWeight(String notes, Double weightPercent) {
@@ -145,22 +155,27 @@ public class CalendarExportService implements CalendarExportUseCase {
         return notes + System.lineSeparator() + weightLine;
     }
 
-    private List<ScheduleEvent> snapshotsToEvents(List<ScheduleEventSnapshot> snapshots) {
-        List<ScheduleEvent> events = new ArrayList<>();
-        for (ScheduleEventSnapshot snapshot : snapshots) {
-            events.add(new ScheduleEvent(
-                    snapshot.getEventId(),
-                    snapshot.getUserId(),
-                    snapshot.getTitle(),
-                    snapshot.getStartsAt().toString(),
-                    snapshot.getEndsAt().toString(),
-                    snapshot.getLocation(),
-                    snapshot.getNotes(),
-                    snapshot.getSource(),
-                    snapshot.getSourceId()
-            ));
+    private List<ScheduleEvent> filterEventsByWindow(List<ScheduleEvent> events,
+                                                     Optional<Instant> windowStart,
+                                                     Optional<Instant> windowEnd) {
+        List<ScheduleEvent> filtered = new ArrayList<>();
+        for (ScheduleEvent event : events) {
+            if (withinWindow(event.getStartsAt(), windowStart, windowEnd)) {
+                filtered.add(event);
+            }
         }
-        return events;
+        return filtered;
+    }
+
+    private boolean withinWindow(Instant instant, Optional<Instant> windowStart,
+                                 Optional<Instant> windowEnd) {
+        if (instant == null) {
+            return false;
+        }
+        if (windowStart.isPresent() && instant.isBefore(windowStart.get())) {
+            return false;
+        }
+        return windowEnd.isEmpty() || !instant.isAfter(windowEnd.get());
     }
 
     @SafeVarargs
