@@ -51,7 +51,7 @@ public class LoginService implements LoginUseCase {
             userDB = userRepository.getUserByEmail(email);
         }
         catch (Exception e) {
-            loginOutputPort.prepareFailView(new LoginOutputData(email, false, ""));
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "User not found"));
             return;
         }
 
