@@ -68,7 +68,12 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         // back to welcome set up
         backToWelcomeButton = new JButton("Back To Welcome");
         backToWelcomeButton.setAlignmentX(CENTER_ALIGNMENT);
-        backToWelcomeButton.addActionListener(this);
+        backToWelcomeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loginController.switchToWelcomePage("welcome");
+            }
+        });
         buttons.add(backToWelcomeButton);
 
         emailField.getDocument().addDocumentListener(new DocumentListener() {

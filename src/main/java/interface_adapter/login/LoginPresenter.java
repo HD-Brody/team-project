@@ -34,4 +34,10 @@ public class LoginPresenter implements LoginOutputPort {
         loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
     }
+
+    @Override
+    public void switchView(String viewName) {
+        viewManagerModel.setState(viewName);
+        viewManagerModel.firePropertyChange();
+    }
 }

@@ -6,21 +6,24 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.welcome.WelcomeController;
+import interface_adapter.welcome.WelcomePresenter;
+import interface_adapter.welcome.WelcomeViewModel;
 import use_case.dto.LoginInputData;
+import use_case.dto.WelcomeOutputData;
 import use_case.port.incoming.LoginUseCase;
-import use_case.port.outgoing.LoginOutputPort;
+import use_case.port.incoming.WelcomeUseCase;
+import use_case.port.outgoing.*;
 import use_case.service.LoginService;
-import view.LoginView;
+import use_case.service.WelcomeService;
+import view.*;
 import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.sign_up.SignUpController;
 import interface_adapter.sign_up.SignUpPresenter;
 import interface_adapter.sign_up.SignUpViewModel;
 import use_case.port.incoming.SignUpUseCase;
-import use_case.port.outgoing.SignUpPort;
 import use_case.service.SignUpService;
-import view.SignUpView;
-import view.ViewManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +34,6 @@ import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
-import use_case.port.outgoing.AiExtractionDataAccessInterface;
-import use_case.port.outgoing.PdfExtractionDataAccessInterface;
-import use_case.port.outgoing.SyllabusUploadOutputBoundary;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
 import use_case.repository.SyllabusRepository;
@@ -42,7 +42,6 @@ import use_case.repository.InMemoryCourseRepository;
 import use_case.repository.InMemorySyllabusRepository;
 import use_case.service.SyllabusUploadInteractor;
 import view.ViewManager;
-import view.SyllabusUploadView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -76,6 +75,9 @@ public class AppBuilder {
       
     private SignUpView signUpView;
     private SignUpViewModel signUpViewModel;
+
+    private WelcomeView welcomeView;
+    private WelcomeViewModel welcomeViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -176,12 +178,27 @@ public class AppBuilder {
         return this;
     }
 
+    public AppBuilder addWelcomeView() {
+        welcomeViewModel = new WelcomeViewModel();
+        welcomeView = new WelcomeView(welcomeViewModel);
+        cardPanel.add(welcomeView, welcomeView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addWelcomeUseCase() {
+        final WelcomePort port = new WelcomePresenter(welcomeViewModel, viewManagerModel);
+        final WelcomeUseCase useCase = new WelcomeService(port);
+        final WelcomeController welcomeController = new WelcomeController(useCase);
+        welcomeView.setWelcomeViewController(welcomeController);
+        return this;
+    }
+
     public JFrame build() {
-        final JFrame application = new JFrame("Sign Up");
+        final JFrame application = new JFrame("Time Til Test");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         application.add(cardPanel);
 
-        viewManagerModel.setState(signUpView.getViewName());
+        viewManagerModel.setState(welcomeView.getViewName());
         viewManagerModel.firePropertyChange();
 
         return application;

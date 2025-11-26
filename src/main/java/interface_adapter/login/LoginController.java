@@ -17,4 +17,8 @@ public class LoginController {
         this.loginService.execute(loginInputData);
         return;
     }
+
+    public void switchToWelcomePage(String viewName) {
+        loginService.switchView(viewName);
+    }
 }

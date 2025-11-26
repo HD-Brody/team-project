@@ -102,6 +102,8 @@ public class LoginTest {
         private boolean successCalled = false;
         private LoginOutputData data = null;
 
+        private String viewName;
+
         @Override
         public void prepareSuccessView(LoginOutputData loginOutputData) {
             successCalled = true;
@@ -120,6 +122,11 @@ public class LoginTest {
 
         public String getSuccessDataMsg() {
             return data.getMessage();
+        }
+
+        @Override
+        public void switchView(String viewName) {
+            this.viewName = viewName;
         }
     }
 }

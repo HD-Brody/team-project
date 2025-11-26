@@ -27,6 +27,8 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             AppBuilder appBuilder = new AppBuilder();
             JFrame application = appBuilder
+                    .addWelcomeView()
+                    .addWelcomeUseCase()
                     .addSignUpView()
                     .addSignUpUseCase()
                     .addLoginView()

@@ -16,10 +16,8 @@ public class SignUpPresenter implements SignUpPort {
 
     @Override
     public void prepareSuccessView(SignUpOutputData signUpOutputData) {
-        System.out.println("sign up success");
-        // TODO: back to welcome page
-//        viewManagerModel.setState("welcome");
-//        viewManagerModel.firePropertyChange();
+        viewManagerModel.setState("welcome");
+        viewManagerModel.firePropertyChange();
     }
 
     @Override
