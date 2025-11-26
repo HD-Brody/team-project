@@ -213,13 +213,27 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         titleLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        JLabel typeLabel = new JLabel(assessment.getType());
+        typeLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+        typeLabel.setForeground(new Color(107, 114, 128));
+        typeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel dateLabel = new JLabel(assessment.getDueDate());
-        dateLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        dateLabel.setFont(new Font("Arial", Font.BOLD, 13));
         dateLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        JLabel weightLabel = new JLabel(assessment.getWeight());
+        weightLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        weightLabel.setForeground(new Color(59, 130, 246));
+        weightLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         card.add(titleLabel);
+        card.add(Box.createVerticalStrut(3));
+        card.add(typeLabel);
         card.add(Box.createVerticalStrut(5));
         card.add(dateLabel);
+        card.add(Box.createVerticalStrut(3));
+        card.add(weightLabel);
 
         return card;
     }

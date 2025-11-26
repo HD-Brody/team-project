@@ -37,7 +37,9 @@ public class DashboardPresenter implements LoadDashboardOutputBoundary {
                 courseData.getUpcomingAssessments().stream()
                     .map(assessment -> new DashboardState.AssessmentDisplayData(
                         assessment.getTitle(),
-                        assessment.getDueDate()
+                        assessment.getDueDate(),
+                        assessment.getType(),
+                        assessment.getWeight()
                     ))
                     .collect(Collectors.toList())
             ))

@@ -43,7 +43,9 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
                         .filter(this::isUpcoming)
                         .map(assessment -> new DashboardOutputData.AssessmentData(
                             assessment.getTitle(),
-                            formatDate(assessment.getEndsAt())
+                            formatDate(assessment.getEndsAt()),
+                            assessment.getType().toString(),
+                            formatWeight(assessment.getWeight())
                         ))
                         .collect(Collectors.toList());
                     
@@ -83,5 +85,14 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
         } catch (Exception e) {
             return isoDate; // Return as-is if parsing fails
         }
+    }
+
+    private String formatWeight(Double weight) {
+        if (weight == null) {
+            return "";
+        }
+        // Convert to percentage
+        int percentage = (int) Math.round(weight * 100);
+        return percentage + "%";
     }
 }

@@ -36,13 +36,19 @@ public class DashboardOutputData {
     public static class AssessmentData {
         private final String title;
         private final String dueDate;
+        private final String type;
+        private final String weight;
 
-        public AssessmentData(String title, String dueDate) {
+        public AssessmentData(String title, String dueDate, String type, String weight) {
             this.title = title;
             this.dueDate = dueDate;
+            this.type = type;
+            this.weight = weight;
         }
 
         public String getTitle() { return title; }
         public String getDueDate() { return dueDate; }
+        public String getType() { return type; }
+        public String getWeight() { return weight; }
     }
 }
