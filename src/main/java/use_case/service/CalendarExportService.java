@@ -7,6 +7,8 @@ import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -117,7 +119,7 @@ public class CalendarExportService implements CalendarExportUseCase {
     private List<Assessment> loadAssessments(CalendarExportRequest request) {
         List<Assessment> assessments = new ArrayList<>();
         for (String courseId : request.getCourseIds()) {
-            assessments.addAll(assessmentRepository.findByCourseId(courseId));
+            assessments.addAll(assessmentRepository.findByCourseID(courseId));
         }
         return assessments;
     }
@@ -132,23 +134,23 @@ public class CalendarExportService implements CalendarExportUseCase {
                                                     Optional<Instant> windowEnd) {
         List<ScheduleEvent> events = new ArrayList<>();
         for (Assessment assessment : assessments) {
-            String startsAt = assessment.getStartsAt();
-            if (startsAt == null) {
+            Optional<Instant> startsAt = parseInstant(assessment.getStartsAt());
+            if (startsAt.isEmpty()) {
                 continue;
             }
-            if (!withinWindow(startsAt, windowStart, windowEnd)) {
+            if (!withinWindow(startsAt.get(), windowStart, windowEnd)) {
                 continue;
             }
 
-            Instant endsAt = resolveEnd(assessment, startsAt);
+            String endsAtIso = resolveEnd(assessment, startsAt.get());
             String notes = enrichNotesWithWeight(assessment.getNotes(), assessment.getWeight());
 
             events.add(new ScheduleEvent(
                     "assessment-" + assessment.getAssessmentId(),
                     userId,
                     assessment.getTitle(),
-                    startsAt,
-                    endsAt,
+                    formatInstant(startsAt.get()),
+                    endsAtIso,
                     assessment.getLocation(),
                     notes,
                     SourceKind.ASSESSMENT,
@@ -158,14 +160,14 @@ public class CalendarExportService implements CalendarExportUseCase {
         return events;
     }
 
-    private Instant resolveEnd(Assessment assessment, Instant startsAt) {
-        if (assessment.getEndsAt() != null) {
+    private String resolveEnd(Assessment assessment, Instant startsAt) {
+        if (assessment.getEndsAt() != null && !assessment.getEndsAt().isBlank()) {
             return assessment.getEndsAt();
         }
         if (assessment.getDurationMinutes() != null) {
-            return startsAt.plus(Duration.ofMinutes(assessment.getDurationMinutes()));
+            return formatInstant(startsAt.plus(Duration.ofMinutes(assessment.getDurationMinutes())));
         }
-        return startsAt.plus(DEFAULT_DURATION);
+        return formatInstant(startsAt.plus(DEFAULT_DURATION));
     }
 
     private String enrichNotesWithWeight(String notes, Double weightPercent) {
@@ -184,7 +186,11 @@ public class CalendarExportService implements CalendarExportUseCase {
                                                      Optional<Instant> windowEnd) {
         List<ScheduleEvent> filtered = new ArrayList<>();
         for (ScheduleEvent event : events) {
-            if (withinWindow(event.getStartsAt(), windowStart, windowEnd)) {
+            Optional<Instant> startsAt = parseInstant(event.getStartsAt());
+            if (startsAt.isEmpty()) {
+                continue;
+            }
+            if (withinWindow(startsAt.get(), windowStart, windowEnd)) {
                 filtered.add(event);
             }
         }
@@ -211,10 +217,17 @@ public class CalendarExportService implements CalendarExportUseCase {
     private String formatPreviewLine(ScheduleEvent event, ZoneId zoneId) {
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern(
                 "yyyy-MM-dd HH:mm").withZone(zoneId);
+        String startText = parseInstant(event.getStartsAt())
+                .map(formatter::format)
+                .orElse(event.getStartsAt());
+        String endText = parseInstant(event.getEndsAt())
+                .map(formatter::format)
+                .orElse(event.getEndsAt());
+
         StringBuilder builder = new StringBuilder();
-        builder.append(formatter.format(event.getStartsAt()))
+        builder.append(startText)
                 .append(" - ")
-                .append(formatter.format(event.getEndsAt()))
+                .append(endText)
                 .append(" | ")
                 .append(event.getTitle());
         if (event.getLocation() != null && !event.getLocation().isBlank()) {
@@ -233,6 +246,21 @@ public class CalendarExportService implements CalendarExportUseCase {
             return false;
         }
         return windowEnd.isEmpty() || !instant.isAfter(windowEnd.get());
+    }
+
+    private Optional<Instant> parseInstant(String isoString) {
+        if (isoString == null || isoString.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Instant.parse(isoString));
+        } catch (DateTimeParseException ex) {
+            return Optional.empty();
+        }
+    }
+
+    private String formatInstant(Instant instant) {
+        return DateTimeFormatter.ISO_INSTANT.format(instant);
     }
 
     @SafeVarargs

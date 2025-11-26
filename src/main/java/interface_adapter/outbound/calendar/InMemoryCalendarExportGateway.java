@@ -5,7 +5,6 @@ import entity.ScheduleEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.ScheduleEventRepository;
@@ -33,17 +32,15 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     }
 
     @Override
-    public Optional<Assessment> findById(String assessmentId) {
+    public List<Assessment> findByCourseID(String courseID) {
         return assessments.stream()
-                .filter(a -> a.getAssessmentId().equals(assessmentId))
-                .findFirst();
+                .filter(a -> a.getCourseId().equals(courseID))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Assessment> findByCourseId(String courseId) {
-        return assessments.stream()
-                .filter(a -> a.getCourseId().equals(courseId))
-                .collect(Collectors.toList());
+    public void save(Assessment assessment) {
+        assessments.add(Objects.requireNonNull(assessment, "assessment"));
     }
 
     @Override
@@ -54,16 +51,7 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void saveAll(List items) {
-        for (Object item : items) {
-            if (item instanceof Assessment) {
-                assessments.add((Assessment) item);
-            } else if (item instanceof ScheduleEvent) {
-                scheduleEvents.add((ScheduleEvent) item);
-            } else {
-                throw new IllegalArgumentException("Unsupported item type: " + item);
-            }
-        }
+    public void save(ScheduleEvent event) {
+        scheduleEvents.add(Objects.requireNonNull(event, "event"));
     }
 }

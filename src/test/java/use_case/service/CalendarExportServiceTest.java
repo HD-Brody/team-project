@@ -9,10 +9,8 @@ import entity.Assessment;
 import entity.ScheduleEvent;
 import entity.SourceKind;
 import entity.AssessmentType;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,8 +47,8 @@ class CalendarExportServiceTest {
                 "event-1",
                 "user-1",
                 "Midterm",
-                Instant.parse("2026-02-10T15:00:00Z"),
-                Instant.parse("2026-02-10T16:30:00Z"),
+                "2026-02-10T15:00:00Z",
+                "2026-02-10T16:30:00Z",
                 "BA 1130",
                 "Bring calculator",
                 SourceKind.ASSESSMENT,
@@ -82,8 +80,8 @@ class CalendarExportServiceTest {
                 "event-1",
                 "user-22",
                 "Design Review",
-                Instant.parse("2026-03-01T15:00:00Z"),
-                Instant.parse("2026-03-01T16:00:00Z"),
+                "2026-03-01T15:00:00Z",
+                "2026-03-01T16:00:00Z",
                 "BA 3155",
                 "Bring diagrams",
                 SourceKind.ASSESSMENT,
@@ -93,8 +91,8 @@ class CalendarExportServiceTest {
                 "event-2",
                 "user-22",
                 "Demo Day",
-                Instant.parse("2026-03-05T19:00:00Z"),
-                Instant.parse("2026-03-05T20:30:00Z"),
+                "2026-03-05T19:00:00Z",
+                "2026-03-05T20:30:00Z",
                 "BA 1130",
                 "Guests invited",
                 SourceKind.ASSESSMENT,
@@ -130,11 +128,11 @@ class CalendarExportServiceTest {
                 "CSC207",
                 "Project Milestone",
                 AssessmentType.ASSIGNMENT,
-                Instant.parse("2026-02-14T20:00:00Z"),
+                0.0,
+                "2026-02-14T20:00:00Z",
                 null,
                 90L,
                 15.0,
-                null,
                 "Online",
                 "Submit PDF"
         );
@@ -144,8 +142,8 @@ class CalendarExportServiceTest {
                 "event-3",
                 "user-1",
                 "Guest Lecture",
-                Instant.parse("2026-02-12T18:00:00Z"),
-                Instant.parse("2026-02-12T19:00:00Z"),
+                "2026-02-12T18:00:00Z",
+                "2026-02-12T19:00:00Z",
                 "BA 1160",
                 "Attendance optional",
                 SourceKind.ASSESSMENT,
@@ -195,11 +193,11 @@ class CalendarExportServiceTest {
                 "CSC207",
                 "Design Doc",
                 AssessmentType.ASSIGNMENT,
-                Instant.parse("2026-03-01T17:00:00Z"),
+                0.0,
+                "2026-03-01T17:00:00Z",
                 null,
                 60L,
                 10.0,
-                null,
                 "Online",
                 "Submit PDF"
         );
@@ -209,8 +207,8 @@ class CalendarExportServiceTest {
                 "event-77",
                 "user-1",
                 "Team Meeting",
-                Instant.parse("2026-02-28T15:00:00Z"),
-                Instant.parse("2026-02-28T16:00:00Z"),
+                "2026-02-28T15:00:00Z",
+                "2026-02-28T16:00:00Z",
                 "BA 1130",
                 "Finalize slides",
                 SourceKind.TASK,
@@ -247,15 +245,7 @@ class CalendarExportServiceTest {
         private boolean called;
 
         @Override
-        public Optional<Assessment> findById(String assessmentId) {
-            called = true;
-            return assessments.stream()
-                    .filter(a -> a.getAssessmentId().equals(assessmentId))
-                    .findFirst();
-        }
-
-        @Override
-        public List<Assessment> findByCourseId(String courseId) {
+        public List<Assessment> findByCourseID(String courseId) {
             called = true;
             return assessments.stream()
                     .filter(a -> a.getCourseId().equals(courseId))
@@ -263,8 +253,8 @@ class CalendarExportServiceTest {
         }
 
         @Override
-        public void saveAll(List<Assessment> assessments) {
-            this.assessments.addAll(assessments);
+        public void save(Assessment assessment) {
+            assessments.add(assessment);
         }
 
         void addAssessment(Assessment assessment) {
@@ -289,8 +279,8 @@ class CalendarExportServiceTest {
         }
 
         @Override
-        public void saveAll(List<ScheduleEvent> events) {
-            this.events.addAll(events);
+        public void save(ScheduleEvent event) {
+            this.events.add(event);
         }
 
         void addEvent(ScheduleEvent event) {
