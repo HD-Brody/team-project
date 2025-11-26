@@ -2,6 +2,8 @@ package app;
 
 import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
 import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
+import data_access.persistence.sqlite.Login;
+import data_access.persistence.sqlite.Signup;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
@@ -14,6 +16,7 @@ import use_case.dto.WelcomeOutputData;
 import use_case.port.incoming.LoginUseCase;
 import use_case.port.incoming.WelcomeUseCase;
 import use_case.port.outgoing.*;
+import use_case.repository.*;
 import use_case.service.LoginService;
 import use_case.service.WelcomeService;
 import view.*;
@@ -34,12 +37,6 @@ import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
-import use_case.repository.AssessmentRepository;
-import use_case.repository.CourseRepository;
-import use_case.repository.SyllabusRepository;
-import use_case.repository.InMemoryAssessmentRepository;
-import use_case.repository.InMemoryCourseRepository;
-import use_case.repository.InMemorySyllabusRepository;
 import use_case.service.SyllabusUploadInteractor;
 import view.ViewManager;
 
@@ -55,14 +52,14 @@ public class AppBuilder {
     final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
     final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
-    final InMemoryLoginInfoStorageDataAccessObject userDB = new InMemoryLoginInfoStorageDataAccessObject();
+    final LoginRepository userDB = new Login();
 
     private LoginView loginView;
     private LoginViewModel loginViewModel;
     // Data Access Objects
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
-    final InMemorySignUpDataAccessObject signUpDB = new InMemorySignUpDataAccessObject();
+    final SignUpRepository signUpDB = new Signup();
     
     // Repositories - Using IN-MEMORY implementations for testing
     private final SyllabusRepository syllabusRepository = new InMemorySyllabusRepository();
