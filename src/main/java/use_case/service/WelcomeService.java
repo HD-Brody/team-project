@@ -13,6 +13,7 @@ public class WelcomeService implements WelcomeUseCase {
         this.welcomePort = welcomePort;
     }
 
+    @Override
     public void execute(WelcomeInputData welcomeInputData) {
         welcomePort.prepareSuccessView(new WelcomeOutputData(welcomeInputData.getActionType()));
     }

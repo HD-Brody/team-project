@@ -13,12 +13,12 @@ import java.beans.PropertyChangeListener;
 
 public class WelcomeView extends JPanel implements ActionListener, PropertyChangeListener {
 
-    private String viewName = "welcome";
+    private final String viewName = "welcome";
 
     private WelcomeViewModel welcomeViewModel;
     private WelcomeController welcomeController;
 
-    private JLabel welcomeLabel = new JLabel("Time Til Test");
+    private final JLabel welcomeLabel = new JLabel("Time Til Test");
 
     private JButton signUpButton;
     private JButton loginButton;

@@ -98,6 +98,12 @@ public class LoginTest {
         assertFalse(loginService.validateEmail(".abc"));
     }
 
+    @Test
+    void LoginServiceSwitchViewTest() {
+        loginService.switchView("welcome");
+        assertEquals("welcome", loginPresenter.getViewName());
+    }
+
     private static final class MockPresenter implements LoginOutputPort {
         private boolean successCalled = false;
         private LoginOutputData data = null;
@@ -123,6 +129,8 @@ public class LoginTest {
         public String getSuccessDataMsg() {
             return data.getMessage();
         }
+
+        public String getViewName() { return viewName; }
 
         @Override
         public void switchView(String viewName) {

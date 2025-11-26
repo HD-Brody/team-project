@@ -78,6 +78,13 @@ public class SignUpTest {
         assertEquals("Name has been used, please try again", signUpPresenter.getMessage());
     }
 
+    @Test
+    void SignUpServiceSwitchViewTest() {
+        db.cleanDB();
+        signUpService.switchView();
+        assertTrue(signUpPresenter.getIsSuccess());
+    }
+
     private static class MockPresenter implements SignUpPort {
         private boolean isSuccess = false;
         private String message = "";
