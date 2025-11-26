@@ -64,6 +64,8 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
         JScrollPane scrollPane = new JScrollPane(coursesPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         add(topPanel, BorderLayout.NORTH);
@@ -170,22 +172,27 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         titlePanel.add(courseButton, BorderLayout.NORTH);
         titlePanel.add(courseName, BorderLayout.CENTER);
 
-        // Assessments panel
-        JPanel assessmentsPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        // Assessments panel with horizontal scrolling
+        JPanel assessmentsPanel = new JPanel();
+        assessmentsPanel.setLayout(new BoxLayout(assessmentsPanel, BoxLayout.X_AXIS));
         assessmentsPanel.setBackground(Color.WHITE);
 
         for (DashboardState.AssessmentDisplayData assessment : course.getUpcomingAssessments()) {
             assessmentsPanel.add(createAssessmentCard(assessment));
+            assessmentsPanel.add(Box.createHorizontalStrut(10));
         }
 
-        // Fill empty slots
-        int emptySlots = 4 - course.getUpcomingAssessments().size();
-        for (int i = 0; i < emptySlots; i++) {
-            assessmentsPanel.add(createEmptyCard());
-        }
+        // Add horizontal scroll pane for assessments
+        JScrollPane assessmentsScrollPane = new JScrollPane(assessmentsPanel);
+        assessmentsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        assessmentsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        assessmentsScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        assessmentsScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+        assessmentsScrollPane.setBackground(Color.WHITE);
+        assessmentsScrollPane.setPreferredSize(new Dimension(0, 140));
 
         panel.add(titlePanel, BorderLayout.NORTH);
-        panel.add(assessmentsPanel, BorderLayout.CENTER);
+        panel.add(assessmentsScrollPane, BorderLayout.CENTER);
 
         return panel;
     }
@@ -198,6 +205,9 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             BorderFactory.createLineBorder(new Color(229, 231, 235), 1),
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
+        card.setPreferredSize(new Dimension(200, 100));
+        card.setMinimumSize(new Dimension(200, 100));
+        card.setMaximumSize(new Dimension(200, 100));
 
         JLabel titleLabel = new JLabel(assessment.getTitle());
         titleLabel.setFont(new Font("Arial", Font.PLAIN, 12));

@@ -41,7 +41,6 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
                     // Filter and format upcoming assessments
                     List<DashboardOutputData.AssessmentData> upcomingAssessments = assessments.stream()
                         .filter(this::isUpcoming)
-                        .limit(4) // Show max 4 assessments per course
                         .map(assessment -> new DashboardOutputData.AssessmentData(
                             assessment.getTitle(),
                             formatDate(assessment.getEndsAt())
