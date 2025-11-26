@@ -5,6 +5,7 @@ import interface_adapter.welcome.WelcomeController;
 import interface_adapter.welcome.WelcomeViewModel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -18,6 +19,7 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
     private WelcomeController welcomeController;
 
     private JLabel welcomeLabel = new JLabel("Time Til Test");
+    private JLabel padding = new JLabel("");
 
     private JButton signUpButton;
     private JButton loginButton;
@@ -25,6 +27,14 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
     public WelcomeView(WelcomeViewModel welcomeViewModel) {
         this.welcomeViewModel = welcomeViewModel;
         this.welcomeViewModel.addPropertyChangeListener(this);
+
+        // set padding to look better
+        padding.setAlignmentX(CENTER_ALIGNMENT);
+        padding.setPreferredSize(new Dimension(500, 150));
+
+        // set label font
+        welcomeLabel.setFont(new Font("Serif", Font.BOLD, 40));
+        welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
 
         final JPanel welcomePanel = new JPanel();
         welcomePanel.add(welcomeLabel);
@@ -52,6 +62,7 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
         buttons.add(loginButton);
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(padding);
         this.add(welcomePanel);
         this.add(buttons);
     }
