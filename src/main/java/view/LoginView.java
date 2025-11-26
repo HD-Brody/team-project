@@ -44,17 +44,25 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         passwordPanel.add(passwordField);
         final JPanel buttons = new JPanel();
 
+        // label view setup
+        emailLabel.setFont(new Font("Abel", Font.BOLD, 28));
+        passwordLabel.setFont(new Font("Abel", Font.BOLD, 28));
+
         // text field set up
         emailField.setEditable(true);
         emailField.setMaximumSize(new Dimension(500, 30));
+        emailField.setPreferredSize(new Dimension(500, 30));
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
         passwordField.setEditable(true);
         passwordField.setMaximumSize(new Dimension(500, 30));
+        passwordField.setPreferredSize(new Dimension(500, 30));
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // login button set up
         loginButton = new JButton("Login");
         loginButton.setAlignmentX(CENTER_ALIGNMENT);
+        loginButton.setBackground(new Color(59, 130, 246));
+        loginButton.setForeground(Color.WHITE);
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,6 +79,8 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         // back to welcome set up
         backToWelcomeButton = new JButton("Back To Welcome");
         backToWelcomeButton.setAlignmentX(CENTER_ALIGNMENT);
+        backToWelcomeButton.setBackground(new Color(59, 130, 246));
+        backToWelcomeButton.setForeground(Color.WHITE);
         backToWelcomeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

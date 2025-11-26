@@ -33,7 +33,7 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
         padding.setPreferredSize(new Dimension(500, 0));
 
         // set label font
-        welcomeLabel.setFont(new Font("Serif", Font.BOLD, 40));
+        welcomeLabel.setFont(new Font("Abel", Font.PLAIN, 40));
         welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
 
         final JPanel welcomePanel = new JPanel();
@@ -42,6 +42,8 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
 
         signUpButton = new JButton("Sign Up");
         signUpButton.setAlignmentX(CENTER_ALIGNMENT);
+        signUpButton.setBackground(new Color(59, 130, 246));
+        signUpButton.setForeground(Color.WHITE);
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,6 +53,8 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
 
         loginButton = new JButton("Login");
         loginButton.setAlignmentX(CENTER_ALIGNMENT);
+        loginButton.setBackground(new Color(59, 130, 246));
+        loginButton.setForeground(Color.WHITE);
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

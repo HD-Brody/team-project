@@ -49,20 +49,30 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         passwordPanel.add(passwordField);
         final JPanel buttons = new JPanel();
 
+        // label view setup
+        emailLabel.setFont(new Font("Abel", Font.BOLD, 28));
+        nameLabel.setFont(new Font("Abel", Font.BOLD, 28));
+        passwordLabel.setFont(new Font("Abel", Font.BOLD, 28));
+
         // text field setup
         emailField.setEditable(true);
         emailField.setMaximumSize(new Dimension(500, 30));
+        emailField.setPreferredSize(new Dimension(500, 30));
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
         passwordField.setEditable(true);
         passwordField.setMaximumSize(new Dimension(500, 30));
+        passwordField.setPreferredSize(new Dimension(500, 30));
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
         nameField.setEditable(true);
         nameField.setMaximumSize(new Dimension(500, 30));
+        nameField.setPreferredSize(new Dimension(500, 30));
         nameField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // sign up button setup
         signUpButton = new JButton("Sign Up");
         signUpButton.setAlignmentX(CENTER_ALIGNMENT);
+        signUpButton.setBackground(new Color(59, 130, 246));
+        signUpButton.setForeground(Color.WHITE);
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,6 +89,8 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         // back to welcome button setup
         backToWelcomeButton = new JButton("Back To Welcome");
         backToWelcomeButton.setAlignmentX(CENTER_ALIGNMENT);
+        backToWelcomeButton.setBackground(new Color(59, 130, 246));
+        backToWelcomeButton.setForeground(Color.WHITE);
         backToWelcomeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
