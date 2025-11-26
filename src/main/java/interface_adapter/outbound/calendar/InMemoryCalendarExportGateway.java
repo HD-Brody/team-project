@@ -3,7 +3,6 @@ package interface_adapter.outbound.calendar;
 import entity.Assessment;
 import entity.ScheduleEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,23 +43,27 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     public List<Assessment> findByCourseId(String courseId) {
         return assessments.stream()
                 .filter(a -> a.getCourseId().equals(courseId))
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
-    }
-
-    @Override
-    public void saveAll(List<Assessment> newAssessments) {
-        assessments.addAll(newAssessments);
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ScheduleEvent> findByUserId(String userId) {
         return scheduleEvents.stream()
                 .filter(e -> e.getUserId().equals(userId))
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void saveAll(List<ScheduleEvent> events) {
-        scheduleEvents.addAll(events);
+    @SuppressWarnings("unchecked")
+    public void saveAll(List items) {
+        for (Object item : items) {
+            if (item instanceof Assessment) {
+                assessments.add((Assessment) item);
+            } else if (item instanceof ScheduleEvent) {
+                scheduleEvents.add((ScheduleEvent) item);
+            } else {
+                throw new IllegalArgumentException("Unsupported item type: " + item);
+            }
+        }
     }
 }
