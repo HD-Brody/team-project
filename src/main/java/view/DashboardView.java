@@ -218,7 +218,11 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         typeLabel.setForeground(new Color(107, 114, 128));
         typeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel dateLabel = new JLabel(assessment.getDueDate());
+        String dateText = assessment.getDueDate();
+        if (dateText == null || dateText.isEmpty() || dateText.equals("null")) {
+            dateText = "TBD";
+        }
+        JLabel dateLabel = new JLabel(dateText);
         dateLabel.setFont(new Font("Arial", Font.BOLD, 13));
         dateLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 

@@ -66,11 +66,8 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     }
 
     private boolean isUpcoming(Assessment assessment) {
-        if (assessment.getEndsAt() == null || assessment.getEndsAt().isEmpty()) {
-            return false;
-        }
-        // Simple check: if has a due date, consider it upcoming
-        // TODO: Parse date and check if it's in the future
+        // Show all assessments, even those without due dates
+        // TODO: Parse date and check if it's actually in the future
         return true;
     }
 
@@ -91,8 +88,13 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
         if (weight == null) {
             return "";
         }
-        // Convert to percentage
-        int percentage = (int) Math.round(weight * 100);
-        return percentage + "%";
+        // Convert to percentage with up to 2 decimal places
+        double percentage = weight * 100;
+        // Remove trailing zeros
+        if (percentage == (long) percentage) {
+            return String.format("%d%%", (long) percentage);
+        } else {
+            return String.format("%.2f%%", percentage).replaceAll("0+%$", "%");
+        }
     }
 }
