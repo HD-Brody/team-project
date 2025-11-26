@@ -19,9 +19,11 @@ public class Main {
          */
         try {
             currentConnection = DriverManager.getConnection(DB_URL);
+            System.out.println("Database connection established successfully");
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
             e.printStackTrace();
+            return; // Exit if database connection fails
         }
 
         SwingUtilities.invokeLater(() -> {
@@ -33,6 +35,8 @@ public class Main {
                     .addLoginUseCase()
                     .addSyllabusUploadView()
                     .addSyllabusUploadUseCase()
+                    .addDashboardView()
+                    .addDashboardUseCase()
                     .build();
 
             application.pack();

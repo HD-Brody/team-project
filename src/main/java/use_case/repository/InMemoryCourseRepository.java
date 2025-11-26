@@ -9,10 +9,10 @@ public class InMemoryCourseRepository implements CourseRepository {
     private final Map<String, Course> courses = new HashMap<>();
 
     @Override
-    public List<Course> findByUserID(String userID) {
+    public List<Course> findByUserId(String userId) {
         List<Course> result = new ArrayList<>();
         for (Course course : courses.values()) {
-            if (course.getUserId().equals(userID)) {
+            if (course.getUserId().equals(userId)) {
                 result.add(course);
             }
         }

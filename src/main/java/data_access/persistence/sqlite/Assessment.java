@@ -16,22 +16,22 @@ public class Assessment implements AssessmentRepository {
 
     /**
      * Core functionalities
-     * findByCourseID(String courseID): Retrieves all the Assessments related to a course.
-     * @param courseID: the course
+     * findByCourseId(String courseId): Retrieves all the Assessments related to a course.
+     * @param courseId: the course
      * @return a list of Course.
      */
     @Override
-    public List<entity.Assessment> findByCourseID(String courseID) {
+    public List<entity.Assessment> findByCourseId(String courseId) {
         List<entity.Assessment> assessmentList = new ArrayList<>();
 
         try {
             Statement stmt = connection.createStatement();
-            String getAssessment = "select * from assessments WHERE course_id = '" + courseID +
+            String getAssessment = "select * from assessments WHERE course_id = '" + courseId +
                     "'";
             ResultSet result = stmt.executeQuery(getAssessment);
             while (result.next()) {
                 String assessmentId = result.getString("assessment_id");
-                String courseId = result.getString("course_id"); // Use a different var name
+                String courseIdFromDb = result.getString("course_id");
                 String title = result.getString("title");
                 AssessmentType type = AssessmentType.valueOf(result.getString("type"));
                 double grade = result.getDouble("grade");
@@ -43,7 +43,7 @@ public class Assessment implements AssessmentRepository {
                 String notes = result.getString("notes");
 
                 entity.Assessment assessment = new entity.Assessment(
-                        assessmentId, courseId, title,
+                        assessmentId, courseIdFromDb, title,
                         type,
                         grade,
                         startsAt,
