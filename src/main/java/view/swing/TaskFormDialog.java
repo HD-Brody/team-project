@@ -189,6 +189,9 @@ public class TaskFormDialog extends JDialog {
             Integer effort = parseInteger(effortField.getText().trim());
             Integer priority = parseInteger(priorityField.getText().trim());
             TaskStatus status = (TaskStatus) statusComboBox.getSelectedItem();
+            if (status == null) {
+                status = TaskStatus.TODO; // or show validation error
+            }
             String notes = notesArea.getText().trim();
             if (notes.isEmpty()) notes = null;
             
@@ -267,7 +270,7 @@ public class TaskFormDialog extends JDialog {
             // Parse date in format YYYY-MM-DD and convert to Instant at start of day
             return Instant.parse(dateStr + "T00:00:00Z");
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid date format. Use YYYY-MM-DD (e.g., 2025-11-25)");
+            throw new IllegalArgumentException("Invalid date format: '" + dateStr + "'. Please use YYYY-MM-DD format (e.g., 2025-11-25)");
         }
     }
 

@@ -15,7 +15,8 @@ The Swing GUI implementation for **Use Case 2: View and Edit Tasks** provides a 
 
 ### Option 2: Run from Command Line
 ```bash
-cd /Users/rayansalim/Documents/GitHub/team-project
+# Navigate to your project root directory
+cd path/to/team-project
 javac -d out -sourcepath src/main/java src/main/java/view/swing/TaskManagementApp.java
 java -cp out view.swing.TaskManagementApp
 ```
