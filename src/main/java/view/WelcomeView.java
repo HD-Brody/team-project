@@ -15,7 +15,7 @@ public class WelcomeView extends JPanel implements ActionListener, PropertyChang
 
     private final String viewName = "welcome";
 
-    private WelcomeViewModel welcomeViewModel;
+    private final WelcomeViewModel welcomeViewModel;
     private WelcomeController welcomeController;
 
     private final JLabel welcomeLabel = new JLabel("Time Til Test");
