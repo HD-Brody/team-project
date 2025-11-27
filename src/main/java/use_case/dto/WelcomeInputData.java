@@ -4,7 +4,7 @@ import interface_adapter.welcome.ActionType;
 
 public class WelcomeInputData {
 
-    private ActionType actionType;
+    private final ActionType actionType;
 
     public WelcomeInputData(ActionType actionType) {
         this.actionType = actionType;
