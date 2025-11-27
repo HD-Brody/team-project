@@ -274,7 +274,7 @@ class CalendarExportServiceTest {
         public List<ScheduleEvent> findByUserId(String userId) {
             called = true;
             return events.stream()
-                    .filter(e -> e.getUserId().equals(userId))
+                    .filter(e -> java.util.Objects.equals(e.getUserId(), userId))
                     .collect(Collectors.toList());
         }
 
