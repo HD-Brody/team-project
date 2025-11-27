@@ -101,7 +101,8 @@ public class CalendarExportView extends JPanel implements ActionListener {
             return;
         }
         Object source = e.getSource();
-        String selectedCourse = (String) courseSelector.getSelectedItem();
+        Object selectedCourseObj = courseSelector.getSelectedItem();
+        String selectedCourse = selectedCourseObj == null ? "" : (String) selectedCourseObj;
         PreviewType previewType = mapPreviewType((String) typeSelector.getSelectedItem());
         if (source == exportButton) {
             listener.onExportRequested(selectedCourse, previewType);
