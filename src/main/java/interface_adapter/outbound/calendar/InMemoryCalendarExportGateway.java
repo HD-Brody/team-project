@@ -34,7 +34,7 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     @Override
     public List<Assessment> findByCourseID(String courseID) {
         return assessments.stream()
-                .filter(a -> a.getCourseId().equals(courseID))
+                .filter(a -> Objects.equals(a.getCourseId(), courseID))
                 .collect(Collectors.toList());
     }
 
