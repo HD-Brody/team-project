@@ -1,72 +1,57 @@
 package interface_adapter.outbound.calendar;
 
-import java.time.Instant;
+import entity.Assessment;
+import entity.ScheduleEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import use_case.dto.ScheduleEventSnapshot;
-import use_case.dto.ScheduledTaskSnapshot;
-import use_case.port.outgoing.ScheduleEventQueryPort;
-import use_case.port.outgoing.ScheduledTaskQueryPort;
+import use_case.repository.AssessmentRepository;
+import use_case.repository.ScheduleEventRepository;
 
 /**
- * Simple in-memory adapter that satisfies the calendar export query ports without requiring a
- * persistence layer. Useful for demos and early integration testing.
+ * Simple in-memory adapter that satisfies calendar export repositories without persistence.
  */
-public class InMemoryCalendarExportGateway implements ScheduledTaskQueryPort, ScheduleEventQueryPort {
-    private final List<ScheduledTaskSnapshot> taskSnapshots = new ArrayList<>();
-    private final List<ScheduleEventSnapshot> scheduleEventSnapshots = new ArrayList<>();
+public class InMemoryCalendarExportGateway implements AssessmentRepository, ScheduleEventRepository {
+    private final List<Assessment> assessments = new ArrayList<>();
+    private final List<ScheduleEvent> scheduleEvents = new ArrayList<>();
 
-    public InMemoryCalendarExportGateway addTask(ScheduledTaskSnapshot snapshot) {
-        taskSnapshots.add(Objects.requireNonNull(snapshot, "snapshot"));
+    public InMemoryCalendarExportGateway addAssessment(Assessment assessment) {
+        assessments.add(Objects.requireNonNull(assessment, "assessment"));
         return this;
     }
 
-    public InMemoryCalendarExportGateway addScheduleEvent(ScheduleEventSnapshot snapshot) {
-        scheduleEventSnapshots.add(Objects.requireNonNull(snapshot, "snapshot"));
+    public InMemoryCalendarExportGateway addScheduleEvent(ScheduleEvent event) {
+        scheduleEvents.add(Objects.requireNonNull(event, "event"));
         return this;
     }
 
     public void clear() {
-        taskSnapshots.clear();
-        scheduleEventSnapshots.clear();
+        assessments.clear();
+        scheduleEvents.clear();
     }
 
     @Override
-    public List<ScheduledTaskSnapshot> findTasksForExport(String userId,
-                                                          List<String> courseIds,
-                                                          Optional<Instant> windowStart,
-                                                          Optional<Instant> windowEnd) {
-        return taskSnapshots.stream()
-                .filter(snapshot -> snapshot.getUserId().equals(userId))
-                .filter(snapshot -> courseIds.isEmpty()
-                        || (snapshot.getCourseId() != null && courseIds.contains(snapshot.getCourseId())))
-                .filter(snapshot -> withinWindow(snapshot.getDueAt(), windowStart, windowEnd))
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+    public List<Assessment> findByCourseID(String courseID) {
+        return assessments.stream()
+                .filter(a -> Objects.equals(a.getCourseId(), courseID))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ScheduleEventSnapshot> findScheduleEvents(String userId,
-                                                          List<String> courseIds,
-                                                          Optional<Instant> windowStart,
-                                                          Optional<Instant> windowEnd) {
-        return scheduleEventSnapshots.stream()
-                .filter(snapshot -> snapshot.getUserId().equals(userId))
-                .filter(snapshot -> withinWindow(snapshot.getStartsAt(), windowStart, windowEnd))
-                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+    public void save(Assessment assessment) {
+        assessments.add(Objects.requireNonNull(assessment, "assessment"));
     }
 
-    private boolean withinWindow(Instant instant, Optional<Instant> windowStart,
-                                 Optional<Instant> windowEnd) {
-        if (instant == null) {
-            return false;
-        }
-        if (windowStart.isPresent() && instant.isBefore(windowStart.get())) {
-            return false;
-        }
-        return windowEnd.isEmpty() || !instant.isAfter(windowEnd.get());
+    @Override
+    public List<ScheduleEvent> findByUserId(String userId) {
+        return scheduleEvents.stream()
+                .filter(e -> Objects.equals(e.getUserId(), userId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void save(ScheduleEvent event) {
+        scheduleEvents.add(Objects.requireNonNull(event, "event"));
     }
 }
