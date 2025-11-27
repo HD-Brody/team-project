@@ -3,6 +3,7 @@ package view;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginState;
 import interface_adapter.login.LoginViewModel;
+import view.components.ViewConstants;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -45,23 +46,23 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         final JPanel buttons = new JPanel();
 
         // label view setup
-        emailLabel.setFont(new Font("Abel", Font.BOLD, 28));
-        passwordLabel.setFont(new Font("Abel", Font.BOLD, 28));
+        emailLabel.setFont(ViewConstants.LABEL_FONT);
+        passwordLabel.setFont(ViewConstants.LABEL_FONT);
 
         // text field set up
         emailField.setEditable(true);
-        emailField.setMaximumSize(new Dimension(500, 30));
-        emailField.setPreferredSize(new Dimension(500, 30));
+        emailField.setMaximumSize(ViewConstants.TEXT_FIELD_SIZE);
+        emailField.setPreferredSize(ViewConstants.TEXT_FIELD_SIZE);
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
         passwordField.setEditable(true);
-        passwordField.setMaximumSize(new Dimension(500, 30));
-        passwordField.setPreferredSize(new Dimension(500, 30));
+        passwordField.setMaximumSize(ViewConstants.TEXT_FIELD_SIZE);
+        passwordField.setPreferredSize(ViewConstants.TEXT_FIELD_SIZE);
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // login button set up
         loginButton = new JButton("Login");
         loginButton.setAlignmentX(CENTER_ALIGNMENT);
-        loginButton.setBackground(new Color(59, 130, 246));
+        loginButton.setBackground(ViewConstants.BLUE);
         loginButton.setForeground(Color.WHITE);
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -79,7 +80,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         // back to welcome set up
         backToWelcomeButton = new JButton("Back To Welcome");
         backToWelcomeButton.setAlignmentX(CENTER_ALIGNMENT);
-        backToWelcomeButton.setBackground(new Color(59, 130, 246));
+        backToWelcomeButton.setBackground(ViewConstants.BLUE);
         backToWelcomeButton.setForeground(Color.WHITE);
         backToWelcomeButton.addActionListener(new ActionListener() {
             @Override

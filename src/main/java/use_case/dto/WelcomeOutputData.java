@@ -4,13 +4,13 @@ import interface_adapter.welcome.ActionType;
 
 public class WelcomeOutputData {
 
-    ActionType actionType;
+    String actionType;
 
-    public WelcomeOutputData(ActionType actionType) {
+    public WelcomeOutputData(String actionType) {
         this.actionType = actionType;
     }
 
-    public ActionType getActionType() {
+    public String getActionType() {
         return actionType;
     }
 }

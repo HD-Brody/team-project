@@ -11,7 +11,7 @@ public class WelcomeController {
         this.welcomeUseCase = welcomeUseCase;
     }
 
-    public void execute(ActionType actionType) {
+    public void execute(String actionType) {
         welcomeUseCase.execute(new WelcomeInputData(actionType));
     }
 }

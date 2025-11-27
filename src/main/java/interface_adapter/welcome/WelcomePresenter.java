@@ -22,13 +22,7 @@ public class WelcomePresenter implements WelcomePort {
 
     @Override
     public void prepareSuccessView(WelcomeOutputData welcomeOutputData) {
-        if (welcomeOutputData.getActionType() == ActionType.LOGIN) {
-            viewManagerModel.setState("login");
-            viewManagerModel.firePropertyChange();
-        }
-        else if (welcomeOutputData.getActionType() == ActionType.SIGN_UP) {
-            viewManagerModel.setState("signup");
-            viewManagerModel.firePropertyChange();
-        }
+        viewManagerModel.setState(welcomeOutputData.getActionType());
+        viewManagerModel.firePropertyChange();
     }
 }
