@@ -10,15 +10,15 @@ public final class ScheduleEvent {
     private final String eventId;
     private final String userId;
     private final String title;
-    private final Instant startsAt;
-    private final Instant endsAt;
+    private final String startsAt;
+    private final String endsAt;
     private final String location;
     private final String notes;
     private final SourceKind source;
     private final String sourceId;
 
-    public ScheduleEvent(String eventId, String userId, String title, Instant startsAt,
-                         Instant endsAt, String location, String notes, SourceKind source,
+    public ScheduleEvent(String eventId, String userId, String title, String startsAt,
+                         String endsAt, String location, String notes, SourceKind source,
                          String sourceId) {
         this.eventId = Objects.requireNonNull(eventId, "eventId");
         this.userId = Objects.requireNonNull(userId, "userId");
@@ -43,11 +43,11 @@ public final class ScheduleEvent {
         return title;
     }
 
-    public Instant getStartsAt() {
+    public String getStartsAt() {
         return startsAt;
     }
 
-    public Instant getEndsAt() {
+    public String getEndsAt() {
         return endsAt;
     }
 

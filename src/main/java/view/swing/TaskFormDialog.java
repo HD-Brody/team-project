@@ -190,6 +190,9 @@ public class TaskFormDialog extends JDialog {
             Integer effort = parseInteger(effortField.getText().trim());
             Integer priority = parseInteger(priorityField.getText().trim());
             TaskStatus status = (TaskStatus) statusComboBox.getSelectedItem();
+            if (status == null) {
+                status = TaskStatus.TODO; // or show validation error
+            }
             String notes = notesArea.getText().trim();
             if (notes.isEmpty()) notes = null;
             

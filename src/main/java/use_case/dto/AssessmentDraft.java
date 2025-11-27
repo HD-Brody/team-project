@@ -11,15 +11,13 @@ public final class AssessmentDraft {
     private final AssessmentType type;
     private final String dueDateIso;
     private final Double weight;
-    private final String schemeComponentName;
 
     public AssessmentDraft(String title, AssessmentType type, String dueDateIso,
-                           Double weight, String schemeComponentName) {
+                           Double weight) {
         this.title = Objects.requireNonNull(title, "title");
         this.type = Objects.requireNonNull(type, "type");
         this.dueDateIso = dueDateIso;
         this.weight = weight;
-        this.schemeComponentName = schemeComponentName;
     }
 
     public String getTitle() {
@@ -36,9 +34,5 @@ public final class AssessmentDraft {
 
     public Double getWeight() {
         return weight;
-    }
-
-    public String getSchemeComponentName() {
-        return schemeComponentName;
     }
 }
