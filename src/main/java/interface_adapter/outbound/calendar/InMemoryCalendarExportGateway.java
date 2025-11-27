@@ -46,7 +46,7 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     @Override
     public List<ScheduleEvent> findByUserId(String userId) {
         return scheduleEvents.stream()
-                .filter(e -> e.getUserId().equals(userId))
+                .filter(e -> Objects.equals(e.getUserId(), userId))
                 .collect(Collectors.toList());
     }
 
