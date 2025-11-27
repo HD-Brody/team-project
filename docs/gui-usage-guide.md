@@ -13,12 +13,16 @@ The Swing GUI implementation for **Use Case 2: View and Edit Tasks** provides a 
 2. Right-click on the file
 3. Select "Run 'TaskManagementApp.main()'"
 
-### Option 2: Run from Command Line
+### Option 2: Run from Command Line (Using Maven)
 ```bash
-cd /Users/rayansalim/Documents/GitHub/team-project
-javac -d out -sourcepath src/main/java src/main/java/view/swing/TaskManagementApp.java
-java -cp out view.swing.TaskManagementApp
+# Compile the project
+mvn clean compile
+
+# Run the application
+mvn exec:java -Dexec.mainClass="view.swing.TaskManagementApp"
 ```
+
+**Note:** Maven automatically handles all dependencies and compilation. No need to use `javac` directly.
 
 ---
 
@@ -43,48 +47,25 @@ java -cp out view.swing.TaskManagementApp
 - Removes task from list
 - Shows success message
 
-### ⏳ **Add Task Dialog** (Partially Implemented)
-- Opens modal dialog with form
-- Currently shows "Not Implemented" message
-- **Blocked on**: Need to add `createTask` method to `TaskController`
-- **Requires**: Leo's database implementation
+### ✅ **Add Task Dialog**
+- Modal popup for creating new tasks
+- Fields: Title, Status, Due Date, Effort, Priority, Notes
+- Creates task when "Add Task" button clicked
+- Validates input (title required, priority 1-5)
+- Closes automatically on successful creation
 
 ---
 
 ## 📋 Current Limitations
 
-### 1. **Task Creation Not Functional**
-**Why?** Creating a task requires:
-- Direct access to repository (bypassing controller)
-- Or adding a `createTask` method to `TaskController`
-
-**Solution Options:**
-
-#### Option A: Add `createTask` to `TaskController`
-```java
-// In TaskController.java
-public void createTask(String userId, String courseId, String title, 
-                       Instant dueAt, Integer effort, Integer priority, 
-                       TaskStatus status, String notes) {
-    String taskId = UUID.randomUUID().toString();
-    Task task = new Task(taskId, userId, courseId, null, title, 
-                         dueAt, effort, priority, status, notes);
-    taskRepository.save(task);
-}
-```
-
-#### Option B: Wait for Brody's `SyllabusUploadService`
-When users upload syllabi, Brody will automatically create tasks from assessments.
-Manual task creation might be a "nice to have" rather than required for MVP.
-
-### 2. **Uses In-Memory Data**
-- Currently stores tasks in RAM only
+### 1. **Uses In-Memory Data**
+- Currently stores tasks in RAM for testing
 - Data is lost when application closes
-- **Fix**: Replace `InMemoryTaskRepository` with Leo's `SqliteTaskRepositoryAdapter`
+- Will be replaced with SQLite database integration
 
-### 3. **Single Course View**
-- Currently hardcoded to "CSC236"
-- **Enhancement**: Add course selector dropdown or separate view per course
+### 2. **Single Course View**
+- Currently displays tasks for "CSC236" only
+- Multi-course support planned for future enhancement
 
 ---
 
@@ -108,98 +89,27 @@ Manual task creation might be a "nice to have" rather than required for MVP.
 3. Verify task disappears from list
 4. Verify success message appears
 
-### Test Scenario 4: Add Task (Expected to Fail)
-1. Click "+ Add Task"
-2. Fill in form fields
+### Test Scenario 4: Add Task
+1. Click "Add Task"
+2. Fill in form fields (Title is required)
 3. Click "Add Task"
-4. **Expected**: "Not Implemented" message appears
-5. **Reason**: Blocked on repository access
+4. Verify task appears in list
+5. Verify success message appears
 
 ---
 
-## 🔌 Integration with Backend
+## 🔌 Architecture
 
-### Current Architecture
 ```
-TaskManagementApp
+View Layer: TaskListView, TaskFormDialog
     ↓
-TaskListView → TaskController → TaskEditingService → InMemoryTaskRepository
-```
-
-### Production Architecture (After Leo's Work)
-```
-TaskManagementApp
+Controller Layer: TaskController
     ↓
-TaskListView → TaskController → TaskEditingService → SqliteTaskRepositoryAdapter → SQLite DB
-```
-
-### How to Wire Up Real Database
-
-In `TaskManagementApp.java`, replace:
-```java
-// Current (testing)
-TaskRepository repository = createTestRepository();
-```
-
-With:
-```java
-// Production (when Leo is done)
-Connection connection = DatabaseConnectionFactory.getConnection();
-TaskRepository repository = new SqliteTaskRepositoryAdapter(connection);
-```
-
----
-
-## 🎯 Next Steps
-
-### For You (Rayan):
-1. ✅ **GUI Implementation** - COMPLETE!
-2. ⏳ **Add `createTask` method** to `TaskController` (if needed for MVP)
-3. ⏳ **Test with real database** once Leo finishes
-
-### For Leo:
-1. ⏳ Implement `SqliteTaskRepositoryAdapter`
-2. ⏳ Provide database connection factory
-3. ⏳ Create sample data loader
-
-### For Team:
-1. ⏳ Integrate with Brody's syllabus upload (creates initial tasks)
-2. ⏳ Test end-to-end: Upload syllabus → View tasks → Edit tasks → Calculate grades
-
----
-
-## 🐛 Known Issues
-
-None currently! All implemented features work as expected.
-
----
-
-## 💡 Enhancement Ideas (Post-MVP)
-
-1. **Task Filtering**
-   - Filter by status (TODO, IN_PROGRESS, DONE)
-   - Filter by priority (High, Medium, Low)
-   - Filter by due date (This Week, This Month, Overdue)
-
-2. **Task Sorting**
-   - Sort by due date (earliest first)
-   - Sort by priority (highest first)
-   - Sort by status
-
-3. **Visual Improvements**
-   - Color-code tasks by priority
-   - Highlight overdue tasks in red
-   - Show progress bar (X/Y tasks completed)
-   - Icons for different task types
-
-4. **Bulk Operations**
-   - Select multiple tasks
-   - Delete multiple tasks at once
-   - Mark multiple as complete
-
-5. **Course Selector**
-   - Dropdown to switch between courses
-   - "All Courses" view
+Use Case Layer: TaskEditingService
+    ↓
+Repository Layer: TaskRepository (interface)
+    ↓ (implements)
+InMemoryTaskRepository (current) → SQLiteTaskRepositoryAdapter (future)
 
 ---
 
@@ -208,7 +118,7 @@ None currently! All implemented features work as expected.
 If you encounter issues or need clarification:
 1. Check linter errors in IntelliJ
 2. Verify all imports are resolved
-3. Ensure Java 11+ is being used
+3. Ensure Java 15+ is being used (required for multiline string block support)
 4. Check console output for error messages
 
 **Ready to demo!** 🎉

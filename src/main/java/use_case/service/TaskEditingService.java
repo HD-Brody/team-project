@@ -87,13 +87,12 @@ public class TaskEditingService implements TaskEditingUseCase {
                 existingTask.getUserId(),
                 existingTask.getCourseId(),
                 existingTask.getAssessmentId(),
-                command.getTitle() != null ? command.getTitle() : existingTask.getTitle(),
-                command.getDueAt() != null ? command.getDueAt() : existingTask.getDueAt(),
-                command.getEstimatedEffortMins() != null ? command.getEstimatedEffortMins()
-                        : existingTask.getEstimatedEffortMins(),
-                command.getPriority() != null ? command.getPriority() : existingTask.getPriority(),
-                command.getStatus() != null ? command.getStatus() : existingTask.getStatus(),
-                command.getNotes() != null ? command.getNotes() : existingTask.getNotes()
+                getOrDefault(command.getTitle(), existingTask.getTitle()),
+                getOrDefault(command.getDueAt(), existingTask.getDueAt()),
+                getOrDefault(command.getEstimatedEffortMins(), existingTask.getEstimatedEffortMins()),
+                getOrDefault(command.getPriority(), existingTask.getPriority()),
+                getOrDefault(command.getStatus(), existingTask.getStatus()),
+                getOrDefault(command.getNotes(), existingTask.getNotes())
         );
 
         taskRepository.save(updatedTask);
@@ -108,5 +107,18 @@ public class TaskEditingService implements TaskEditingUseCase {
         }
 
         taskRepository.deleteById(taskId);
+    }
+    
+    /**
+     * Returns the value if not null, otherwise returns the default value.
+     * Helper method to improve readability of update operations.
+     *
+     * @param value The value to check
+     * @param defaultValue The default value to return if value is null
+     * @param <T> The type of the value
+     * @return value if not null, otherwise defaultValue
+     */
+    private <T> T getOrDefault(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
     }
 }

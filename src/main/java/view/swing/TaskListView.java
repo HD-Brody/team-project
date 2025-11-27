@@ -1,6 +1,5 @@
 package view.swing;
 
-import entity.Task;
 import interface_adapter.inbound.web.TaskController;
 import interface_adapter.inbound.web.dto.TaskResponse;
 import interface_adapter.inbound.web.exception.TaskNotFoundException;
@@ -14,6 +13,11 @@ import java.util.List;
  * Shows list of tasks with Edit and Remove buttons.
  */
 public class TaskListView extends JFrame {
+    
+    // Window dimensions - optimized for displaying 4-5 tasks without scrolling
+    private static final int WINDOW_WIDTH = 550;
+    private static final int WINDOW_HEIGHT = 450;
+    
     private final TaskController taskController;
     private final String userId;
     private final String courseCode;
@@ -33,7 +37,7 @@ public class TaskListView extends JFrame {
     private void initializeUI() {
         // Window setup
         setTitle("Time Till Test - " + courseCode);
-        setSize(529, 414);
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -178,49 +182,5 @@ public class TaskListView extends JFrame {
         }
     }
 
-    /**
-     * Main method for testing the UI independently.
-     * In production, this would be called from your main application.
-     */
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // For testing: use in-memory repository
-            // In production, replace with real TaskController wired to database
-            use_case.repository.TaskRepository mockRepo = new InMemoryTaskRepository();
-            use_case.service.TaskEditingService service = new use_case.service.TaskEditingService(mockRepo);
-            TaskController controller = new interface_adapter.inbound.web.TaskController(service);
-            
-            TaskListView view = new TaskListView(controller, "user-123", "CSC236");
-            view.setVisible(true);
-        });
-    }
-
-    /**
-     * Simple in-memory repository for testing.
-     * Remove this when Leo provides the real database implementation.
-     */
-    private static class InMemoryTaskRepository implements use_case.repository.TaskRepository {
-        private final java.util.Map<String, Task> tasks = new java.util.HashMap<>();
-
-        @Override
-        public java.util.Optional<Task> findById(String taskId) {
-            return java.util.Optional.ofNullable(tasks.get(taskId));
-        }
-
-        @Override
-        public List<Task> findByUserId(String userId) {
-            return new java.util.ArrayList<>(tasks.values());
-        }
-
-        @Override
-        public void save(Task task) {
-            tasks.put(task.getTaskId(), task);
-        }
-
-        @Override
-        public void deleteById(String taskId) {
-            tasks.remove(taskId);
-        }
-    }
 }
 
