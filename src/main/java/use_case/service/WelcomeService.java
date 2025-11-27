@@ -14,6 +14,7 @@ public class WelcomeService implements WelcomeUseCase {
     }
 
     @Override
+    @Override
     public void execute(WelcomeInputData welcomeInputData) {
         welcomePort.prepareSuccessView(new WelcomeOutputData(welcomeInputData.getActionType()));
     }
