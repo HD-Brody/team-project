@@ -13,7 +13,7 @@
     </module>
     <module name="TreeWalker">
         <module name="PackageName">
-            <property name="format" value="^[a-z_]+(\.[a-zA-Z_]\w*)*$"/>
+            <property name="format" value="^[a-z_]+(\.[a-z_]\w*)*$"/>
         </module>
         <module name="TypeName"/>
         <module name="MethodName"/>
