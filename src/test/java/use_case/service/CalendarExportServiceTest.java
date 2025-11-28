@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import entity.Assessment;
 import entity.ScheduleEvent;
 import entity.SourceKind;
-import java.time.Instant;
+import entity.AssessmentType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,28 +18,27 @@ import use_case.dto.CalendarExportRequest;
 import use_case.dto.CalendarExportResponse;
 import use_case.dto.CalendarRenderRequest;
 import use_case.dto.CalendarRenderResult;
-import use_case.dto.ScheduleEventSnapshot;
-import use_case.dto.ScheduledTaskSnapshot;
 import use_case.port.outgoing.CalendarRenderPort;
-import use_case.port.outgoing.ScheduleEventQueryPort;
-import use_case.port.outgoing.ScheduledTaskQueryPort;
+import use_case.repository.AssessmentRepository;
+import use_case.repository.ScheduleEventRepository;
+import use_case.service.PreviewType;
 
 /**
  * Unit tests for {@link CalendarExportService}.
  */
 class CalendarExportServiceTest {
 
-    private StubScheduledTaskQueryPort scheduledTaskQueryPort;
-    private StubScheduleEventQueryPort scheduleEventQueryPort;
+    private StubAssessmentRepository assessmentRepository;
+    private StubScheduleEventRepository scheduleEventRepository;
     private RecordingRenderPort renderPort;
     private CalendarExportService service;
 
     @BeforeEach
     void setUp() {
-        scheduledTaskQueryPort = new StubScheduledTaskQueryPort();
-        scheduleEventQueryPort = new StubScheduleEventQueryPort();
+        assessmentRepository = new StubAssessmentRepository();
+        scheduleEventRepository = new StubScheduleEventRepository();
         renderPort = new RecordingRenderPort();
-        service = new CalendarExportService(scheduledTaskQueryPort, scheduleEventQueryPort, renderPort);
+        service = new CalendarExportService(assessmentRepository, scheduleEventRepository, renderPort);
     }
 
     @Test
@@ -48,8 +47,8 @@ class CalendarExportServiceTest {
                 "event-1",
                 "user-1",
                 "Midterm",
-                Instant.parse("2026-02-10T15:00:00Z").toString(),
-                Instant.parse("2026-02-10T16:30:00Z").toString(),
+                "2026-02-10T15:00:00Z",
+                "2026-02-10T16:30:00Z",
                 "BA 1130",
                 "Bring calculator",
                 SourceKind.ASSESSMENT,
@@ -69,8 +68,8 @@ class CalendarExportServiceTest {
         CalendarExportResponse response = service.exportCalendar(request);
 
         assertEquals(1, response.getEventCount());
-        assertFalse(scheduledTaskQueryPort.wasCalled());
-        assertFalse(scheduleEventQueryPort.wasCalled());
+        assertFalse(assessmentRepository.wasCalled());
+        assertFalse(scheduleEventRepository.wasCalled());
         assertEquals(1, renderPort.lastRequest.getEvents().size());
         assertEquals("Midterm", renderPort.lastRequest.getEvents().get(0).getTitle());
     }
@@ -81,8 +80,8 @@ class CalendarExportServiceTest {
                 "event-1",
                 "user-22",
                 "Design Review",
-                Instant.parse("2026-03-01T15:00:00Z").toString(),
-                Instant.parse("2026-03-01T16:00:00Z").toString(),
+                "2026-03-01T15:00:00Z",
+                "2026-03-01T16:00:00Z",
                 "BA 3155",
                 "Bring diagrams",
                 SourceKind.ASSESSMENT,
@@ -92,8 +91,8 @@ class CalendarExportServiceTest {
                 "event-2",
                 "user-22",
                 "Demo Day",
-                Instant.parse("2026-03-05T19:00:00Z").toString(),
-                Instant.parse("2026-03-05T20:30:00Z").toString(),
+                "2026-03-05T19:00:00Z",
+                "2026-03-05T20:30:00Z",
                 "BA 1130",
                 "Guests invited",
                 SourceKind.ASSESSMENT,
@@ -118,37 +117,39 @@ class CalendarExportServiceTest {
                 .map(ScheduleEvent::getEventId)
                 .collect(Collectors.toList());
         assertEquals(List.of("event-1", "event-2"), renderedIds);
-        assertFalse(scheduledTaskQueryPort.wasCalled());
-        assertFalse(scheduleEventQueryPort.wasCalled());
+        assertFalse(assessmentRepository.wasCalled());
+        assertFalse(scheduleEventRepository.wasCalled());
     }
 
     @Test
-    void loadsTasksAndEventsWhenRequestHasNoEvents() {
-        ScheduledTaskSnapshot taskSnapshot = new ScheduledTaskSnapshot(
-                "task-1",
-                "user-1",
+    void loadsAssessmentsAndEventsWhenRequestHasNoEvents() {
+        Assessment assessment = new Assessment(
+                "assessment-1",
                 "CSC207",
                 "Project Milestone",
-                Instant.parse("2026-02-14T20:00:00Z"),
-                120,
+                AssessmentType.ASSIGNMENT,
+                0.0,
+                "2026-02-14T20:00:00Z",
+                null,
+                90L,
                 15.0,
                 "Online",
                 "Submit PDF"
         );
-        scheduledTaskQueryPort.addSnapshot(taskSnapshot);
+        assessmentRepository.addAssessment(assessment);
 
-        ScheduleEventSnapshot eventSnapshot = new ScheduleEventSnapshot(
+        ScheduleEvent lectureEvent = new ScheduleEvent(
                 "event-3",
                 "user-1",
                 "Guest Lecture",
-                Instant.parse("2026-02-12T18:00:00Z"),
-                Instant.parse("2026-02-12T19:00:00Z"),
+                "2026-02-12T18:00:00Z",
+                "2026-02-12T19:00:00Z",
                 "BA 1160",
                 "Attendance optional",
                 SourceKind.ASSESSMENT,
                 "assess-77"
         );
-        scheduleEventQueryPort.addSnapshot(eventSnapshot);
+        scheduleEventRepository.addEvent(lectureEvent);
 
         CalendarExportRequest request = new CalendarExportRequest(
                 "user-1",
@@ -163,11 +164,11 @@ class CalendarExportServiceTest {
         CalendarExportResponse response = service.exportCalendar(request);
 
         assertEquals(2, response.getEventCount());
-        assertTrue(scheduledTaskQueryPort.wasCalled());
-        assertTrue(scheduleEventQueryPort.wasCalled());
+        assertTrue(assessmentRepository.wasCalled());
+        assertTrue(scheduleEventRepository.wasCalled());
         assertEquals(2, renderPort.lastRequest.getEvents().size());
-        ScheduleEvent taskEvent = renderPort.lastRequest.getEvents().get(0);
-        assertTrue(taskEvent.getNotes().contains("Weight: 15.00%"));
+        ScheduleEvent assessmentEvent = renderPort.lastRequest.getEvents().get(0);
+        assertTrue(assessmentEvent.getNotes().contains("Weight: 15.00%"));
     }
 
     @Test
@@ -185,20 +186,79 @@ class CalendarExportServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.exportCalendar(request));
     }
 
-    private static final class StubScheduledTaskQueryPort implements ScheduledTaskQueryPort {
-        private final List<ScheduledTaskSnapshot> snapshots = new ArrayList<>();
+    @Test
+    void generatesPreviewTextsWithTypeFiltering() {
+        Assessment assessment = new Assessment(
+                "assessment-1",
+                "CSC207",
+                "Design Doc",
+                AssessmentType.ASSIGNMENT,
+                0.0,
+                "2026-03-01T17:00:00Z",
+                null,
+                60L,
+                10.0,
+                "Online",
+                "Submit PDF"
+        );
+        assessmentRepository.addAssessment(assessment);
+
+        ScheduleEvent scheduled = new ScheduleEvent(
+                "event-77",
+                "user-1",
+                "Team Meeting",
+                "2026-02-28T15:00:00Z",
+                "2026-02-28T16:00:00Z",
+                "BA 1130",
+                "Finalize slides",
+                SourceKind.TASK,
+                "task-44"
+        );
+        scheduleEventRepository.addEvent(scheduled);
+
+        CalendarExportRequest request = new CalendarExportRequest(
+                "user-1",
+                "UTC",
+                List.of("CSC207"),
+                null,
+                null,
+                List.of(),
+                "preview"
+        );
+
+        List<String> allPreviews = service.generatePreviewTexts(request, PreviewType.ALL);
+        assertEquals(2, allPreviews.size());
+        assertTrue(allPreviews.get(0).contains("Design Doc"));
+        assertTrue(allPreviews.get(1).contains("Team Meeting"));
+
+        List<String> assessmentOnly = service.generatePreviewTexts(request, PreviewType.ASSESSMENT);
+        assertEquals(1, assessmentOnly.size());
+        assertTrue(assessmentOnly.get(0).contains("[ASSESSMENT]"));
+
+        List<String> scheduleOnly = service.generatePreviewTexts(request, PreviewType.SCHEDULE_EVENT);
+        assertEquals(1, scheduleOnly.size());
+        assertTrue(scheduleOnly.get(0).contains("[TASK]"));
+    }
+
+    private static final class StubAssessmentRepository implements AssessmentRepository {
+        private final List<Assessment> assessments = new ArrayList<>();
         private boolean called;
 
         @Override
-        public List<ScheduledTaskSnapshot> findTasksForExport(String userId, List<String> courseIds,
-                                                              Optional<Instant> windowStart,
-                                                              Optional<Instant> windowEnd) {
+        public List<Assessment> findByCourseID(String courseId) {
             called = true;
-            return snapshots;
+            return assessments.stream()
+                    .filter(a -> a.getCourseId().equals(courseId))
+                    .collect(Collectors.toList());
         }
 
-        void addSnapshot(ScheduledTaskSnapshot snapshot) {
-            snapshots.add(snapshot);
+        @Override
+        public void save(Assessment assessment) {
+            assessments.add(assessment);
+        }
+
+        void addAssessment(Assessment assessment) {
+            assessments.add(assessment);
         }
 
         boolean wasCalled() {
@@ -206,20 +266,25 @@ class CalendarExportServiceTest {
         }
     }
 
-    private static final class StubScheduleEventQueryPort implements ScheduleEventQueryPort {
-        private final List<ScheduleEventSnapshot> snapshots = new ArrayList<>();
+    private static final class StubScheduleEventRepository implements ScheduleEventRepository {
+        private final List<ScheduleEvent> events = new ArrayList<>();
         private boolean called;
 
         @Override
-        public List<ScheduleEventSnapshot> findScheduleEvents(String userId, List<String> courseIds,
-                                                              Optional<Instant> windowStart,
-                                                              Optional<Instant> windowEnd) {
+        public List<ScheduleEvent> findByUserId(String userId) {
             called = true;
-            return snapshots;
+            return events.stream()
+                    .filter(e -> java.util.Objects.equals(e.getUserId(), userId))
+                    .collect(Collectors.toList());
         }
 
-        void addSnapshot(ScheduleEventSnapshot snapshot) {
-            snapshots.add(snapshot);
+        @Override
+        public void save(ScheduleEvent event) {
+            this.events.add(event);
+        }
+
+        void addEvent(ScheduleEvent event) {
+            events.add(event);
         }
 
         boolean wasCalled() {
