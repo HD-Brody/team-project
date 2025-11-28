@@ -202,6 +202,10 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
             );
         }
         else {
+            JOptionPane.showMessageDialog(null,
+                    "Sign up Successfully",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
             emailField.setText("");
             nameField.setText("");
             passwordField.setText("");
