@@ -75,7 +75,7 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         
         // Course name label
         courseLabel = new JLabel("Tasks");
-        courseLabel.setFont(new Font("SansSerif", Font.PLAIN, 36));
+        courseLabel.setFont(new Font("SansSerif", Font.PLAIN, 24));
         courseLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
         
         // Buttons panel
@@ -210,7 +210,6 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         
         JTextField titleField = new JTextField(30);
         JTextField dueDateField = new JTextField(30);
-        JTextField effortField = new JTextField(30);
         JComboBox<TaskStatus> statusBox = new JComboBox<>(TaskStatus.values());
         JTextArea notesArea = new JTextArea(4, 30);
         notesArea.setLineWrap(true);
@@ -220,9 +219,6 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         formPanel.add(Box.createVerticalStrut(10));
         formPanel.add(new JLabel("Due Date (YYYY-MM-DD):"));
         formPanel.add(dueDateField);
-        formPanel.add(Box.createVerticalStrut(10));
-        formPanel.add(new JLabel("Estimated Effort (minutes):"));
-        formPanel.add(effortField);
         formPanel.add(Box.createVerticalStrut(10));
         formPanel.add(new JLabel("Status:"));
         formPanel.add(statusBox);
@@ -239,20 +235,10 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
                 return;
             }
             
-            Integer effort = null;
-            try {
-                if (!effortField.getText().trim().isEmpty()) {
-                    effort = Integer.parseInt(effortField.getText().trim());
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid effort value", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
             controller.createTask(
                 title,
                 dueDateField.getText().trim(),
-                effort,
+                null,
                 (TaskStatus) statusBox.getSelectedItem(),
                 notesArea.getText().trim()
             );
@@ -301,9 +287,6 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         }
         JTextField dueDateField = new JTextField(dateValue, 30);
         
-        JTextField effortField = new JTextField(
-            task.getDurationMinutes() != null ? task.getDurationMinutes().toString() : "", 30);
-        
         JComboBox<TaskStatus> statusBox = new JComboBox<>(TaskStatus.values());
         try {
             statusBox.setSelectedItem(TaskStatus.valueOf(task.getStatus()));
@@ -320,9 +303,6 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         formPanel.add(new JLabel("Due Date (YYYY-MM-DD):"));
         formPanel.add(dueDateField);
         formPanel.add(Box.createVerticalStrut(10));
-        formPanel.add(new JLabel("Estimated Effort (minutes):"));
-        formPanel.add(effortField);
-        formPanel.add(Box.createVerticalStrut(10));
         formPanel.add(new JLabel("Status:"));
         formPanel.add(statusBox);
         formPanel.add(Box.createVerticalStrut(10));
@@ -338,21 +318,11 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
                 return;
             }
             
-            Integer effort = null;
-            try {
-                if (!effortField.getText().trim().isEmpty()) {
-                    effort = Integer.parseInt(effortField.getText().trim());
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Invalid effort value", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
             controller.updateTask(
                 task.getAssessmentId(),
                 title,
                 dueDateField.getText().trim(),
-                effort,
+                null,
                 (TaskStatus) statusBox.getSelectedItem(),
                 notesArea.getText().trim()
             );
