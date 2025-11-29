@@ -20,6 +20,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private DashboardController dashboardController;
     private final ViewManagerModel viewManagerModel;
     private final SessionRepository sessionRepository;
+    private TaskListView taskListView;
 
     private final JButton uploadCourseButton;
     private final JButton gradeCalculatorButton;
@@ -171,8 +172,13 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         courseButton.setFocusPainted(false);
         courseButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         courseButton.setHorizontalAlignment(SwingConstants.LEFT);
-        courseButton.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Course details - Coming Soon!"));
+        courseButton.addActionListener(e -> {
+            if (taskListView != null) {
+                taskListView.setCourseId(course.getCourseId());
+                viewManagerModel.setState("task_list");
+                viewManagerModel.firePropertyChange();
+            }
+        });
 
         JLabel courseName = new JLabel(course.getCourseName());
         courseName.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -275,6 +281,10 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
     public DashboardController getDashboardController() {
         return dashboardController;
+    }
+
+    public void setTaskListView(TaskListView taskListView) {
+        this.taskListView = taskListView;
     }
 
     private String getUserIdFromSession() {

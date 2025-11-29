@@ -51,6 +51,8 @@ public class Main {
                     .addLoginUseCase()
                     .addCalendarExportView()
                     .addCalendarExportUseCase()
+                    .addTaskListView()
+                    .addTaskListUseCase()
                     .build();
 
             application.pack();
