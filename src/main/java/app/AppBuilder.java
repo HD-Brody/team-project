@@ -69,7 +69,7 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
-    private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
     // Session management (in-memory for session state)
     private final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
