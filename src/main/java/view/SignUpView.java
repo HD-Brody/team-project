@@ -194,14 +194,16 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         nameField.setText(state.getName());
         passwordField.setText(state.getPassword());
 
-        if (!state.getIsSuccess()) {
+        // Only show messages if there's an actual error or success message set
+        if (!state.getIsSuccess() && state.getErrorMessage() != null && !state.getErrorMessage().isEmpty()) {
             JOptionPane.showMessageDialog(null,
                     state.getErrorMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
-        else {
+        else if (state.getIsSuccess() && state.getEmail() != null && !state.getEmail().isEmpty()) {
+            // Only show success if there's actually user data (indicating a real signup happened)
             JOptionPane.showMessageDialog(null,
                     "Sign up Successfully",
                     "Success",
