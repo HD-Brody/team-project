@@ -3,6 +3,7 @@ package view;
 import interface_adapter.sign_up.SignUpController;
 import interface_adapter.sign_up.SignUpState;
 import interface_adapter.sign_up.SignUpViewModel;
+import view.components.ViewConstants;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -35,6 +36,9 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         this.signUpViewModel.addPropertyChangeListener(this);
 
         // panel setup
+        final JPanel padding = new JPanel(); // for better look
+        padding.setAlignmentX(CENTER_ALIGNMENT);
+        padding.setPreferredSize(new Dimension(30, 0));
         final JPanel emailPanel = new JPanel();
         emailPanel.add(emailLabel);
         emailPanel.add(emailField);
@@ -46,20 +50,30 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         passwordPanel.add(passwordField);
         final JPanel buttons = new JPanel();
 
+        // label view setup
+        emailLabel.setFont(ViewConstants.LABEL_FONT);
+        nameLabel.setFont(ViewConstants.LABEL_FONT);
+        passwordLabel.setFont(ViewConstants.LABEL_FONT);
+
         // text field setup
         emailField.setEditable(true);
-        emailField.setMaximumSize(new Dimension(500, 30));
+        emailField.setMaximumSize(ViewConstants.TEXT_FIELD_SIZE);
+        emailField.setPreferredSize(ViewConstants.TEXT_FIELD_SIZE);
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
         passwordField.setEditable(true);
-        passwordField.setMaximumSize(new Dimension(500, 30));
+        passwordField.setMaximumSize(ViewConstants.TEXT_FIELD_SIZE);
+        passwordField.setPreferredSize(ViewConstants.TEXT_FIELD_SIZE);
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
         nameField.setEditable(true);
-        nameField.setMaximumSize(new Dimension(500, 30));
+        nameField.setMaximumSize(ViewConstants.TEXT_FIELD_SIZE);
+        nameField.setPreferredSize(ViewConstants.TEXT_FIELD_SIZE);
         nameField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // sign up button setup
         signUpButton = new JButton("Sign Up");
         signUpButton.setAlignmentX(CENTER_ALIGNMENT);
+        signUpButton.setBackground(ViewConstants.BLUE);
+        signUpButton.setForeground(Color.WHITE);
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,7 +90,14 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         // back to welcome button setup
         backToWelcomeButton = new JButton("Back To Welcome");
         backToWelcomeButton.setAlignmentX(CENTER_ALIGNMENT);
-        backToWelcomeButton.addActionListener(this);
+        backToWelcomeButton.setBackground(ViewConstants.BLUE);
+        backToWelcomeButton.setForeground(Color.WHITE);
+        backToWelcomeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                signUpController.switchView();
+            }
+        });
         buttons.add(backToWelcomeButton);
 
         emailField.getDocument().addDocumentListener(new DocumentListener() {
@@ -150,6 +171,7 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
         });
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.add(padding);
         this.add(emailPanel);
         this.add(namePanel);
         this.add(passwordPanel);
@@ -178,6 +200,15 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+        else {
+            JOptionPane.showMessageDialog(null,
+                    "Sign up Successfully",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            emailField.setText("");
+            nameField.setText("");
+            passwordField.setText("");
         }
     }
 

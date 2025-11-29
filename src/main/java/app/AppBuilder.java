@@ -8,6 +8,8 @@ import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
 import data_access.persistence.sqlite.Course;
 import data_access.persistence.sqlite.Syllabus;
 import data_access.persistence.sqlite.Assessment;
+import data_access.persistence.sqlite.Login;
+import data_access.persistence.sqlite.Signup;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardPresenter;
@@ -18,6 +20,31 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.sign_up.SignUpController;
 import interface_adapter.sign_up.SignUpPresenter;
 import interface_adapter.sign_up.SignUpViewModel;
+import interface_adapter.welcome.WelcomeController;
+import interface_adapter.welcome.WelcomePresenter;
+import interface_adapter.welcome.WelcomeViewModel;
+import use_case.dto.LoginInputData;
+import use_case.dto.WelcomeOutputData;
+import use_case.port.incoming.LoginUseCase;
+import use_case.port.incoming.WelcomeUseCase;
+import use_case.port.outgoing.*;
+import use_case.repository.*;
+import use_case.service.LoginService;
+import use_case.service.WelcomeService;
+import view.*;
+import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.sign_up.SignUpController;
+import interface_adapter.sign_up.SignUpPresenter;
+import interface_adapter.sign_up.SignUpViewModel;
+import use_case.port.incoming.SignUpUseCase;
+import use_case.service.SignUpService;
+
+import javax.swing.*;
+import java.awt.*;
+import data_access.ai.gemini.AiExtractorDataAccessObject;
+import data_access.parser.pdf.PdfExtractorDataAccessObject;
+import interface_adapter.ViewManagerModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
@@ -45,6 +72,7 @@ import view.DashboardView;
 import view.LoginView;
 import view.SignUpView;
 import view.SyllabusUploadView;
+import use_case.service.SyllabusUploadInteractor;
 import view.ViewManager;
 
 import javax.swing.*;
@@ -56,7 +84,10 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
-    private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+
+    final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
+    final LoginRepository userDB = new Login();
 
     // Data Access Objects
     private final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
@@ -64,6 +95,7 @@ public class AppBuilder {
     private final InMemorySignUpDataAccessObject signUpDB = new InMemorySignUpDataAccessObject();
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
+    final SignUpRepository signUpDB = new Signup();
     
     // Repositories - Using SQLite implementations for persistence
     private final SyllabusRepository syllabusRepository = new data_access.persistence.sqlite.Syllabus();
@@ -79,6 +111,9 @@ public class AppBuilder {
     private SignUpViewModel signUpViewModel;
     private DashboardView dashboardView;
     private DashboardViewModel dashboardViewModel;
+
+    private WelcomeView welcomeView;
+    private WelcomeViewModel welcomeViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -201,15 +236,28 @@ public class AppBuilder {
 
         final DashboardController controller = new DashboardController(interactor);
         dashboardView.setDashboardController(controller);
+      
+    public AppBuilder addWelcomeView() {
+        welcomeViewModel = new WelcomeViewModel();
+        welcomeView = new WelcomeView(welcomeViewModel);
+        cardPanel.add(welcomeView, welcomeView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addWelcomeUseCase() {
+        final WelcomePort port = new WelcomePresenter(welcomeViewModel, viewManagerModel);
+        final WelcomeUseCase useCase = new WelcomeService(port);
+        final WelcomeController welcomeController = new WelcomeController(useCase);
+        welcomeView.setWelcomeViewController(welcomeController);
         return this;
     }
 
     public JFrame build() {
-        final JFrame application = new JFrame("Dashboard");
+        final JFrame application = new JFrame("Time Til Test");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         application.add(cardPanel);
 
-        viewManagerModel.setState(dashboardView.getViewName());
+        viewManagerModel.setState(welcomeView.getViewName());
         viewManagerModel.firePropertyChange();
 
         return application;
