@@ -13,4 +13,8 @@ public class SignUpController {
     public void execute(String email, String password, String nickname) {
         signUpUseCase.execute(new SignUpInputData(email, password, nickname));
     }
+
+    public void switchView() {
+        signUpUseCase.switchView();
+    }
 }

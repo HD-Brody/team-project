@@ -7,6 +7,7 @@ package data_access.persistence.in_memory;
 import entity.User;
 import use_case.repository.LoginRepository;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository {
@@ -25,10 +26,10 @@ public class InMemoryLoginInfoStorageDataAccessObject implements LoginRepository
     }
 
     @Override
-    public User getUserByEmail(String email) {
+    public User getUserByEmail(String email) throws SQLException{
         String passwordDB = db.get(email);
         if(passwordDB == null) {
-            return null;
+            throw new SQLException();
         }
         else {
             return new User("", "notAUser", email, "", passwordDB);

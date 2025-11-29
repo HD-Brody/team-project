@@ -7,4 +7,6 @@ public interface LoginOutputPort {
     void prepareSuccessView(LoginOutputData loginOutputData);
 
     void prepareFailView(LoginOutputData loginOutputData);
+
+    void switchView(String viewName);
 }

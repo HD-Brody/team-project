@@ -18,6 +18,13 @@ public class LoginPresenter implements LoginOutputPort {
     @Override
     public void prepareSuccessView(LoginOutputData loginOutputData) {
 
+        LoginState state = new LoginState();
+        state.setEmail(loginOutputData.getEmail());
+        state.setIsSuccess(loginOutputData.getIsSuccess());
+        state.setErrorMessage(loginOutputData.getMessage());
+        loginViewModel.setState(state);
+        loginViewModel.firePropertyChange();
+
         System.out.println("login success");
         // TODO: dashboard implementation
 //        viewManagerModel.setState("dashboard");
@@ -33,5 +40,11 @@ public class LoginPresenter implements LoginOutputPort {
         state.setErrorMessage(loginOutputData.getMessage());
         loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
+    }
+
+    @Override
+    public void switchView(String viewName) {
+        viewManagerModel.setState(viewName);
+        viewManagerModel.firePropertyChange();
     }
 }
