@@ -40,6 +40,7 @@ public class CalendarExportView extends JPanel implements ActionListener {
     private final JButton backButton;
     private final ViewManagerModel viewManagerModel;
     private Listener listener;
+    private interface_adapter.calendar_export.CalendarExportController controller;
 
     public CalendarExportView(List<String> courses, ViewManagerModel viewManagerModel) {
         this.viewManagerModel = viewManagerModel;
@@ -113,6 +114,17 @@ public class CalendarExportView extends JPanel implements ActionListener {
             }
         });
         add(backButton);
+
+        // Reload courses when this view becomes visible
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                if (controller != null) {
+                    List<String> courses = controller.loadCourses();
+                    setCourses(courses);
+                }
+            }
+        });
     }
 
     @Override
@@ -134,6 +146,10 @@ public class CalendarExportView extends JPanel implements ActionListener {
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    public void setController(interface_adapter.calendar_export.CalendarExportController controller) {
+        this.controller = controller;
     }
 
     public void setPreviewLines(List<String> lines) {

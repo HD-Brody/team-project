@@ -145,23 +145,44 @@ public class CalendarExportService implements CalendarExportUseCase {
                                                     Optional<Instant> windowEnd) {
         List<ScheduleEvent> events = new ArrayList<>();
         for (Assessment assessment : assessments) {
+            // For assessments, use endsAt (due date) as the primary timestamp if startsAt is null
             Optional<Instant> startsAt = parseInstant(assessment.getStartsAt());
-            if (startsAt.isEmpty()) {
+            Optional<Instant> endsAt = parseInstant(assessment.getEndsAt());
+            
+            // Skip if neither startsAt nor endsAt (due date) is available
+            if (startsAt.isEmpty() && endsAt.isEmpty()) {
                 continue;
             }
-            if (!withinWindow(startsAt.get(), windowStart, windowEnd)) {
+            
+            // Determine the actual start and end times for the calendar event
+            Instant eventStartTime;
+            Instant eventEndTime;
+            
+            if (startsAt.isPresent()) {
+                // If startsAt exists, use it and calculate end time
+                eventStartTime = startsAt.get();
+                eventEndTime = endsAt.isPresent() ? endsAt.get() : 
+                    (assessment.getDurationMinutes() != null ? 
+                        eventStartTime.plus(Duration.ofMinutes(assessment.getDurationMinutes())) :
+                        eventStartTime.plus(DEFAULT_DURATION));
+            } else {
+                // If only endsAt (due date) exists, set start time to 30 minutes before
+                eventEndTime = endsAt.get();
+                eventStartTime = eventEndTime.minus(Duration.ofMinutes(30));
+            }
+            
+            if (!withinWindow(eventEndTime, windowStart, windowEnd)) {
                 continue;
             }
 
-            String endsAtIso = resolveEnd(assessment, startsAt.get());
             String notes = enrichNotesWithWeight(assessment.getNotes(), assessment.getWeight());
 
             events.add(new ScheduleEvent(
                     "assessment-" + assessment.getAssessmentId(),
                     userId,
                     assessment.getTitle(),
-                    formatInstant(startsAt.get()),
-                    endsAtIso,
+                    formatInstant(eventStartTime),
+                    formatInstant(eventEndTime),
                     assessment.getLocation(),
                     notes,
                     SourceKind.ASSESSMENT,
@@ -264,6 +285,14 @@ public class CalendarExportService implements CalendarExportUseCase {
             return Optional.empty();
         }
         try {
+            // Parse the ISO string and interpret it as local time, not UTC
+            // This handles dates like "2025-10-15T23:59:00Z" by treating them as local time
+            if (isoString.endsWith("Z")) {
+                // Remove the Z and parse as LocalDateTime, then convert to Instant in system timezone
+                String withoutZ = isoString.substring(0, isoString.length() - 1);
+                java.time.LocalDateTime localDateTime = java.time.LocalDateTime.parse(withoutZ);
+                return Optional.of(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            }
             return Optional.of(Instant.parse(isoString));
         } catch (DateTimeParseException ex) {
             return Optional.empty();

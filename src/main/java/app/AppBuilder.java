@@ -274,6 +274,7 @@ public class AppBuilder {
         // Wire controller to view
         controller.setView(calendarExportView);
         calendarExportView.setListener(controller);
+        calendarExportView.setController(controller);
         
         // Load initial courses
         calendarExportView.setCourses(controller.loadCourses());
