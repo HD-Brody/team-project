@@ -83,14 +83,19 @@ public class LoginService implements LoginUseCase {
 
         // Check input password hash and hashed password from db
         if (email.equals(emailDB) && passwordHash.equals(passwordHashDB)) {
-            loginOutputPort.prepareSuccessView(new LoginOutputData(email));
-
             // Create and set session
             sessionRepository.setSession(new Session(
                     userDB.getUserId(),
                     userDB.getName(),
                     userDB.getEmail(),
                     System.currentTimeMillis()));
+
+            // Pass userId in success output data
+            loginOutputPort.prepareSuccessView(new LoginOutputData(
+                    userDB.getUserId(),
+                    email,
+                    true,
+                    "Login successful"));
         }
         else {
             loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password doesn't match, please try again"));

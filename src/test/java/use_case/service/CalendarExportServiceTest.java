@@ -245,7 +245,7 @@ class CalendarExportServiceTest {
         private boolean called;
 
         @Override
-        public List<Assessment> findByCourseID(String courseId) {
+        public List<Assessment> findByCourseId(String courseId) {
             called = true;
             return assessments.stream()
                     .filter(a -> a.getCourseId().equals(courseId))

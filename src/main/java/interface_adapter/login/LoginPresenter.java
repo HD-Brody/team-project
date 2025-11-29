@@ -1,18 +1,22 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardController;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginOutputData;
-import view.ViewManager;
 
 public class LoginPresenter implements LoginOutputPort {
 
     private final LoginViewModel loginViewModel;
     private final ViewManagerModel viewManagerModel;
+    private final DashboardController dashboardController;
 
-    public LoginPresenter(ViewManagerModel viewManagerModel, LoginViewModel loginViewModel) {
+    public LoginPresenter(ViewManagerModel viewManagerModel,
+                         LoginViewModel loginViewModel,
+                         DashboardController dashboardController) {
         this.loginViewModel = loginViewModel;
         this.viewManagerModel = viewManagerModel;
+        this.dashboardController = dashboardController;
     }
 
     @Override
@@ -26,9 +30,15 @@ public class LoginPresenter implements LoginOutputPort {
         loginViewModel.firePropertyChange();
 
         System.out.println("login success");
-        // TODO: dashboard implementation
-//        viewManagerModel.setState("dashboard");
-//        viewManagerModel.firePropertyChange();
+
+        // Load dashboard with the correct user ID
+        if (loginOutputData.getUserId() != null) {
+            dashboardController.loadDashboard(loginOutputData.getUserId());
+        }
+
+        // Navigate to dashboard on successful login
+        viewManagerModel.setState("dashboard");
+        viewManagerModel.firePropertyChange();
     }
 
     @Override

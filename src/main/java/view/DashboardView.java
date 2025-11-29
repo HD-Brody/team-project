@@ -1,9 +1,11 @@
 package view;
 
+import entity.Session;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.ViewManagerModel;
+import use_case.repository.SessionRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,17 +19,20 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private final DashboardViewModel dashboardViewModel;
     private DashboardController dashboardController;
     private final ViewManagerModel viewManagerModel;
+    private final SessionRepository sessionRepository;
 
     private final JButton uploadCourseButton;
     private final JButton gradeCalculatorButton;
     private final JButton exportCalendarButton;
     private final JPanel coursesPanel;
-    private final String userId = "defaultUser"; // TODO: Get from session
 
-    public DashboardView(DashboardViewModel dashboardViewModel, ViewManagerModel viewManagerModel) {
+    public DashboardView(DashboardViewModel dashboardViewModel,
+                        ViewManagerModel viewManagerModel,
+                        SessionRepository sessionRepository) {
         this.dashboardViewModel = dashboardViewModel;
         this.dashboardViewModel.addPropertyChangeListener(this);
         this.viewManagerModel = viewManagerModel;
+        this.sessionRepository = sessionRepository;
 
         setLayout(new BorderLayout());
         setBackground(new Color(240, 240, 245));
@@ -50,8 +55,11 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             JOptionPane.showMessageDialog(this, "Grade Calculator - Coming Soon!"));
 
         exportCalendarButton = createStyledButton("Export to Calendar", new Color(59, 130, 246));
-        exportCalendarButton.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Calendar Export - Coming Soon!"));
+        exportCalendarButton.addActionListener(e -> {
+            // Navigate to calendar export view
+            viewManagerModel.setState("calendar_export");
+            viewManagerModel.firePropertyChange();
+        });
 
         topPanel.add(uploadCourseButton);
         topPanel.add(gradeCalculatorButton);
@@ -76,7 +84,10 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
                 if (dashboardController != null) {
-                    dashboardController.loadDashboard(userId);
+                    String userId = getUserIdFromSession();
+                    if (userId != null) {
+                        dashboardController.loadDashboard(userId);
+                    }
                 }
             }
         });
@@ -256,6 +267,18 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     public void setDashboardController(DashboardController controller) {
         this.dashboardController = controller;
         // Load data when controller is set
-        controller.loadDashboard(userId);
+        String userId = getUserIdFromSession();
+        if (userId != null) {
+            controller.loadDashboard(userId);
+        }
+    }
+
+    public DashboardController getDashboardController() {
+        return dashboardController;
+    }
+
+    private String getUserIdFromSession() {
+        Session session = sessionRepository.getSession();
+        return session != null ? session.getUserID() : null;
     }
 }

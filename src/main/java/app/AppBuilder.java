@@ -2,15 +2,13 @@ package app;
 
 import data_access.ai.gemini.AiExtractorDataAccessObject;
 import data_access.parser.pdf.PdfExtractorDataAccessObject;
-import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
 import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
-import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
-import data_access.persistence.sqlite.Course;
-import data_access.persistence.sqlite.Syllabus;
-import data_access.persistence.sqlite.Assessment;
 import data_access.persistence.sqlite.Login;
 import data_access.persistence.sqlite.Signup;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.calendar_export.CalendarExportController;
+import interface_adapter.calendar_export.CalendarExportPresenter;
+import interface_adapter.calendar_export.CalendarExportViewModel;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
@@ -20,60 +18,47 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.sign_up.SignUpController;
 import interface_adapter.sign_up.SignUpPresenter;
 import interface_adapter.sign_up.SignUpViewModel;
-import interface_adapter.welcome.WelcomeController;
-import interface_adapter.welcome.WelcomePresenter;
-import interface_adapter.welcome.WelcomeViewModel;
-import use_case.dto.LoginInputData;
-import use_case.dto.WelcomeOutputData;
-import use_case.port.incoming.LoginUseCase;
-import use_case.port.incoming.WelcomeUseCase;
-import use_case.port.outgoing.*;
-import use_case.repository.*;
-import use_case.service.LoginService;
-import use_case.service.WelcomeService;
-import view.*;
-import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
-import interface_adapter.ViewManagerModel;
-import interface_adapter.sign_up.SignUpController;
-import interface_adapter.sign_up.SignUpPresenter;
-import interface_adapter.sign_up.SignUpViewModel;
-import use_case.port.incoming.SignUpUseCase;
-import use_case.service.SignUpService;
-
-import javax.swing.*;
-import java.awt.*;
-import data_access.ai.gemini.AiExtractorDataAccessObject;
-import data_access.parser.pdf.PdfExtractorDataAccessObject;
-import interface_adapter.ViewManagerModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import interface_adapter.welcome.WelcomeController;
+import interface_adapter.welcome.WelcomePresenter;
+import interface_adapter.welcome.WelcomeViewModel;
+import interface_adapter.outbound.calendar.IcsCalendarRenderer;
+import interface_adapter.outbound.calendar.InMemoryCalendarExportGateway;
 import use_case.port.incoming.LoadDashboardInputBoundary;
 import use_case.port.incoming.LoginUseCase;
 import use_case.port.incoming.SignUpUseCase;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
+import use_case.port.incoming.WelcomeUseCase;
 import use_case.port.outgoing.AiExtractionDataAccessInterface;
+import use_case.port.outgoing.CalendarExportOutputPort;
+import use_case.port.outgoing.CalendarRenderPort;
 import use_case.port.outgoing.LoadDashboardOutputBoundary;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.port.outgoing.PdfExtractionDataAccessInterface;
 import use_case.port.outgoing.SignUpPort;
 import use_case.port.outgoing.SyllabusUploadOutputBoundary;
+import use_case.port.outgoing.WelcomePort;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
-import use_case.repository.InMemoryAssessmentRepository;
-import use_case.repository.InMemoryCourseRepository;
-import use_case.repository.InMemorySyllabusRepository;
+import use_case.repository.LoginRepository;
+import use_case.repository.ScheduleEventRepository;
+import use_case.repository.SignUpRepository;
 import use_case.repository.SyllabusRepository;
+import use_case.service.CalendarExportService;
 import use_case.service.LoadDashboardInteractor;
 import use_case.service.LoginService;
 import use_case.service.SignUpService;
 import use_case.service.SyllabusUploadInteractor;
+import use_case.service.WelcomeService;
+import view.CalendarExportView;
 import view.DashboardView;
 import view.LoginView;
 import view.SignUpView;
 import view.SyllabusUploadView;
-import use_case.service.SyllabusUploadInteractor;
 import view.ViewManager;
+import view.WelcomeView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -86,22 +71,21 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
-    final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
-    final LoginRepository userDB = new Login();
+    // Session management (in-memory for session state)
+    private final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
 
     // Data Access Objects
-    private final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
-    private final InMemoryLoginInfoStorageDataAccessObject userDB = new InMemoryLoginInfoStorageDataAccessObject();
-    private final InMemorySignUpDataAccessObject signUpDB = new InMemorySignUpDataAccessObject();
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
-    final SignUpRepository signUpDB = new Signup();
-    
+
     // Repositories - Using SQLite implementations for persistence
     private final SyllabusRepository syllabusRepository = new data_access.persistence.sqlite.Syllabus();
     private final AssessmentRepository assessmentRepository = new data_access.persistence.sqlite.Assessment();
     private final CourseRepository courseRepository = new data_access.persistence.sqlite.Course();
-    
+    private final ScheduleEventRepository scheduleEventRepository = new data_access.persistence.sqlite.ScheduleEvent();
+    private final LoginRepository loginRepository = new Login();
+    private final SignUpRepository signUpRepository = new Signup();
+
     // Views
     private LoginView loginView;
     private LoginViewModel loginViewModel;
@@ -111,9 +95,10 @@ public class AppBuilder {
     private SignUpViewModel signUpViewModel;
     private DashboardView dashboardView;
     private DashboardViewModel dashboardViewModel;
-
     private WelcomeView welcomeView;
     private WelcomeViewModel welcomeViewModel;
+    private CalendarExportView calendarExportView;
+    private CalendarExportViewModel calendarExportViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -150,11 +135,12 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputPort outputBoundary = new LoginPresenter(
                 viewManagerModel,
-                loginViewModel
+                loginViewModel,
+                dashboardView.getDashboardController()
         );
 
         final LoginUseCase interactor = new LoginService(
-                userDB,
+                loginRepository,
                 sessionDB,
                 outputBoundary
         );
@@ -178,7 +164,7 @@ public class AppBuilder {
         );
 
         final SignUpUseCase interactor = new SignUpService(
-                signUpDB,
+                signUpRepository,
                 outputBoundary
         );
 
@@ -189,7 +175,7 @@ public class AppBuilder {
 
     public AppBuilder addSyllabusUploadView() {
         syllabusUploadViewModel = new SyllabusUploadViewModel();
-        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel, viewManagerModel);
+        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel, viewManagerModel, sessionDB);
         cardPanel.add(syllabusUploadView, syllabusUploadView.getViewName());
         return this;
     }
@@ -216,7 +202,7 @@ public class AppBuilder {
 
     public AppBuilder addDashboardView() {
         dashboardViewModel = new DashboardViewModel();
-        dashboardView = new DashboardView(dashboardViewModel, viewManagerModel);
+        dashboardView = new DashboardView(dashboardViewModel, viewManagerModel, sessionDB);
         cardPanel.add(dashboardView, dashboardView.getViewName());
         return this;
     }
@@ -227,7 +213,7 @@ public class AppBuilder {
             dashboardViewModel,
             syllabusUploadViewModel
         );
-        
+
         final LoadDashboardInputBoundary interactor = new LoadDashboardInteractor(
             courseRepository,
             assessmentRepository,
@@ -236,7 +222,9 @@ public class AppBuilder {
 
         final DashboardController controller = new DashboardController(interactor);
         dashboardView.setDashboardController(controller);
-      
+        return this;
+    }
+
     public AppBuilder addWelcomeView() {
         welcomeViewModel = new WelcomeViewModel();
         welcomeView = new WelcomeView(welcomeViewModel);
@@ -249,6 +237,48 @@ public class AppBuilder {
         final WelcomeUseCase useCase = new WelcomeService(port);
         final WelcomeController welcomeController = new WelcomeController(useCase);
         welcomeView.setWelcomeViewController(welcomeController);
+        return this;
+    }
+
+    public AppBuilder addCalendarExportView() {
+        calendarExportViewModel = new CalendarExportViewModel();
+        // Initialize with empty course list first
+        calendarExportView = new CalendarExportView(java.util.List.of(), viewManagerModel);
+        cardPanel.add(calendarExportView, calendarExportView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addCalendarExportUseCase() {
+        // Calendar render port
+        final CalendarRenderPort calendarRenderer = new interface_adapter.outbound.calendar.IcsCalendarRenderer();
+        
+        // Presenter
+        final CalendarExportPresenter presenter = new CalendarExportPresenter(calendarExportViewModel);
+        
+        // Service with all required dependencies
+        final CalendarExportService service = new CalendarExportService(
+            assessmentRepository,
+            scheduleEventRepository,
+            calendarRenderer,
+            presenter
+        );
+        
+        // Controller
+        final CalendarExportController controller = new CalendarExportController(
+            service,
+            courseRepository,
+            sessionDB,
+            presenter
+        );
+        
+        // Wire controller to view
+        controller.setView(calendarExportView);
+        calendarExportView.setListener(controller);
+        calendarExportView.setController(controller);
+        
+        // Load initial courses
+        calendarExportView.setCourses(controller.loadCourses());
+        
         return this;
     }
 

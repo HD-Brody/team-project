@@ -34,46 +34,57 @@ public class CalendarExportService implements CalendarExportUseCase {
     private final AssessmentRepository assessmentRepository;
     private final ScheduleEventRepository scheduleEventRepository;
     private final CalendarRenderPort calendarRenderPort;
+    private final use_case.port.outgoing.CalendarExportOutputPort outputPort;
 
     public CalendarExportService(AssessmentRepository assessmentRepository,
                                  ScheduleEventRepository scheduleEventRepository,
-                                 CalendarRenderPort calendarRenderPort) {
+                                 CalendarRenderPort calendarRenderPort,
+                                 use_case.port.outgoing.CalendarExportOutputPort outputPort) {
         this.assessmentRepository = Objects.requireNonNull(assessmentRepository,
                 "assessmentRepository");
         this.scheduleEventRepository = Objects.requireNonNull(scheduleEventRepository,
                 "scheduleEventRepository");
         this.calendarRenderPort = Objects.requireNonNull(calendarRenderPort,
                 "calendarRenderPort");
+        this.outputPort = Objects.requireNonNull(outputPort, "outputPort");
     }
 
     @Override
     public CalendarExportResponse exportCalendar(CalendarExportRequest request) {
         Objects.requireNonNull(request, "request");
 
-        ZoneId zoneId = parseZone(request.getTimezoneId());
-        List<ScheduleEvent> events = resolveEvents(request);
+        try {
+            ZoneId zoneId = parseZone(request.getTimezoneId());
+            List<ScheduleEvent> events = resolveEvents(request);
 
-        if (events.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No exportable events were found for user " + request.getUserId());
+            if (events.isEmpty()) {
+                outputPort.presentError("No exportable events were found for user " + request.getUserId());
+                return null;
+            }
+
+            CalendarRenderRequest renderRequest = new CalendarRenderRequest(
+                    DEFAULT_PRODUCT_ID,
+                    zoneId,
+                    request.getFilenamePrefix(),
+                    events
+            );
+
+            CalendarRenderResult renderResult = calendarRenderPort.render(renderRequest);
+
+            CalendarExportResponse response = new CalendarExportResponse(
+                    renderResult.getPayload(),
+                    renderResult.getFilename(),
+                    renderResult.getContentType(),
+                    events.size(),
+                    Instant.now()
+            );
+            
+            outputPort.presentExport(response);
+            return response;
+        } catch (Exception e) {
+            outputPort.presentError("Failed to export calendar: " + e.getMessage());
+            return null;
         }
-
-        CalendarRenderRequest renderRequest = new CalendarRenderRequest(
-                DEFAULT_PRODUCT_ID,
-                zoneId,
-                request.getFilenamePrefix(),
-                events
-        );
-
-        CalendarRenderResult renderResult = calendarRenderPort.render(renderRequest);
-
-        return new CalendarExportResponse(
-                renderResult.getPayload(),
-                renderResult.getFilename(),
-                renderResult.getContentType(),
-                events.size(),
-                Instant.now()
-        );
     }
 
     /**
@@ -119,7 +130,7 @@ public class CalendarExportService implements CalendarExportUseCase {
     private List<Assessment> loadAssessments(CalendarExportRequest request) {
         List<Assessment> assessments = new ArrayList<>();
         for (String courseId : request.getCourseIds()) {
-            assessments.addAll(assessmentRepository.findByCourseID(courseId));
+            assessments.addAll(assessmentRepository.findByCourseId(courseId));
         }
         return assessments;
     }
@@ -134,23 +145,44 @@ public class CalendarExportService implements CalendarExportUseCase {
                                                     Optional<Instant> windowEnd) {
         List<ScheduleEvent> events = new ArrayList<>();
         for (Assessment assessment : assessments) {
+            // For assessments, use endsAt (due date) as the primary timestamp if startsAt is null
             Optional<Instant> startsAt = parseInstant(assessment.getStartsAt());
-            if (startsAt.isEmpty()) {
+            Optional<Instant> endsAt = parseInstant(assessment.getEndsAt());
+            
+            // Skip if neither startsAt nor endsAt (due date) is available
+            if (startsAt.isEmpty() && endsAt.isEmpty()) {
                 continue;
             }
-            if (!withinWindow(startsAt.get(), windowStart, windowEnd)) {
+            
+            // Determine the actual start and end times for the calendar event
+            Instant eventStartTime;
+            Instant eventEndTime;
+            
+            if (startsAt.isPresent()) {
+                // If startsAt exists, use it and calculate end time
+                eventStartTime = startsAt.get();
+                eventEndTime = endsAt.isPresent() ? endsAt.get() : 
+                    (assessment.getDurationMinutes() != null ? 
+                        eventStartTime.plus(Duration.ofMinutes(assessment.getDurationMinutes())) :
+                        eventStartTime.plus(DEFAULT_DURATION));
+            } else {
+                // If only endsAt (due date) exists, set start time to 30 minutes before
+                eventEndTime = endsAt.get();
+                eventStartTime = eventEndTime.minus(Duration.ofMinutes(30));
+            }
+            
+            if (!withinWindow(eventEndTime, windowStart, windowEnd)) {
                 continue;
             }
 
-            String endsAtIso = resolveEnd(assessment, startsAt.get());
             String notes = enrichNotesWithWeight(assessment.getNotes(), assessment.getWeight());
 
             events.add(new ScheduleEvent(
                     "assessment-" + assessment.getAssessmentId(),
                     userId,
                     assessment.getTitle(),
-                    formatInstant(startsAt.get()),
-                    endsAtIso,
+                    formatInstant(eventStartTime),
+                    formatInstant(eventEndTime),
                     assessment.getLocation(),
                     notes,
                     SourceKind.ASSESSMENT,
@@ -253,6 +285,14 @@ public class CalendarExportService implements CalendarExportUseCase {
             return Optional.empty();
         }
         try {
+            // Parse the ISO string and interpret it as local time, not UTC
+            // This handles dates like "2025-10-15T23:59:00Z" by treating them as local time
+            if (isoString.endsWith("Z")) {
+                // Remove the Z and parse as LocalDateTime, then convert to Instant in system timezone
+                String withoutZ = isoString.substring(0, isoString.length() - 1);
+                java.time.LocalDateTime localDateTime = java.time.LocalDateTime.parse(withoutZ);
+                return Optional.of(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            }
             return Optional.of(Instant.parse(isoString));
         } catch (DateTimeParseException ex) {
             return Optional.empty();
