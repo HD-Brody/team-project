@@ -75,7 +75,7 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         
         // Course name label
         courseLabel = new JLabel("Tasks");
-        courseLabel.setFont(new Font("SansSerif", Font.PLAIN, 24));
+        courseLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
         courseLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
         
         // Buttons panel

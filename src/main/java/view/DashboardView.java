@@ -166,12 +166,23 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         // Course title button
         JButton courseButton = new JButton(course.getCourseCode());
         courseButton.setFont(new Font("Arial", Font.BOLD, 18));
-        courseButton.setForeground(new Color(17, 24, 39));
+        courseButton.setForeground(new Color(59, 130, 246)); // Blue color to indicate clickability
         courseButton.setContentAreaFilled(false);
         courseButton.setBorderPainted(false);
         courseButton.setFocusPainted(false);
         courseButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         courseButton.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        // Add underline and hover effect
+        courseButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                courseButton.setText("<html><u>" + course.getCourseCode() + "</u></html>");
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                courseButton.setText(course.getCourseCode());
+            }
+        });
+        
         courseButton.addActionListener(e -> {
             if (taskListView != null) {
                 taskListView.setCourseId(course.getCourseId());
