@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -36,9 +37,12 @@ public class CalendarExportView extends JPanel implements ActionListener {
     private final JComboBox<String> typeSelector;
     private final JTextArea previewArea;
     private final JButton exportButton;
+    private final JButton backButton;
+    private final ViewManagerModel viewManagerModel;
     private Listener listener;
 
-    public CalendarExportView(List<String> courses) {
+    public CalendarExportView(List<String> courses, ViewManagerModel viewManagerModel) {
+        this.viewManagerModel = viewManagerModel;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(24, 24, 24, 24));
 
@@ -93,6 +97,22 @@ public class CalendarExportView extends JPanel implements ActionListener {
         exportButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         exportButton.addActionListener(this);
         add(exportButton);
+
+        add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Back to Dashboard button
+        backButton = new JButton("Back to Dashboard");
+        backButton.setPreferredSize(new Dimension(160, 40));
+        backButton.setMaximumSize(new Dimension(160, 40));
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewManagerModel.setState("dashboard");
+                viewManagerModel.firePropertyChange();
+            }
+        });
+        add(backButton);
     }
 
     @Override

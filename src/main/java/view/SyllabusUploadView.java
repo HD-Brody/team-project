@@ -28,6 +28,7 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
     private final JTextField filePathField = new JTextField(30);
     private final JButton selectButton;
     private final JButton extractButton;
+    private final JButton backButton;
     private final JLabel errorLabel;
 
     public SyllabusUploadView(SyllabusUploadViewModel syllabusUploadViewModel,
@@ -106,6 +107,17 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
             }
         });
 
+        // Back to Dashboard button
+        backButton = new JButton("Back to Dashboard");
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewManagerModel.setState("dashboard");
+                viewManagerModel.firePropertyChange();
+            }
+        });
+
         // Error label
         errorLabel = new JLabel("");
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -122,6 +134,8 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
         this.add(selectButton);
         this.add(Box.createVerticalStrut(10));
         this.add(extractButton);
+        this.add(Box.createVerticalStrut(10));
+        this.add(backButton);
         this.add(Box.createVerticalStrut(10));
         this.add(errorLabel);
         this.add(Box.createVerticalStrut(30));

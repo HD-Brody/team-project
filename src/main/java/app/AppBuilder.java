@@ -243,7 +243,7 @@ public class AppBuilder {
     public AppBuilder addCalendarExportView() {
         calendarExportViewModel = new CalendarExportViewModel();
         // Initialize with empty course list first
-        calendarExportView = new CalendarExportView(java.util.List.of());
+        calendarExportView = new CalendarExportView(java.util.List.of(), viewManagerModel);
         cardPanel.add(calendarExportView, calendarExportView.getViewName());
         return this;
     }
