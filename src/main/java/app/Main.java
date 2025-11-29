@@ -33,7 +33,6 @@ public class Main {
                     System.out.println("Database connection closed");
                 }
             } catch (SQLException e) {
-                System.err.println("Error closing database connection: " + e.getMessage());
             }
         }));
 
@@ -50,6 +49,8 @@ public class Main {
                     .addSyllabusUploadUseCase()
                     .addLoginView()
                     .addLoginUseCase()
+                    .addCalendarExportView()
+                    .addCalendarExportUseCase()
                     .build();
 
             application.pack();

@@ -34,46 +34,57 @@ public class CalendarExportService implements CalendarExportUseCase {
     private final AssessmentRepository assessmentRepository;
     private final ScheduleEventRepository scheduleEventRepository;
     private final CalendarRenderPort calendarRenderPort;
+    private final use_case.port.outgoing.CalendarExportOutputPort outputPort;
 
     public CalendarExportService(AssessmentRepository assessmentRepository,
                                  ScheduleEventRepository scheduleEventRepository,
-                                 CalendarRenderPort calendarRenderPort) {
+                                 CalendarRenderPort calendarRenderPort,
+                                 use_case.port.outgoing.CalendarExportOutputPort outputPort) {
         this.assessmentRepository = Objects.requireNonNull(assessmentRepository,
                 "assessmentRepository");
         this.scheduleEventRepository = Objects.requireNonNull(scheduleEventRepository,
                 "scheduleEventRepository");
         this.calendarRenderPort = Objects.requireNonNull(calendarRenderPort,
                 "calendarRenderPort");
+        this.outputPort = Objects.requireNonNull(outputPort, "outputPort");
     }
 
     @Override
     public CalendarExportResponse exportCalendar(CalendarExportRequest request) {
         Objects.requireNonNull(request, "request");
 
-        ZoneId zoneId = parseZone(request.getTimezoneId());
-        List<ScheduleEvent> events = resolveEvents(request);
+        try {
+            ZoneId zoneId = parseZone(request.getTimezoneId());
+            List<ScheduleEvent> events = resolveEvents(request);
 
-        if (events.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No exportable events were found for user " + request.getUserId());
+            if (events.isEmpty()) {
+                outputPort.presentError("No exportable events were found for user " + request.getUserId());
+                return null;
+            }
+
+            CalendarRenderRequest renderRequest = new CalendarRenderRequest(
+                    DEFAULT_PRODUCT_ID,
+                    zoneId,
+                    request.getFilenamePrefix(),
+                    events
+            );
+
+            CalendarRenderResult renderResult = calendarRenderPort.render(renderRequest);
+
+            CalendarExportResponse response = new CalendarExportResponse(
+                    renderResult.getPayload(),
+                    renderResult.getFilename(),
+                    renderResult.getContentType(),
+                    events.size(),
+                    Instant.now()
+            );
+            
+            outputPort.presentExport(response);
+            return response;
+        } catch (Exception e) {
+            outputPort.presentError("Failed to export calendar: " + e.getMessage());
+            return null;
         }
-
-        CalendarRenderRequest renderRequest = new CalendarRenderRequest(
-                DEFAULT_PRODUCT_ID,
-                zoneId,
-                request.getFilenamePrefix(),
-                events
-        );
-
-        CalendarRenderResult renderResult = calendarRenderPort.render(renderRequest);
-
-        return new CalendarExportResponse(
-                renderResult.getPayload(),
-                renderResult.getFilename(),
-                renderResult.getContentType(),
-                events.size(),
-                Instant.now()
-        );
     }
 
     /**

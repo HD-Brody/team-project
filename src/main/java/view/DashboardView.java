@@ -55,8 +55,11 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             JOptionPane.showMessageDialog(this, "Grade Calculator - Coming Soon!"));
 
         exportCalendarButton = createStyledButton("Export to Calendar", new Color(59, 130, 246));
-        exportCalendarButton.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Calendar Export - Coming Soon!"));
+        exportCalendarButton.addActionListener(e -> {
+            // Navigate to calendar export view
+            viewManagerModel.setState("calendar_export");
+            viewManagerModel.firePropertyChange();
+        });
 
         topPanel.add(uploadCourseButton);
         topPanel.add(gradeCalculatorButton);
