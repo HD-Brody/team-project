@@ -81,10 +81,7 @@ public class TaskEditingService implements TaskEditingUseCase {
     @Override
     public Optional<Assessment> getTaskById(String assessmentId) {
         Objects.requireNonNull(assessmentId, "assessmentId");
-        // Note: AssessmentRepository doesn't have findById yet
-        // This is a limitation - would need to enhance AssessmentRepository
-        // For now, return empty - would need database enhancement
-        return Optional.empty();
+        return assessmentRepository.findById(assessmentId);
     }
 
     @Override
@@ -92,12 +89,6 @@ public class TaskEditingService implements TaskEditingUseCase {
         Objects.requireNonNull(command, "command");
         Objects.requireNonNull(command.getTaskId(), "assessmentId");
 
-        // Note: This method cannot be fully implemented without AssessmentRepository.findById()
-        // Throwing exception for now
-        throw new UnsupportedOperationException(
-                "updateTask requires AssessmentRepository.findById() which is not yet implemented");
-        
-        /* Implementation would look like:
         Assessment existingAssessment = assessmentRepository.findById(command.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Assessment not found: " + command.getTaskId()));
@@ -128,17 +119,13 @@ public class TaskEditingService implements TaskEditingUseCase {
                 updatedNotes
         );
 
-        assessmentRepository.save(updatedAssessment);
-        */
+        assessmentRepository.update(updatedAssessment);
     }
 
     @Override
     public void deleteTask(String assessmentId) {
         Objects.requireNonNull(assessmentId, "assessmentId");
-
-        // Note: AssessmentRepository doesn't have deleteById() method
-        throw new UnsupportedOperationException(
-                "deleteTask requires AssessmentRepository.deleteById() which is not yet implemented");
+        assessmentRepository.deleteById(assessmentId);
     }
     
     // Helper methods for encoding/decoding TaskStatus in notes field

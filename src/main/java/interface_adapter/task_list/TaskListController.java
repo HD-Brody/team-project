@@ -4,6 +4,7 @@ import entity.Assessment;
 import entity.AssessmentType;
 import entity.TaskStatus;
 import use_case.dto.TaskCreationCommand;
+import use_case.dto.TaskUpdateCommand;
 import use_case.port.incoming.TaskEditingUseCase;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
@@ -87,10 +88,32 @@ public class TaskListController {
             // Reload tasks
             String courseId = presenter.viewModel.getState().getCourseId();
             loadTasks(courseId);
-        } catch (UnsupportedOperationException e) {
-            presenter.presentError("Delete functionality not yet implemented in database");
         } catch (Exception e) {
             presenter.presentError("Failed to delete task: " + e.getMessage());
+        }
+    }
+
+    public void updateTask(String assessmentId, String title, String dueDate, 
+                          Integer durationMinutes, TaskStatus status, String notes) {
+        try {
+            TaskUpdateCommand command = new TaskUpdateCommand(
+                assessmentId,
+                title,
+                parseDate(dueDate),
+                durationMinutes,
+                null, // priority - not used
+                status,
+                notes
+            );
+            
+            taskEditingUseCase.updateTask(command);
+            presenter.presentTaskUpdated();
+            
+            // Reload tasks
+            String courseId = presenter.viewModel.getState().getCourseId();
+            loadTasks(courseId);
+        } catch (Exception e) {
+            presenter.presentError("Failed to update task: " + e.getMessage());
         }
     }
 

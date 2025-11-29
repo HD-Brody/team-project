@@ -49,6 +49,11 @@ public class TaskListPresenter {
         viewModel.firePropertyChange();
     }
 
+    public void presentTaskUpdated() {
+        // Trigger reload by firing property change
+        viewModel.firePropertyChange();
+    }
+
     private TaskListState.TaskData convertToTaskData(Assessment assessment) {
         String formattedDate = formatDate(assessment.getEndsAt());
         String status = extractStatusFromNotes(assessment.getNotes());

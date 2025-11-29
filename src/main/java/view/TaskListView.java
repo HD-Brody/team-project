@@ -168,6 +168,17 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setBackground(new Color(230, 230, 230));
         
+        JButton editButton = new JButton("Edit");
+        editButton.setBackground(new Color(40, 167, 69));
+        editButton.setForeground(Color.WHITE);
+        editButton.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        editButton.setFocusPainted(false);
+        editButton.setBorderPainted(false);
+        editButton.setOpaque(true);
+        editButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        editButton.setPreferredSize(new Dimension(85, 32));
+        editButton.addActionListener(e -> openEditTaskDialog(task));
+        
         JButton removeButton = new JButton("Remove");
         removeButton.setBackground(new Color(220, 53, 69));
         removeButton.setForeground(Color.WHITE);
@@ -179,6 +190,7 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         removeButton.setPreferredSize(new Dimension(85, 32));
         removeButton.addActionListener(e -> deleteTask(task.getAssessmentId()));
         
+        buttonPanel.add(editButton);
         buttonPanel.add(removeButton);
         
         panel.add(infoPanel, BorderLayout.CENTER);
@@ -264,6 +276,94 @@ public class TaskListView extends JPanel implements PropertyChangeListener {
         if (confirm == JOptionPane.YES_OPTION) {
             controller.deleteTask(assessmentId);
         }
+    }
+
+    private void openEditTaskDialog(TaskListState.TaskData task) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Task", true);
+        dialog.setSize(450, 400);
+        dialog.setLocationRelativeTo(this);
+        
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        JTextField titleField = new JTextField(task.getTitle(), 30);
+        
+        // Parse the formatted date back to YYYY-MM-DD
+        String dateValue = "";
+        if (task.getDueDate() != null && !task.getDueDate().equals("No due date")) {
+            try {
+                // Try to extract the date from formatted string
+                dateValue = task.getDueDate(); // Store as-is for now
+            } catch (Exception e) {
+                dateValue = "";
+            }
+        }
+        JTextField dueDateField = new JTextField(dateValue, 30);
+        
+        JTextField effortField = new JTextField(
+            task.getDurationMinutes() != null ? task.getDurationMinutes().toString() : "", 30);
+        
+        JComboBox<TaskStatus> statusBox = new JComboBox<>(TaskStatus.values());
+        try {
+            statusBox.setSelectedItem(TaskStatus.valueOf(task.getStatus()));
+        } catch (Exception e) {
+            statusBox.setSelectedItem(TaskStatus.TODO);
+        }
+        
+        JTextArea notesArea = new JTextArea(task.getNotes(), 4, 30);
+        notesArea.setLineWrap(true);
+        
+        formPanel.add(new JLabel("Title:"));
+        formPanel.add(titleField);
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(new JLabel("Due Date (YYYY-MM-DD):"));
+        formPanel.add(dueDateField);
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(new JLabel("Estimated Effort (minutes):"));
+        formPanel.add(effortField);
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(new JLabel("Status:"));
+        formPanel.add(statusBox);
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(new JLabel("Notes:"));
+        formPanel.add(new JScrollPane(notesArea));
+        formPanel.add(Box.createVerticalStrut(20));
+        
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            String title = titleField.getText().trim();
+            if (title.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Title is required", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Integer effort = null;
+            try {
+                if (!effortField.getText().trim().isEmpty()) {
+                    effort = Integer.parseInt(effortField.getText().trim());
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Invalid effort value", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            controller.updateTask(
+                task.getAssessmentId(),
+                title,
+                dueDateField.getText().trim(),
+                effort,
+                (TaskStatus) statusBox.getSelectedItem(),
+                notesArea.getText().trim()
+            );
+            
+            dialog.dispose();
+        });
+        
+        formPanel.add(saveButton);
+        
+        dialog.add(formPanel);
+        dialog.setVisible(true);
     }
 
     @Override

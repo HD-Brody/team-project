@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface AssessmentRepository {
     public List<Assessment> findByCourseId(String courseId);
     public void save(Assessment assessment);
+    public Optional<Assessment> findById(String assessmentId);
+    public void update(Assessment assessment);
+    public void deleteById(String assessmentId);
 }
