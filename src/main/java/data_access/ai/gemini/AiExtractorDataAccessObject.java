@@ -127,7 +127,7 @@ public class AiExtractorDataAccessObject implements AiExtractionDataAccessInterf
             "4.  \"instructor\": (String) The name of the course instructor (e.g., \"Dr. Jane Smith\"). If not found, use null.\n" +
             "5.  \"assessments\": An array of objects. Each object represents a single graded item. REQUIRED - must have at least one assessment.\n" +
             "    IMPORTANT: If the syllabus mentions repeated assessments (e.g., \"Tutorial Activities 1-5\" or \"5 Assignments\"), create a SEPARATE object for each instance.\n" +
-            "    If the syllabus states that some are dropped (e.g., \"best 5 of 6 tutorials count\"), only create objects for the number that count (5 in this example).\n" +
+            "    If the syllabus states that some are dropped (e.g., \"best 5 of 6 tutorials count\"), only create objects for the number that count (5 in this example) and calculate their weighting accordingly.\n" +
             "    Each assessment object must have these keys:\n" +
             "    - \"title\": (String) The name of the assessment (e.g., \"Assignment 1: Logic Puzzles\"). For repeated items, number them.\n" +
             "    - \"type\": (String) MUST BE ONE OF: TEST, ASSIGNMENT, EXAM, QUIZ, PROJECT, OTHER\n" +

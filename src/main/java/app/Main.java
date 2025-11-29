@@ -19,10 +19,23 @@ public class Main {
          */
         try {
             currentConnection = DriverManager.getConnection(DB_URL);
+            System.out.println("Database connection established successfully");
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
             e.printStackTrace();
+            return; // Exit if database connection fails
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                if (currentConnection != null && !currentConnection.isClosed()) {
+                    currentConnection.close();
+                    System.out.println("Database connection closed");
+                }
+            } catch (SQLException e) {
+                System.err.println("Error closing database connection: " + e.getMessage());
+            }
+        }));
 
         SwingUtilities.invokeLater(() -> {
             AppBuilder appBuilder = new AppBuilder();
@@ -35,6 +48,8 @@ public class Main {
                     .addLoginUseCase()
                     .addSyllabusUploadView()
                     .addSyllabusUploadUseCase()
+                    .addDashboardView()
+                    .addDashboardUseCase()
                     .build();
 
             application.pack();
