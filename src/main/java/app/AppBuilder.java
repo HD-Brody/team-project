@@ -122,7 +122,8 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputPort outputBoundary = new LoginPresenter(
                 viewManagerModel,
-                loginViewModel
+                loginViewModel,
+                dashboardView.getDashboardController()
         );
 
         final LoginUseCase interactor = new LoginService(
@@ -161,7 +162,7 @@ public class AppBuilder {
 
     public AppBuilder addSyllabusUploadView() {
         syllabusUploadViewModel = new SyllabusUploadViewModel();
-        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel, viewManagerModel);
+        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel, viewManagerModel, sessionDB);
         cardPanel.add(syllabusUploadView, syllabusUploadView.getViewName());
         return this;
     }
@@ -188,7 +189,7 @@ public class AppBuilder {
 
     public AppBuilder addDashboardView() {
         dashboardViewModel = new DashboardViewModel();
-        dashboardView = new DashboardView(dashboardViewModel, viewManagerModel);
+        dashboardView = new DashboardView(dashboardViewModel, viewManagerModel, sessionDB);
         cardPanel.add(dashboardView, dashboardView.getViewName());
         return this;
     }

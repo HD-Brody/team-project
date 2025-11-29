@@ -44,12 +44,12 @@ public class Main {
                     .addWelcomeUseCase()
                     .addSignUpView()
                     .addSignUpUseCase()
-                    .addLoginView()
-                    .addLoginUseCase()
-                    .addSyllabusUploadView()
-                    .addSyllabusUploadUseCase()
                     .addDashboardView()
                     .addDashboardUseCase()
+                    .addSyllabusUploadView()
+                    .addSyllabusUploadUseCase()
+                    .addLoginView()
+                    .addLoginUseCase()
                     .build();
 
             application.pack();

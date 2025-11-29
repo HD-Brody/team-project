@@ -1,9 +1,11 @@
 package view;
 
+import entity.Session;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadState;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import use_case.repository.SessionRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,18 +22,20 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
     
     private final SyllabusUploadViewModel syllabusUploadViewModel;
     private final ViewManagerModel viewManagerModel;
+    private final SessionRepository sessionRepository;
     private SyllabusUploadController syllabusUploadController;
     
     private final JTextField filePathField = new JTextField(30);
     private final JButton selectButton;
     private final JButton extractButton;
     private final JLabel errorLabel;
-    
-    private final String userId = "defaultUser"; // TODO: Get from session/login
 
-    public SyllabusUploadView(SyllabusUploadViewModel syllabusUploadViewModel, ViewManagerModel viewManagerModel) {
+    public SyllabusUploadView(SyllabusUploadViewModel syllabusUploadViewModel,
+                             ViewManagerModel viewManagerModel,
+                             SessionRepository sessionRepository) {
         this.syllabusUploadViewModel = syllabusUploadViewModel;
         this.viewManagerModel = viewManagerModel;
+        this.sessionRepository = sessionRepository;
         this.syllabusUploadViewModel.addPropertyChangeListener(this);
 
         // Title
@@ -87,6 +91,16 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
                 currentState.setProcessing(true);
                 syllabusUploadViewModel.setState(currentState);
                 
+                // Get userId from session
+                String userId = getUserIdFromSession();
+                if (userId == null) {
+                    JOptionPane.showMessageDialog(SyllabusUploadView.this,
+                            "Please log in first",
+                            "Not Logged In",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 // Execute the use case
                 syllabusUploadController.extractAssessments(userId, filePath);
             }
@@ -168,5 +182,10 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
 
     public void setSyllabusUploadController(SyllabusUploadController controller) {
         this.syllabusUploadController = controller;
+    }
+
+    private String getUserIdFromSession() {
+        entity.Session session = sessionRepository.getSession();
+        return session != null ? session.getUserID() : null;
     }
 }
