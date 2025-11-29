@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadState;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
@@ -18,6 +19,7 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
     private final String viewName = "syllabus upload";
     
     private final SyllabusUploadViewModel syllabusUploadViewModel;
+    private final ViewManagerModel viewManagerModel;
     private SyllabusUploadController syllabusUploadController;
     
     private final JTextField filePathField = new JTextField(30);
@@ -27,8 +29,9 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
     
     private final String userId = "defaultUser"; // TODO: Get from session/login
 
-    public SyllabusUploadView(SyllabusUploadViewModel syllabusUploadViewModel) {
+    public SyllabusUploadView(SyllabusUploadViewModel syllabusUploadViewModel, ViewManagerModel viewManagerModel) {
         this.syllabusUploadViewModel = syllabusUploadViewModel;
+        this.viewManagerModel = viewManagerModel;
         this.syllabusUploadViewModel.addPropertyChangeListener(this);
 
         // Title
@@ -151,6 +154,10 @@ public class SyllabusUploadView extends JPanel implements ActionListener, Proper
                 final SyllabusUploadState currentState = syllabusUploadViewModel.getState();
                 currentState.setFilePath("");
                 syllabusUploadViewModel.setState(currentState);
+                
+                // Navigate back to dashboard
+                viewManagerModel.setState("dashboard");
+                viewManagerModel.firePropertyChange();
             }
         }
     }

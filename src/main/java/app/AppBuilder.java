@@ -1,44 +1,54 @@
 package app;
 
-import data_access.persistence.in_memory.InMemoryLoginInfoStorageDataAccessObject;
+import data_access.ai.gemini.AiExtractorDataAccessObject;
+import data_access.parser.pdf.PdfExtractorDataAccessObject;
 import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
 import data_access.persistence.sqlite.Login;
 import data_access.persistence.sqlite.Signup;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardController;
+import interface_adapter.dashboard.DashboardPresenter;
+import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
-import interface_adapter.welcome.WelcomeController;
-import interface_adapter.welcome.WelcomePresenter;
-import interface_adapter.welcome.WelcomeViewModel;
-import use_case.dto.LoginInputData;
-import use_case.dto.WelcomeOutputData;
-import use_case.port.incoming.LoginUseCase;
-import use_case.port.incoming.WelcomeUseCase;
-import use_case.port.outgoing.*;
-import use_case.repository.*;
-import use_case.service.LoginService;
-import use_case.service.WelcomeService;
-import view.*;
-import data_access.persistence.in_memory.InMemorySignUpDataAccessObject;
-import interface_adapter.ViewManagerModel;
 import interface_adapter.sign_up.SignUpController;
 import interface_adapter.sign_up.SignUpPresenter;
 import interface_adapter.sign_up.SignUpViewModel;
-import use_case.port.incoming.SignUpUseCase;
-import use_case.service.SignUpService;
-
-import javax.swing.*;
-import java.awt.*;
-import data_access.ai.gemini.AiExtractorDataAccessObject;
-import data_access.parser.pdf.PdfExtractorDataAccessObject;
-import interface_adapter.ViewManagerModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import interface_adapter.welcome.WelcomeController;
+import interface_adapter.welcome.WelcomePresenter;
+import interface_adapter.welcome.WelcomeViewModel;
+import use_case.port.incoming.LoadDashboardInputBoundary;
+import use_case.port.incoming.LoginUseCase;
+import use_case.port.incoming.SignUpUseCase;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
+import use_case.port.incoming.WelcomeUseCase;
+import use_case.port.outgoing.AiExtractionDataAccessInterface;
+import use_case.port.outgoing.LoadDashboardOutputBoundary;
+import use_case.port.outgoing.LoginOutputPort;
+import use_case.port.outgoing.PdfExtractionDataAccessInterface;
+import use_case.port.outgoing.SignUpPort;
+import use_case.port.outgoing.SyllabusUploadOutputBoundary;
+import use_case.port.outgoing.WelcomePort;
+import use_case.repository.AssessmentRepository;
+import use_case.repository.CourseRepository;
+import use_case.repository.LoginRepository;
+import use_case.repository.SignUpRepository;
+import use_case.repository.SyllabusRepository;
+import use_case.service.LoadDashboardInteractor;
+import use_case.service.LoginService;
+import use_case.service.SignUpService;
 import use_case.service.SyllabusUploadInteractor;
+import use_case.service.WelcomeService;
+import view.DashboardView;
+import view.LoginView;
+import view.SignUpView;
+import view.SyllabusUploadView;
 import view.ViewManager;
+import view.WelcomeView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,30 +59,31 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
-    final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
-    final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
-    final LoginRepository userDB = new Login();
+    // Session management (in-memory for session state)
+    private final InMemorySessionInfoDataAccessObject sessionDB = new InMemorySessionInfoDataAccessObject();
 
-    private LoginView loginView;
-    private LoginViewModel loginViewModel;
     // Data Access Objects
     private final PdfExtractionDataAccessInterface pdfExtractor = new PdfExtractorDataAccessObject();
     private final AiExtractionDataAccessInterface aiExtractor;
-    final SignUpRepository signUpDB = new Signup();
-    
-    // Repositories - Using IN-MEMORY implementations for testing
-    private final SyllabusRepository syllabusRepository = new InMemorySyllabusRepository();
-    private final AssessmentRepository assessmentRepository = new InMemoryAssessmentRepository();
-    private final CourseRepository courseRepository = new InMemoryCourseRepository();
-    
+
+    // Repositories - Using SQLite implementations for persistence
+    private final SyllabusRepository syllabusRepository = new data_access.persistence.sqlite.Syllabus();
+    private final AssessmentRepository assessmentRepository = new data_access.persistence.sqlite.Assessment();
+    private final CourseRepository courseRepository = new data_access.persistence.sqlite.Course();
+    private final LoginRepository loginRepository = new Login();
+    private final SignUpRepository signUpRepository = new Signup();
+
     // Views
+    private LoginView loginView;
+    private LoginViewModel loginViewModel;
     private SyllabusUploadView syllabusUploadView;
     private SyllabusUploadViewModel syllabusUploadViewModel;
-      
     private SignUpView signUpView;
     private SignUpViewModel signUpViewModel;
-
+    private DashboardView dashboardView;
+    private DashboardViewModel dashboardViewModel;
     private WelcomeView welcomeView;
     private WelcomeViewModel welcomeViewModel;
 
@@ -115,7 +126,7 @@ public class AppBuilder {
         );
 
         final LoginUseCase interactor = new LoginService(
-                userDB,
+                loginRepository,
                 sessionDB,
                 outputBoundary
         );
@@ -139,7 +150,7 @@ public class AppBuilder {
         );
 
         final SignUpUseCase interactor = new SignUpService(
-                signUpDB,
+                signUpRepository,
                 outputBoundary
         );
 
@@ -150,7 +161,7 @@ public class AppBuilder {
 
     public AppBuilder addSyllabusUploadView() {
         syllabusUploadViewModel = new SyllabusUploadViewModel();
-        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel);
+        syllabusUploadView = new SyllabusUploadView(syllabusUploadViewModel, viewManagerModel);
         cardPanel.add(syllabusUploadView, syllabusUploadView.getViewName());
         return this;
     }
@@ -172,6 +183,31 @@ public class AppBuilder {
 
         final SyllabusUploadController controller = new SyllabusUploadController(interactor);
         syllabusUploadView.setSyllabusUploadController(controller);
+        return this;
+    }
+
+    public AppBuilder addDashboardView() {
+        dashboardViewModel = new DashboardViewModel();
+        dashboardView = new DashboardView(dashboardViewModel, viewManagerModel);
+        cardPanel.add(dashboardView, dashboardView.getViewName());
+        return this;
+    }
+
+    public AppBuilder addDashboardUseCase() {
+        final LoadDashboardOutputBoundary outputBoundary = new DashboardPresenter(
+            viewManagerModel,
+            dashboardViewModel,
+            syllabusUploadViewModel
+        );
+
+        final LoadDashboardInputBoundary interactor = new LoadDashboardInteractor(
+            courseRepository,
+            assessmentRepository,
+            outputBoundary
+        );
+
+        final DashboardController controller = new DashboardController(interactor);
+        dashboardView.setDashboardController(controller);
         return this;
     }
 

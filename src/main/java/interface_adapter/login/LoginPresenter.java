@@ -26,9 +26,9 @@ public class LoginPresenter implements LoginOutputPort {
         loginViewModel.firePropertyChange();
 
         System.out.println("login success");
-        // TODO: dashboard implementation
-//        viewManagerModel.setState("dashboard");
-//        viewManagerModel.firePropertyChange();
+        // Navigate to dashboard on successful login
+        viewManagerModel.setState("dashboard");
+        viewManagerModel.firePropertyChange();
     }
 
     @Override

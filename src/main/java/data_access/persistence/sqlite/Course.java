@@ -16,22 +16,22 @@ public class Course implements CourseRepository {
 
     /**
      * Core functionalities
-     * findByCourseID(String userID): Retrieves all the Course a user has.
-     * @param userID: the user
+     * findByUserId(String userId): Retrieves all the Course a user has.
+     * @param userId: the user
      * @return a list of Assessment.
      */
     @Override
-    public List<entity.Course> findByUserID(String userID) {
+    public List<entity.Course> findByUserId(String userId) {
         List<entity.Course> courseList = new ArrayList<>();
 
         try {
             Statement stmt = connection.createStatement();
-            String getCourse = "select * from courses WHERE user_id = '" + userID +
+            String getCourse = "select * from courses WHERE user_id = '" + userId +
                     "'";
             ResultSet result = stmt.executeQuery(getCourse);
             while (result.next()) {
-                String courseId = result.getString("course_id"); // Use a different var name
-                String userId = result.getString("user_id");
+                String courseId = result.getString("course_id");
+                String userIdFromDb = result.getString("user_id");
                 String code = result.getString("code");
                 String name = result.getString("name");
                 String term = result.getString("term");
@@ -39,7 +39,7 @@ public class Course implements CourseRepository {
 
                 entity.Course course = new entity.Course(
                         courseId,
-                        userID,
+                        userIdFromDb,
                         code,
                         name,
                         term,
@@ -61,8 +61,8 @@ public class Course implements CourseRepository {
             String saveCourse = "INSERT INTO courses VALUES ('" +
                     course.getCourseId() + "', '" +
                     course.getUserId() + "', '" +
-                    course.getCode() + "', " +
-                    course.getName() + ", '" +
+                    course.getCode() + "', '" +
+                    course.getName() + "', '" +
                     course.getTerm() + "', '" +
                     course.getInstructor() + "')";
             int x = stmt.executeUpdate(saveCourse);

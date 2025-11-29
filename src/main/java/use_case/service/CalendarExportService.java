@@ -119,7 +119,7 @@ public class CalendarExportService implements CalendarExportUseCase {
     private List<Assessment> loadAssessments(CalendarExportRequest request) {
         List<Assessment> assessments = new ArrayList<>();
         for (String courseId : request.getCourseIds()) {
-            assessments.addAll(assessmentRepository.findByCourseID(courseId));
+            assessments.addAll(assessmentRepository.findByCourseId(courseId));
         }
         return assessments;
     }

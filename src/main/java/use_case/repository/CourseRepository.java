@@ -8,6 +8,6 @@ import java.util.Optional;
  * Persistence boundary for course aggregates.
  */
 public interface CourseRepository {
-    public List<Course> findByUserID(String userID);
+    public List<Course> findByUserId(String userId);
     public void save(Course course);
 }

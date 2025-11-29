@@ -9,10 +9,10 @@ public class InMemoryAssessmentRepository implements AssessmentRepository {
     private final Map<String, Assessment> assessments = new HashMap<>();
 
     @Override
-    public List<Assessment> findByCourseID(String courseID) {
+    public List<Assessment> findByCourseId(String courseId) {
         List<Assessment> result = new ArrayList<>();
         for (Assessment assessment : assessments.values()) {
-            if (assessment.getCourseId().equals(courseID)) {
+            if (assessment.getCourseId().equals(courseId)) {
                 result.add(assessment);
             }
         }
