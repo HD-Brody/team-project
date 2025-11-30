@@ -21,6 +21,12 @@ import interface_adapter.sign_up.SignUpViewModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import interface_adapter.task_list.TaskListController;
+import interface_adapter.task_list.TaskListPresenter;
+import interface_adapter.task_list.TaskListViewModel;
+import interface_adapter.grade_calculator.GradeCalculatorController;
+import interface_adapter.grade_calculator.GradeCalculatorPresenter;
+import interface_adapter.grade_calculator.GradeCalculatorViewModel;
 import interface_adapter.welcome.WelcomeController;
 import interface_adapter.welcome.WelcomePresenter;
 import interface_adapter.welcome.WelcomeViewModel;
@@ -29,6 +35,8 @@ import interface_adapter.outbound.calendar.InMemoryCalendarExportGateway;
 import use_case.port.incoming.LoadDashboardInputBoundary;
 import use_case.port.incoming.LoginUseCase;
 import use_case.port.incoming.SignUpUseCase;
+import use_case.port.incoming.TaskEditingUseCase;
+import use_case.port.incoming.GradeCalculationUseCase;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
 import use_case.port.incoming.WelcomeUseCase;
 import use_case.port.outgoing.AiExtractionDataAccessInterface;
@@ -46,17 +54,21 @@ import use_case.repository.LoginRepository;
 import use_case.repository.ScheduleEventRepository;
 import use_case.repository.SignUpRepository;
 import use_case.repository.SyllabusRepository;
-import use_case.service.CalendarExportService;
 import use_case.service.LoadDashboardInteractor;
 import use_case.service.LoginService;
 import use_case.service.SignUpService;
 import use_case.service.SyllabusUploadInteractor;
+import use_case.service.TaskEditingService;
+import use_case.service.GradeCalculationService;
 import use_case.service.WelcomeService;
+import use_case.service.CalendarExportService;
 import view.CalendarExportView;
 import view.DashboardView;
+import view.GradeCalculatorView;
 import view.LoginView;
 import view.SignUpView;
 import view.SyllabusUploadView;
+import view.TaskListView;
 import view.ViewManager;
 import view.WelcomeView;
 
@@ -99,6 +111,10 @@ public class AppBuilder {
     private WelcomeViewModel welcomeViewModel;
     private CalendarExportView calendarExportView;
     private CalendarExportViewModel calendarExportViewModel;
+    private TaskListView taskListView;
+    private TaskListViewModel taskListViewModel;
+    private GradeCalculatorView gradeCalculatorView;
+    private GradeCalculatorViewModel gradeCalculatorViewModel;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
@@ -277,7 +293,75 @@ public class AppBuilder {
         calendarExportView.setController(controller);
         
         // Load initial courses
-        calendarExportView.setCourses(controller.loadCourses());
+        return this;
+    }
+
+    public AppBuilder addTaskListView() {
+        taskListViewModel = new TaskListViewModel();
+        taskListView = new TaskListView(taskListViewModel, viewManagerModel);
+        cardPanel.add(taskListView, taskListView.getViewName());
+        
+        // Wire TaskListView to DashboardView for navigation
+        if (dashboardView != null) {
+            dashboardView.setTaskListView(taskListView);
+        }
+        
+        return this;
+    }
+
+    public AppBuilder addTaskListUseCase() {
+        // Presenter
+        final TaskListPresenter presenter = new TaskListPresenter(taskListViewModel);
+        
+        // Service (uses AssessmentRepository)
+        final TaskEditingUseCase service = new TaskEditingService(assessmentRepository);
+        
+        // Controller
+        final TaskListController controller = new TaskListController(
+            service,
+            assessmentRepository,
+            courseRepository,
+            sessionDB,
+            presenter
+        );
+        
+        // Wire controller to view
+        taskListView.setController(controller);
+        
+        return this;
+    }
+
+    public AppBuilder addGradeCalculatorView() {
+        gradeCalculatorViewModel = new GradeCalculatorViewModel();
+        gradeCalculatorView = new GradeCalculatorView(gradeCalculatorViewModel, viewManagerModel);
+        cardPanel.add(gradeCalculatorView, gradeCalculatorView.getViewName());
+        
+        // Wire GradeCalculatorView to DashboardView for navigation
+        if (dashboardView != null) {
+            dashboardView.setGradeCalculatorView(gradeCalculatorView);
+        }
+        
+        return this;
+    }
+
+    public AppBuilder addGradeCalculatorUseCase() {
+        // Presenter
+        final GradeCalculatorPresenter presenter = new GradeCalculatorPresenter(gradeCalculatorViewModel);
+        
+        // Service (uses AssessmentRepository)
+        final GradeCalculationUseCase service = new GradeCalculationService(null); // null means it will use request assessments
+        
+        // Controller
+        final GradeCalculatorController controller = new GradeCalculatorController(
+            service,
+            assessmentRepository,
+            courseRepository,
+            sessionDB,
+            presenter
+        );
+        
+        // Wire controller to view
+        gradeCalculatorView.setController(controller);
         
         return this;
     }

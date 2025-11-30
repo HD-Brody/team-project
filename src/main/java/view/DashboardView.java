@@ -20,6 +20,8 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private DashboardController dashboardController;
     private final ViewManagerModel viewManagerModel;
     private final SessionRepository sessionRepository;
+    private TaskListView taskListView;
+    private GradeCalculatorView gradeCalculatorView;
 
     private final JButton uploadCourseButton;
     private final JButton gradeCalculatorButton;
@@ -51,8 +53,41 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         });
 
         gradeCalculatorButton = createStyledButton("Grade Calculator", new Color(156, 163, 175));
-        gradeCalculatorButton.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Grade Calculator - Coming Soon!"));
+        gradeCalculatorButton.addActionListener(e -> {
+            // Get first course or let user select
+            DashboardState state = dashboardViewModel.getState();
+            if (state.getCourses().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No courses available. Please upload a course first.", "No Courses", JOptionPane.INFORMATION_MESSAGE);
+            } else if (state.getCourses().size() == 1) {
+                // Navigate directly if only one course
+                String courseId = state.getCourses().get(0).getCourseId();
+                if (gradeCalculatorView != null) {
+                    gradeCalculatorView.setCourseId(courseId);
+                    viewManagerModel.setState("grade_calculator");
+                    viewManagerModel.firePropertyChange();
+                }
+            } else {
+                // Show course selection dialog
+                String[] courseNames = state.getCourses().stream()
+                    .map(c -> c.getCourseCode())
+                    .toArray(String[]::new);
+                String selected = (String) JOptionPane.showInputDialog(this,
+                    "Select a course:", "Grade Calculator",
+                    JOptionPane.QUESTION_MESSAGE, null, courseNames, courseNames[0]);
+                if (selected != null) {
+                    String courseId = state.getCourses().stream()
+                        .filter(c -> c.getCourseCode().equals(selected))
+                        .findFirst()
+                        .map(c -> c.getCourseId())
+                        .orElse(null);
+                    if (courseId != null && gradeCalculatorView != null) {
+                        gradeCalculatorView.setCourseId(courseId);
+                        viewManagerModel.setState("grade_calculator");
+                        viewManagerModel.firePropertyChange();
+                    }
+                }
+            }
+        });
 
         exportCalendarButton = createStyledButton("Export to Calendar", new Color(59, 130, 246));
         exportCalendarButton.addActionListener(e -> {
@@ -61,9 +96,17 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             viewManagerModel.firePropertyChange();
         });
 
+        JButton logoutButton = createStyledButton("Logout", new Color(220, 53, 69));
+        logoutButton.addActionListener(e -> {
+            // Navigate back to welcome view
+            viewManagerModel.setState("welcome");
+            viewManagerModel.firePropertyChange();
+        });
+
         topPanel.add(uploadCourseButton);
         topPanel.add(gradeCalculatorButton);
         topPanel.add(exportCalendarButton);
+        topPanel.add(logoutButton);
 
         // Courses panel with scroll
         coursesPanel = new JPanel();
@@ -165,14 +208,30 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         // Course title button
         JButton courseButton = new JButton(course.getCourseCode());
         courseButton.setFont(new Font("Arial", Font.BOLD, 18));
-        courseButton.setForeground(new Color(17, 24, 39));
+        courseButton.setForeground(new Color(59, 130, 246)); // Blue color to indicate clickability
         courseButton.setContentAreaFilled(false);
         courseButton.setBorderPainted(false);
         courseButton.setFocusPainted(false);
         courseButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         courseButton.setHorizontalAlignment(SwingConstants.LEFT);
-        courseButton.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Course details - Coming Soon!"));
+        
+        // Add underline and hover effect
+        courseButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                courseButton.setText("<html><u>" + course.getCourseCode() + "</u></html>");
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                courseButton.setText(course.getCourseCode());
+            }
+        });
+        
+        courseButton.addActionListener(e -> {
+            if (taskListView != null) {
+                taskListView.setCourseId(course.getCourseId());
+                viewManagerModel.setState("task_list");
+                viewManagerModel.firePropertyChange();
+            }
+        });
 
         JLabel courseName = new JLabel(course.getCourseName());
         courseName.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -275,6 +334,14 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
     public DashboardController getDashboardController() {
         return dashboardController;
+    }
+
+    public void setTaskListView(TaskListView taskListView) {
+        this.taskListView = taskListView;
+    }
+
+    public void setGradeCalculatorView(GradeCalculatorView gradeCalculatorView) {
+        this.gradeCalculatorView = gradeCalculatorView;
     }
 
     private String getUserIdFromSession() {

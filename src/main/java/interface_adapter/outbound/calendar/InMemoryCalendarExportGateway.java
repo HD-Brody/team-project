@@ -5,6 +5,7 @@ import entity.ScheduleEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.ScheduleEventRepository;
@@ -41,6 +42,24 @@ public class InMemoryCalendarExportGateway implements AssessmentRepository, Sche
     @Override
     public void save(Assessment assessment) {
         assessments.add(Objects.requireNonNull(assessment, "assessment"));
+    }
+
+    @Override
+    public Optional<Assessment> findById(String assessmentId) {
+        return assessments.stream()
+                .filter(a -> Objects.equals(a.getAssessmentId(), assessmentId))
+                .findFirst();
+    }
+
+    @Override
+    public void update(Assessment assessment) {
+        assessments.removeIf(a -> Objects.equals(a.getAssessmentId(), assessment.getAssessmentId()));
+        assessments.add(Objects.requireNonNull(assessment, "assessment"));
+    }
+
+    @Override
+    public void deleteById(String assessmentId) {
+        assessments.removeIf(a -> Objects.equals(a.getAssessmentId(), assessmentId));
     }
 
     @Override

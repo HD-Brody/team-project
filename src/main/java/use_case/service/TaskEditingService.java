@@ -1,11 +1,13 @@
 package use_case.service;
 
-import entity.Task;
-import entity.TaskStatus;
+import entity.Assessment;
+import entity.AssessmentType;
 import use_case.dto.TaskCreationCommand;
 import use_case.dto.TaskUpdateCommand;
 import use_case.port.incoming.TaskEditingUseCase;
-import use_case.repository.TaskRepository;
+import use_case.repository.AssessmentRepository;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,111 +16,152 @@ import java.util.stream.Collectors;
 
 
 /**
- * Handles creating, viewing, updating, and deleting user-managed tasks.
+ * Handles creating, viewing, updating, and deleting user-managed assessments (formerly tasks).
  */
 public class TaskEditingService implements TaskEditingUseCase {
-    private final TaskRepository taskRepository;
+    private final AssessmentRepository assessmentRepository;
 
-    public TaskEditingService(TaskRepository taskRepository) {
-        this.taskRepository = Objects.requireNonNull(taskRepository, "taskRepository");
+    public TaskEditingService(AssessmentRepository assessmentRepository) {
+        this.assessmentRepository = Objects.requireNonNull(assessmentRepository, "assessmentRepository");
     }
 
     @Override
-    public Task createTask(TaskCreationCommand command) {
+    public Assessment createTask(TaskCreationCommand command) {
         Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(command.getUserId(), "userId");
         Objects.requireNonNull(command.getCourseId(), "courseId");
         Objects.requireNonNull(command.getTitle(), "title");
         
-        // Generate new task ID
-        String taskId = UUID.randomUUID().toString();
+        // Generate new assessment ID
+        String assessmentId = UUID.randomUUID().toString();
         
-        // Create new task entity
-        Task newTask = new Task(
-                taskId,
-                command.getUserId(),
+        // Convert Instant to ISO string for endsAt (due date)
+        String endsAt = command.getDueAt() != null 
+            ? command.getDueAt().atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            : null;
+        
+        // Create new assessment entity
+        // Map task fields to assessment fields:
+        // - estimatedEffortMins -> durationMinutes
+        // - status stored in notes field as "Status: TODO" etc.
+        // - priority ignored (not in Assessment entity)
+        Assessment newAssessment = new Assessment(
+                assessmentId,
                 command.getCourseId(),
-                command.getAssessmentId(),
                 command.getTitle(),
-                command.getDueAt(),
-                command.getEstimatedEffortMins(),
-                command.getPriority(),
-                command.getStatus(),
-                command.getNotes()
+                AssessmentType.OTHER, // Default type for user-created tasks
+                0.0, // grade - default to 0
+                null, // startsAt - user tasks don't have start time
+                endsAt, // endsAt is the due date
+                command.getEstimatedEffortMins() != null ? command.getEstimatedEffortMins().longValue() : null,
+                null, // weight - user tasks don't have weight
+                "", // location - empty for user tasks
+                formatNotesWithStatus(command.getNotes(), command.getStatus())
         );
         
         // Save to repository
-        taskRepository.save(newTask);
+        assessmentRepository.save(newAssessment);
         
-        return newTask;
+        return newAssessment;
     }
 
     @Override
-    public List<Task> listTasksForUser(String userId, TaskStatus statusFilter) {
-        Objects.requireNonNull(userId, "userId");
-        List<Task> tasks = taskRepository.findByUserId(userId);
+    public List<Assessment> listTasksForUser(String courseId, entity.TaskStatus statusFilter) {
+        Objects.requireNonNull(courseId, "courseId");
+        List<Assessment> assessments = assessmentRepository.findByCourseId(courseId);
 
         if (statusFilter != null) {
-            return tasks.stream()
-                    .filter(task -> task.getStatus() == statusFilter)
+            return assessments.stream()
+                    .filter(assessment -> extractStatusFromNotes(assessment.getNotes()) == statusFilter)
                     .collect(Collectors.toList());
         }
-        return tasks;
+        return assessments;
     }
 
     @Override
-    public Optional<Task> getTaskById(String taskId) {
-        Objects.requireNonNull(taskId, "taskId");
-        return taskRepository.findById(taskId);
+    public Optional<Assessment> getTaskById(String assessmentId) {
+        Objects.requireNonNull(assessmentId, "assessmentId");
+        return assessmentRepository.findById(assessmentId);
     }
 
     @Override
     public void updateTask(TaskUpdateCommand command) {
         Objects.requireNonNull(command, "command");
-        Objects.requireNonNull(command.getTaskId(), "taskId");
+        Objects.requireNonNull(command.getTaskId(), "assessmentId");
 
-        Task existingTask = taskRepository.findById(command.getTaskId())
+        Assessment existingAssessment = assessmentRepository.findById(command.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Task not found: " + command.getTaskId()));
+                        "Assessment not found: " + command.getTaskId()));
 
-        // Immutable entity pattern: create new Task with updates
-        Task updatedTask = new Task(
-                existingTask.getTaskId(),
-                existingTask.getUserId(),
-                existingTask.getCourseId(),
-                existingTask.getAssessmentId(),
-                getOrDefault(command.getTitle(), existingTask.getTitle()),
-                getOrDefault(command.getDueAt(), existingTask.getDueAt()),
-                getOrDefault(command.getEstimatedEffortMins(), existingTask.getEstimatedEffortMins()),
-                getOrDefault(command.getPriority(), existingTask.getPriority()),
-                getOrDefault(command.getStatus(), existingTask.getStatus()),
-                getOrDefault(command.getNotes(), existingTask.getNotes())
+        String updatedEndsAt = command.getDueAt() != null 
+            ? command.getDueAt().atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            : existingAssessment.getEndsAt();
+        
+        String updatedNotes = command.getNotes() != null || command.getStatus() != null
+            ? formatNotesWithStatus(
+                command.getNotes() != null ? command.getNotes() : extractNotesWithoutStatus(existingAssessment.getNotes()),
+                command.getStatus() != null ? command.getStatus() : extractStatusFromNotes(existingAssessment.getNotes()))
+            : existingAssessment.getNotes();
+
+        Assessment updatedAssessment = new Assessment(
+                existingAssessment.getAssessmentId(),
+                existingAssessment.getCourseId(),
+                command.getTitle() != null ? command.getTitle() : existingAssessment.getTitle(),
+                existingAssessment.getType(),
+                existingAssessment.getGrade(),
+                existingAssessment.getStartsAt(),
+                updatedEndsAt,
+                command.getEstimatedEffortMins() != null ? command.getEstimatedEffortMins().longValue() 
+                    : existingAssessment.getDurationMinutes(),
+                existingAssessment.getWeight(),
+                existingAssessment.getLocation(),
+                updatedNotes
         );
 
-        taskRepository.save(updatedTask);
+        assessmentRepository.update(updatedAssessment);
     }
 
     @Override
-    public void deleteTask(String taskId) {
-        Objects.requireNonNull(taskId, "taskId");
-
-        if (!taskRepository.findById(taskId).isPresent()) {
-            throw new IllegalArgumentException("Task not found: " + taskId);
-        }
-
-        taskRepository.deleteById(taskId);
+    public void deleteTask(String assessmentId) {
+        Objects.requireNonNull(assessmentId, "assessmentId");
+        assessmentRepository.deleteById(assessmentId);
     }
     
-    /**
-     * Returns the value if not null, otherwise returns the default value.
-     * Helper method to improve readability of update operations.
-     *
-     * @param value The value to check
-     * @param defaultValue The default value to return if value is null
-     * @param <T> The type of the value
-     * @return value if not null, otherwise defaultValue
-     */
-    private <T> T getOrDefault(T value, T defaultValue) {
-        return value != null ? value : defaultValue;
+    // Helper methods for encoding/decoding TaskStatus in notes field
+    private String formatNotesWithStatus(String notes, entity.TaskStatus status) {
+        String statusLine = "[Status: " + (status != null ? status.toString() : "TODO") + "]";
+        if (notes == null || notes.isBlank()) {
+            return statusLine;
+        }
+        return statusLine + "\n" + notes;
+    }
+    
+    private entity.TaskStatus extractStatusFromNotes(String notes) {
+        if (notes == null || !notes.contains("[Status:")) {
+            return entity.TaskStatus.TODO;
+        }
+        try {
+            int start = notes.indexOf("[Status: ") + 9;
+            int end = notes.indexOf("]", start);
+            if (start > 8 && end > start) {
+                String statusStr = notes.substring(start, end);
+                return entity.TaskStatus.valueOf(statusStr);
+            }
+        } catch (Exception e) {
+            // If parsing fails, default to TODO
+        }
+        return entity.TaskStatus.TODO;
+    }
+    
+    private String extractNotesWithoutStatus(String notes) {
+        if (notes == null || !notes.contains("[Status:")) {
+            return notes;
+        }
+        int statusLineEnd = notes.indexOf("\n");
+        if (statusLineEnd > 0 && statusLineEnd < notes.length() - 1) {
+            return notes.substring(statusLineEnd + 1);
+        }
+        return "";
     }
 }

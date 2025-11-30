@@ -51,10 +51,14 @@ public class Main {
                     .addLoginUseCase()
                     .addCalendarExportView()
                     .addCalendarExportUseCase()
+                    .addTaskListView()
+                    .addTaskListUseCase()
+                    .addGradeCalculatorView()
+                    .addGradeCalculatorUseCase()
                     .build();
 
             application.pack();
-            application.setSize(700, 500);
+            application.setSize(900, 600);
             application.setLocationRelativeTo(null);
             application.setVisible(true);
         });

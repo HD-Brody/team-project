@@ -27,4 +27,23 @@ public class InMemoryAssessmentRepository implements AssessmentRepository {
                            ", Weight: " + (assessment.getWeight() * 100) + "%)");
     }
 
+    @Override
+    public Optional<Assessment> findById(String assessmentId) {
+        return Optional.ofNullable(assessments.get(assessmentId));
+    }
+
+    @Override
+    public void update(Assessment assessment) {
+        assessments.put(assessment.getAssessmentId(), assessment);
+        System.out.println("Updated assessment: " + assessment.getTitle());
+    }
+
+    @Override
+    public void deleteById(String assessmentId) {
+        Assessment removed = assessments.remove(assessmentId);
+        if (removed != null) {
+            System.out.println("Deleted assessment: " + removed.getTitle());
+        }
+    }
+
 }
