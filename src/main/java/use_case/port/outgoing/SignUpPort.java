@@ -7,4 +7,5 @@ public interface SignUpPort {
     void prepareSuccessView(SignUpOutputData signUpOutputData);
 
     void prepareFailView(SignUpOutputData signUpOutputData);
+
 }
