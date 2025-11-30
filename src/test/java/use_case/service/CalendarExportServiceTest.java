@@ -31,6 +31,7 @@ class CalendarExportServiceTest {
     private StubAssessmentRepository assessmentRepository;
     private StubScheduleEventRepository scheduleEventRepository;
     private RecordingRenderPort renderPort;
+    private StubOutputPort outputPort;
     private CalendarExportService service;
 
     @BeforeEach
@@ -38,7 +39,8 @@ class CalendarExportServiceTest {
         assessmentRepository = new StubAssessmentRepository();
         scheduleEventRepository = new StubScheduleEventRepository();
         renderPort = new RecordingRenderPort();
-        service = new CalendarExportService(assessmentRepository, scheduleEventRepository, renderPort);
+        outputPort = new StubOutputPort();
+        service = new CalendarExportService(assessmentRepository, scheduleEventRepository, renderPort, outputPort);
     }
 
     @Test
@@ -257,6 +259,24 @@ class CalendarExportServiceTest {
             assessments.add(assessment);
         }
 
+        @Override
+        public java.util.Optional<Assessment> findById(String assessmentId) {
+            return assessments.stream()
+                    .filter(a -> a.getAssessmentId().equals(assessmentId))
+                    .findFirst();
+        }
+
+        @Override
+        public void update(Assessment assessment) {
+            assessments.removeIf(a -> a.getAssessmentId().equals(assessment.getAssessmentId()));
+            assessments.add(assessment);
+        }
+
+        @Override
+        public void deleteById(String assessmentId) {
+            assessments.removeIf(a -> a.getAssessmentId().equals(assessmentId));
+        }
+
         void addAssessment(Assessment assessment) {
             assessments.add(assessment);
         }
@@ -299,6 +319,18 @@ class CalendarExportServiceTest {
         public CalendarRenderResult render(CalendarRenderRequest request) {
             this.lastRequest = request;
             return new CalendarRenderResult("BEGIN:VCALENDAR".getBytes(), "test.ics", "text/calendar");
+        }
+    }
+
+    private static final class StubOutputPort implements use_case.port.outgoing.CalendarExportOutputPort {
+        @Override
+        public void presentExport(use_case.dto.CalendarExportResponse response) {
+            // No-op for tests
+        }
+
+        @Override
+        public void presentError(String errorMessage) {
+            // No-op for tests
         }
     }
 }

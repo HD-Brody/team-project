@@ -50,11 +50,11 @@ public class TaskEditingService implements TaskEditingUseCase {
                 command.getCourseId(),
                 command.getTitle(),
                 AssessmentType.OTHER, // Default type for user-created tasks
-                0.0, // grade - default to 0
+                -1.0, // grade - default to -1 (not graded)
                 null, // startsAt - user tasks don't have start time
                 endsAt, // endsAt is the due date
                 command.getEstimatedEffortMins() != null ? command.getEstimatedEffortMins().longValue() : null,
-                null, // weight - user tasks don't have weight
+                0.0, // weight - user tasks have 0 weight
                 "", // location - empty for user tasks
                 formatNotesWithStatus(command.getNotes(), command.getStatus())
         );
@@ -104,6 +104,10 @@ public class TaskEditingService implements TaskEditingUseCase {
                 command.getStatus() != null ? command.getStatus() : extractStatusFromNotes(existingAssessment.getNotes()))
             : existingAssessment.getNotes();
 
+        Long updatedDuration = command.getEstimatedEffortMins() != null 
+            ? Long.valueOf(command.getEstimatedEffortMins()) 
+            : existingAssessment.getDurationMinutes();
+        
         Assessment updatedAssessment = new Assessment(
                 existingAssessment.getAssessmentId(),
                 existingAssessment.getCourseId(),
@@ -112,9 +116,8 @@ public class TaskEditingService implements TaskEditingUseCase {
                 existingAssessment.getGrade(),
                 existingAssessment.getStartsAt(),
                 updatedEndsAt,
-                command.getEstimatedEffortMins() != null ? command.getEstimatedEffortMins().longValue() 
-                    : existingAssessment.getDurationMinutes(),
-                existingAssessment.getWeight(),
+                updatedDuration,
+                existingAssessment.getWeight() != null ? existingAssessment.getWeight() : 0.0,
                 existingAssessment.getLocation(),
                 updatedNotes
         );
