@@ -201,7 +201,7 @@ public class SignUpView extends JPanel implements ActionListener, PropertyChange
                     JOptionPane.ERROR_MESSAGE
             );
         }
-        else {
+        else if (state.getEmail() != null && !state.getEmail().isEmpty()){
             JOptionPane.showMessageDialog(null,
                     "Sign up Successfully",
                     "Success",

@@ -6,9 +6,12 @@ import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginInputData;
 import use_case.port.incoming.LoginUseCase;
+import use_case.port.outgoing.PasswordHashingPort;
 import use_case.repository.SessionRepository;
 import use_case.repository.LoginRepository;
 import use_case.dto.LoginOutputData;
+import use_case.util.HashUtil;
+import use_case.util.ValidationUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -37,7 +40,7 @@ public class LoginService implements LoginUseCase {
         final String password = loginInputData.getPassword();
 
         // When email is not valid
-        if (!validateEmail(email)) {
+        if (!ValidationUtil.validateEmail(email)) {
             loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Email is not valid, please try again"));
             return;
         }
@@ -65,24 +68,13 @@ public class LoginService implements LoginUseCase {
         emailDB = userDB.getEmail();
         passwordHashDB = userDB.getPasswordHash();
 
-        String passwordHash;
-
-        // Hash input password
-        try {
-            passwordHash = passwordHashing(password);
-        }
-        catch (Exception e) {
-            if (e instanceof IllegalArgumentException) {
-                loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password can't be empty"));
-            }
-            else {
-                loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Unexpected error, please try again"));
-            }
+        if(password == null || password.isEmpty()) {
+            loginOutputPort.prepareFailView(new LoginOutputData(email, false, "Password can't be empty"));
             return;
         }
 
         // Check input password hash and hashed password from db
-        if (email.equals(emailDB) && passwordHash.equals(passwordHashDB)) {
+        if (email.equals(emailDB) && HashUtil.matches(password, passwordHashDB)) {
             // Create and set session
             sessionRepository.setSession(new Session(
                     userDB.getUserId(),
@@ -105,45 +97,5 @@ public class LoginService implements LoginUseCase {
     @Override
     public void switchView(String viewName) {
         loginOutputPort.switchView(viewName);
-    }
-
-    public String passwordHashing(String s) throws IllegalArgumentException, NoSuchAlgorithmException{
-        if(s == null || s.isEmpty()) {
-            throw new IllegalArgumentException("input can't be null");
-        }
-
-        // compute hash with SHA-1
-        MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        byte[] hashBytes = sha.digest(s.getBytes(StandardCharsets.UTF_8));
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hashBytes) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-
-        return hexString.toString();
-    }
-
-    public boolean validateEmail(String email) {
-
-        final String EMAIL_REGEX =
-                "\\w[-\\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\\.)+[A-Za-z]{2,14}";
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
-
-        String[] parts = email.split("@", -1);
-        if (parts.length != 2) {
-            return false;
-        }
-        String local = parts[0];
-        String domain = parts[1];
-        if (local.contains("..") || domain.contains("..")) {
-            return false;
-        }
-        Pattern pattern = Pattern.compile(EMAIL_REGEX);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
     }
 }
