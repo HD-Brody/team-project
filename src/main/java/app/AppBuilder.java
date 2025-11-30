@@ -21,6 +21,9 @@ import interface_adapter.sign_up.SignUpViewModel;
 import interface_adapter.syllabus_upload.SyllabusUploadController;
 import interface_adapter.syllabus_upload.SyllabusUploadPresenter;
 import interface_adapter.syllabus_upload.SyllabusUploadViewModel;
+import interface_adapter.grade.GradeCalculationController;
+import interface_adapter.grade.GradeCalculationPresenter;
+import interface_adapter.grade.GradeCalculationViewModel;
 import interface_adapter.task_list.TaskListController;
 import interface_adapter.task_list.TaskListPresenter;
 import interface_adapter.task_list.TaskListViewModel;
@@ -56,10 +59,10 @@ import use_case.repository.SignUpRepository;
 import use_case.repository.SyllabusRepository;
 import use_case.service.LoadDashboardInteractor;
 import use_case.service.LoginService;
+import use_case.service.GradeCalculationService;
 import use_case.service.SignUpService;
 import use_case.service.SyllabusUploadInteractor;
 import use_case.service.TaskEditingService;
-import use_case.service.GradeCalculationService;
 import use_case.service.WelcomeService;
 import use_case.service.CalendarExportService;
 import view.CalendarExportView;
@@ -71,6 +74,7 @@ import view.SyllabusUploadView;
 import view.TaskListView;
 import view.ViewManager;
 import view.WelcomeView;
+import view.swing.GradeCalculationFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -375,5 +379,19 @@ public class AppBuilder {
         viewManagerModel.firePropertyChange();
 
         return application;
+    }
+
+    public GradeCalculationFrame buildGradeCalculationFrame() {
+        GradeCalculationViewModel viewModel = new GradeCalculationViewModel();
+        GradeCalculationPresenter presenter = new GradeCalculationPresenter(viewModel);
+        GradeCalculationUseCase useCase = new GradeCalculationService(null);
+        GradeCalculationController controller = new GradeCalculationController(
+            useCase,
+            courseRepository,
+            assessmentRepository,
+            sessionDB,
+            presenter
+        );
+        return new GradeCalculationFrame(viewModel, controller);
     }
 }
