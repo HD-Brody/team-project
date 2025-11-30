@@ -1,14 +1,12 @@
 package view.swing;
 
-import entity.Task;
-import entity.TaskStatus;
+import infrastructure.InMemoryTaskRepository;
+import infrastructure.SampleDataFactory;
 import interface_adapter.inbound.web.TaskController;
 import use_case.repository.TaskRepository;
 import use_case.service.TaskEditingService;
 
 import javax.swing.*;
-import java.time.Instant;
-import java.util.*;
 
 /**
  * Main application launcher for Task Management GUI.
@@ -53,75 +51,11 @@ public class TaskManagementApp {
     private static TaskRepository createTestRepository() {
         InMemoryTaskRepository repository = new InMemoryTaskRepository();
         
-        // Add some sample tasks for testing
-        repository.save(new Task(
-                "task-1",
-                "user-123",
-                "course-csc236",
-                null,
-                "Term Test III - TEST",
-                Instant.parse("2025-10-25T23:59:00Z"),
-                120,
-                5,
-                TaskStatus.TODO,
-                "Review chapters 8-10"
-        ));
-        
-        repository.save(new Task(
-                "task-2",
-                "user-123",
-                "course-csc236",
-                null,
-                "Assignment 4 - Graphs",
-                Instant.parse("2025-11-15T23:59:00Z"),
-                180,
-                4,
-                TaskStatus.IN_PROGRESS,
-                "Implement BFS and DFS algorithms"
-        ));
-        
-        repository.save(new Task(
-                "task-3",
-                "user-123",
-                "course-csc236",
-                null,
-                "Final Exam Prep",
-                Instant.parse("2025-12-10T09:00:00Z"),
-                300,
-                5,
-                TaskStatus.TODO,
-                "Review all lecture notes"
-        ));
+        // Load sample data using the factory
+        // Switch to SampleDataFactory.loadEmptyData() when ready for real data
+        SampleDataFactory.loadSampleTasks(repository, "user-123");
         
         return repository;
-    }
-    
-    /**
-     * Simple in-memory repository for testing.
-     * Remove when Leo provides SqliteTaskRepositoryAdapter.
-     */
-    private static class InMemoryTaskRepository implements TaskRepository {
-        private final Map<String, Task> tasks = new HashMap<>();
-        
-        @Override
-        public Optional<Task> findById(String taskId) {
-            return Optional.ofNullable(tasks.get(taskId));
-        }
-        
-        @Override
-        public List<Task> findByUserId(String userId) {
-            return new ArrayList<>(tasks.values());
-        }
-        
-        @Override
-        public void save(Task task) {
-            tasks.put(task.getTaskId(), task);
-        }
-        
-        @Override
-        public void deleteById(String taskId) {
-            tasks.remove(taskId);
-        }
     }
 }
 

@@ -2,6 +2,8 @@ package use_case.service;
 
 import entity.Task;
 import entity.TaskStatus;
+import infrastructure.InMemoryTaskRepository;
+import use_case.dto.TaskCreationCommand;
 import use_case.dto.TaskUpdateCommand;
 import use_case.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +23,185 @@ class TaskEditingServiceTest {
         repository = new InMemoryTaskRepository();
         service = new TaskEditingService(repository);
     }
+
+    // ==================== CREATE TASK TESTS ====================
+
+    @Test
+    void shouldCreateTask_withAllFields() {
+        // Given: command with all fields populated
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123",
+                "course-456",
+                "assessment-789",
+                "Complete Assignment 1",
+                Instant.parse("2025-11-30T23:59:00Z"),
+                120,
+                3,
+                TaskStatus.IN_PROGRESS,
+                "Remember to review chapter 5"
+        );
+
+        // When: creating task
+        Task createdTask = service.createTask(command);
+
+        // Then: all fields should match
+        assertNotNull(createdTask);
+        assertNotNull(createdTask.getTaskId(), "taskId should be generated");
+        assertEquals("user-123", createdTask.getUserId());
+        assertEquals("course-456", createdTask.getCourseId());
+        assertEquals("assessment-789", createdTask.getAssessmentId());
+        assertEquals("Complete Assignment 1", createdTask.getTitle());
+        assertEquals(Instant.parse("2025-11-30T23:59:00Z"), createdTask.getDueAt());
+        assertEquals(120, createdTask.getEstimatedEffortMins());
+        assertEquals(3, createdTask.getPriority());
+        assertEquals(TaskStatus.IN_PROGRESS, createdTask.getStatus());
+        assertEquals("Remember to review chapter 5", createdTask.getNotes());
+    }
+
+    @Test
+    void shouldCreateTask_withMinimumRequiredFields() {
+        // Given: command with only required fields (userId, courseId, title, status)
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123",
+                "course-456",
+                null,  // assessmentId optional
+                "Minimal Task",
+                null,  // dueAt optional
+                null,  // estimatedEffortMins optional
+                null,  // priority optional
+                TaskStatus.TODO,
+                null   // notes optional
+        );
+
+        // When: creating task
+        Task createdTask = service.createTask(command);
+
+        // Then: required fields present, optional fields null
+        assertNotNull(createdTask);
+        assertNotNull(createdTask.getTaskId());
+        assertEquals("user-123", createdTask.getUserId());
+        assertEquals("course-456", createdTask.getCourseId());
+        assertEquals("Minimal Task", createdTask.getTitle());
+        assertEquals(TaskStatus.TODO, createdTask.getStatus());
+        assertNull(createdTask.getAssessmentId());
+        assertNull(createdTask.getDueAt());
+        assertNull(createdTask.getEstimatedEffortMins());
+        assertNull(createdTask.getPriority());
+        assertNull(createdTask.getNotes());
+    }
+
+    @Test
+    void shouldGenerateValidUUID_asTaskId() {
+        // Given: valid command
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", "course-456", null, "Task",
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When: creating task
+        Task createdTask = service.createTask(command);
+
+        // Then: taskId should be a valid UUID format
+        String taskId = createdTask.getTaskId();
+        assertNotNull(taskId);
+        assertDoesNotThrow(() -> UUID.fromString(taskId),
+                "taskId should be a valid UUID");
+    }
+
+    @Test
+    void shouldGenerateUniqueTaskIds() {
+        // Given: same command used twice
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", "course-456", null, "Task",
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When: creating two tasks
+        Task task1 = service.createTask(command);
+        Task task2 = service.createTask(command);
+
+        // Then: taskIds should be different
+        assertNotEquals(task1.getTaskId(), task2.getTaskId(),
+                "Each task should have a unique ID");
+    }
+
+    @Test
+    void shouldPersistCreatedTask_toRepository() {
+        // Given: valid command
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", "course-456", null, "Persisted Task",
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When: creating task
+        Task createdTask = service.createTask(command);
+
+        // Then: task should be retrievable from repository
+        Optional<Task> retrieved = repository.findById(createdTask.getTaskId());
+        assertTrue(retrieved.isPresent(), "Task should be saved to repository");
+        assertEquals("Persisted Task", retrieved.get().getTitle());
+    }
+
+    @Test
+    void shouldThrowException_whenCommandIsNull() {
+        // When/Then: null command should throw NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> service.createTask(null));
+    }
+
+    @Test
+    void shouldThrowException_whenUserIdIsNull() {
+        // Given: command with null userId
+        TaskCreationCommand command = new TaskCreationCommand(
+                null, "course-456", null, "Task",
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When/Then: should throw NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> service.createTask(command));
+    }
+
+    @Test
+    void shouldThrowException_whenCourseIdIsNull() {
+        // Given: command with null courseId
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", null, null, "Task",
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When/Then: should throw NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> service.createTask(command));
+    }
+
+    @Test
+    void shouldThrowException_whenTitleIsNull() {
+        // Given: command with null title
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", "course-456", null, null,
+                null, null, null, TaskStatus.TODO, null
+        );
+
+        // When/Then: should throw NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> service.createTask(command));
+    }
+
+    @Test
+    void shouldThrowException_whenStatusIsNull() {
+        // Given: command with null status
+        TaskCreationCommand command = new TaskCreationCommand(
+                "user-123", "course-456", null, "Task",
+                null, null, null, null, null
+        );
+
+        // When/Then: should throw NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> service.createTask(command));
+    }
+
+    // ==================== LIST TASKS TESTS ====================
 
     // Test: List all tasks
     @Test
@@ -148,32 +328,5 @@ class TaskEditingServiceTest {
 
     private Task createTaskWithDate(String taskId, String userId, String title, Instant dueAt) {
         return new Task(taskId, userId, "course-1", null, title, dueAt, null, null, TaskStatus.TODO, null);
-    }
-
-    // In-memory repository for testing
-    private static class InMemoryTaskRepository implements TaskRepository {
-        private final Map<String, Task> tasks = new HashMap<>();
-
-        @Override
-        public Optional<Task> findById(String taskId) {
-            return Optional.ofNullable(tasks.get(taskId));
-        }
-
-        @Override
-        public List<Task> findByUserId(String userId) {
-            return tasks.values().stream()
-                    .filter(task -> task.getUserId().equals(userId))
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public void save(Task task) {
-            tasks.put(task.getTaskId(), task);
-        }
-
-        @Override
-        public void deleteById(String taskId) {
-            tasks.remove(taskId);
-        }
     }
 }

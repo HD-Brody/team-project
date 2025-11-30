@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import use_case.dto.LoginInputData;
 import use_case.dto.LoginOutputData;
 import use_case.port.outgoing.LoginOutputPort;
+import use_case.util.HashUtil;
 
 public class LoginTest {
 
@@ -24,27 +25,6 @@ public class LoginTest {
         loginService = new LoginService(userRepository, sessionStorage, loginPresenter);
 
         userRepository.setUserByEmail("123@abc.com", "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
-    }
-
-    @Test
-    void PasswordHashEmptyTest() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            loginService.passwordHashing(null);
-        });
-    }
-
-    @Test
-    void PasswordHashSuccessfulTest() {
-        String hash1;
-
-        try {
-            hash1 = loginService.passwordHashing("123");
-        }
-        catch (Exception e) {
-            hash1 = null;
-        }
-
-        assertEquals("40bd001563085fc35165329ea1ff5c5ecbdbbeef", hash1);
     }
 
     @Test
@@ -78,24 +58,6 @@ public class LoginTest {
     void LoginSuccessfulStoreSessionTest() {
         loginService.execute(new LoginInputData("123@abc.com", "123"));
         assertEquals("123@abc.com", sessionStorage.getSession().getEmail());
-    }
-
-    @Test
-    void ValidateEmailSuccessfulTest() {
-        assertTrue(loginService.validateEmail("123@abc.com"));
-        assertTrue(loginService.validateEmail("15823121@163.com"));
-    }
-
-    @Test
-    void ValidateEmailFailTest() {
-        assertFalse(loginService.validateEmail("12@b"));
-        assertFalse(loginService.validateEmail("12"));
-        assertFalse(loginService.validateEmail("12@"));
-        assertFalse(loginService.validateEmail("@b"));
-        assertFalse(loginService.validateEmail(""));
-        assertFalse(loginService.validateEmail(null));
-        assertFalse(loginService.validateEmail("@"));
-        assertFalse(loginService.validateEmail(".abc"));
     }
 
     @Test
