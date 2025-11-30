@@ -50,6 +50,12 @@ class LoadDashboardInteractorTest { // package-private to align with style
             }
             @Override
             public void save(Assessment assessment) { /* no-op test stub */ }
+            @Override
+            public java.util.Optional<Assessment> findById(String id) { return java.util.Optional.empty(); }
+            @Override
+            public void update(Assessment assessment) { /* no-op test stub */ }
+            @Override
+            public void deleteById(String id) { /* no-op test stub */ }
         };
 
         // Presenter
@@ -108,6 +114,12 @@ class LoadDashboardInteractorTest { // package-private to align with style
             public List<Assessment> findByCourseId(String courseId) { return Collections.emptyList(); }
             @Override
             public void save(Assessment assessment) { /* no-op test stub */ }
+            @Override
+            public java.util.Optional<Assessment> findById(String id) { return java.util.Optional.empty(); }
+            @Override
+            public void update(Assessment assessment) { /* no-op test stub */ }
+            @Override
+            public void deleteById(String id) { /* no-op test stub */ }
         };
         CapturingPresenter presenter = new CapturingPresenter();
         LoadDashboardInteractor interactor = new LoadDashboardInteractor(courseRepo, assessmentRepo, presenter);

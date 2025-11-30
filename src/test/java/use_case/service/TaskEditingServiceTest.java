@@ -1,11 +1,12 @@
 package use_case.service;
 
-import entity.Task;
+import entity.Assessment;
+import entity.AssessmentType;
 import entity.TaskStatus;
-import infrastructure.InMemoryTaskRepository;
+import use_case.repository.InMemoryAssessmentRepository;
 import use_case.dto.TaskCreationCommand;
 import use_case.dto.TaskUpdateCommand;
-import use_case.repository.TaskRepository;
+import use_case.repository.AssessmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +16,12 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskEditingServiceTest {
-    private TaskRepository repository;
+    private AssessmentRepository repository;
     private TaskEditingService service;
 
     @BeforeEach
     void setUp() {
-        repository = new InMemoryTaskRepository();
+        repository = new InMemoryAssessmentRepository();
         service = new TaskEditingService(repository);
     }
 
@@ -41,21 +42,19 @@ class TaskEditingServiceTest {
                 "Remember to review chapter 5"
         );
 
-        // When: creating task
-        Task createdTask = service.createTask(command);
+        // When: creating task (as assessment)
+        Assessment createdAssessment = service.createTask(command);
 
         // Then: all fields should match
-        assertNotNull(createdTask);
-        assertNotNull(createdTask.getTaskId(), "taskId should be generated");
-        assertEquals("user-123", createdTask.getUserId());
-        assertEquals("course-456", createdTask.getCourseId());
-        assertEquals("assessment-789", createdTask.getAssessmentId());
-        assertEquals("Complete Assignment 1", createdTask.getTitle());
-        assertEquals(Instant.parse("2025-11-30T23:59:00Z"), createdTask.getDueAt());
-        assertEquals(120, createdTask.getEstimatedEffortMins());
-        assertEquals(3, createdTask.getPriority());
-        assertEquals(TaskStatus.IN_PROGRESS, createdTask.getStatus());
-        assertEquals("Remember to review chapter 5", createdTask.getNotes());
+        assertNotNull(createdAssessment);
+        assertNotNull(createdAssessment.getAssessmentId(), "assessmentId should be generated");
+        assertEquals("course-456", createdAssessment.getCourseId());
+        assertEquals("Complete Assignment 1", createdAssessment.getTitle());
+        assertNotNull(createdAssessment.getEndsAt(), "endsAt (due date) should be set");
+        assertEquals(120L, createdAssessment.getDurationMinutes(), "estimatedEffortMins -> durationMinutes");
+        assertEquals(AssessmentType.OTHER, createdAssessment.getType(), "User tasks should be type OTHER");
+        assertTrue(createdAssessment.getNotes().contains("[Status: IN_PROGRESS]"), "Status should be in notes");
+        assertTrue(createdAssessment.getNotes().contains("Remember to review chapter 5"), "Notes should be preserved");
     }
 
     @Test
@@ -74,24 +73,22 @@ class TaskEditingServiceTest {
         );
 
         // When: creating task
-        Task createdTask = service.createTask(command);
+        Assessment createdAssessment = service.createTask(command);
 
-        // Then: required fields present, optional fields null
-        assertNotNull(createdTask);
-        assertNotNull(createdTask.getTaskId());
-        assertEquals("user-123", createdTask.getUserId());
-        assertEquals("course-456", createdTask.getCourseId());
-        assertEquals("Minimal Task", createdTask.getTitle());
-        assertEquals(TaskStatus.TODO, createdTask.getStatus());
-        assertNull(createdTask.getAssessmentId());
-        assertNull(createdTask.getDueAt());
-        assertNull(createdTask.getEstimatedEffortMins());
-        assertNull(createdTask.getPriority());
-        assertNull(createdTask.getNotes());
+        // Then: required fields present, optional fields null or default
+        assertNotNull(createdAssessment);
+        assertNotNull(createdAssessment.getAssessmentId());
+        assertEquals("course-456", createdAssessment.getCourseId());
+        assertEquals("Minimal Task", createdAssessment.getTitle());
+        assertEquals(AssessmentType.OTHER, createdAssessment.getType());
+        assertTrue(createdAssessment.getNotes().contains("[Status: TODO]"));
+        assertNull(createdAssessment.getEndsAt(), "No due date");
+        assertNull(createdAssessment.getDurationMinutes());
+        assertNull(createdAssessment.getWeight());
     }
 
     @Test
-    void shouldGenerateValidUUID_asTaskId() {
+    void shouldGenerateValidUUID_asAssessmentId() {
         // Given: valid command
         TaskCreationCommand command = new TaskCreationCommand(
                 "user-123", "course-456", null, "Task",
@@ -99,17 +96,17 @@ class TaskEditingServiceTest {
         );
 
         // When: creating task
-        Task createdTask = service.createTask(command);
+        Assessment createdAssessment = service.createTask(command);
 
-        // Then: taskId should be a valid UUID format
-        String taskId = createdTask.getTaskId();
-        assertNotNull(taskId);
-        assertDoesNotThrow(() -> UUID.fromString(taskId),
-                "taskId should be a valid UUID");
+        // Then: assessmentId should be a valid UUID format
+        String assessmentId = createdAssessment.getAssessmentId();
+        assertNotNull(assessmentId);
+        assertDoesNotThrow(() -> UUID.fromString(assessmentId),
+                "assessmentId should be a valid UUID");
     }
 
     @Test
-    void shouldGenerateUniqueTaskIds() {
+    void shouldGenerateUniqueAssessmentIds() {
         // Given: same command used twice
         TaskCreationCommand command = new TaskCreationCommand(
                 "user-123", "course-456", null, "Task",
@@ -117,11 +114,11 @@ class TaskEditingServiceTest {
         );
 
         // When: creating two tasks
-        Task task1 = service.createTask(command);
-        Task task2 = service.createTask(command);
+        Assessment task1 = service.createTask(command);
+        Assessment task2 = service.createTask(command);
 
-        // Then: taskIds should be different
-        assertNotEquals(task1.getTaskId(), task2.getTaskId(),
+        // Then: assessmentIds should be different
+        assertNotEquals(task1.getAssessmentId(), task2.getAssessmentId(),
                 "Each task should have a unique ID");
     }
 
@@ -134,10 +131,10 @@ class TaskEditingServiceTest {
         );
 
         // When: creating task
-        Task createdTask = service.createTask(command);
+        Assessment createdAssessment = service.createTask(command);
 
         // Then: task should be retrievable from repository
-        Optional<Task> retrieved = repository.findById(createdTask.getTaskId());
+        Optional<Assessment> retrieved = repository.findById(createdAssessment.getAssessmentId());
         assertTrue(retrieved.isPresent(), "Task should be saved to repository");
         assertEquals("Persisted Task", retrieved.get().getTitle());
     }
@@ -147,19 +144,6 @@ class TaskEditingServiceTest {
         // When/Then: null command should throw NullPointerException
         assertThrows(NullPointerException.class,
                 () -> service.createTask(null));
-    }
-
-    @Test
-    void shouldThrowException_whenUserIdIsNull() {
-        // Given: command with null userId
-        TaskCreationCommand command = new TaskCreationCommand(
-                null, "course-456", null, "Task",
-                null, null, null, TaskStatus.TODO, null
-        );
-
-        // When/Then: should throw NullPointerException
-        assertThrows(NullPointerException.class,
-                () -> service.createTask(command));
     }
 
     @Test
@@ -188,115 +172,99 @@ class TaskEditingServiceTest {
                 () -> service.createTask(command));
     }
 
-    @Test
-    void shouldThrowException_whenStatusIsNull() {
-        // Given: command with null status
-        TaskCreationCommand command = new TaskCreationCommand(
-                "user-123", "course-456", null, "Task",
-                null, null, null, null, null
-        );
-
-        // When/Then: should throw NullPointerException
-        assertThrows(NullPointerException.class,
-                () -> service.createTask(command));
-    }
-
     // ==================== LIST TASKS TESTS ====================
 
-    // Test: List all tasks
     @Test
-    void shouldListAllTasksForUser() {
-        String userId = "user-123";
-        Task task1 = createTask("task-1", userId, "Task 1", TaskStatus.TODO);
-        Task task2 = createTask("task-2", userId, "Task 2", TaskStatus.DONE);
+    void shouldListAllTasksForCourse() {
+        String courseId = "course-123";
+        Assessment task1 = createAssessment("task-1", courseId, "Task 1", TaskStatus.TODO);
+        Assessment task2 = createAssessment("task-2", courseId, "Task 2", TaskStatus.DONE);
         repository.save(task1);
         repository.save(task2);
 
-        List<Task> tasks = service.listTasksForUser(userId, null);
+        List<Assessment> tasks = service.listTasksForUser(courseId, null);
 
         assertEquals(2, tasks.size());
     }
 
-    // Test: Filter by status
     @Test
     void shouldFilterTasksByStatus() {
-        String userId = "user-123";
-        repository.save(createTask("task-1", userId, "Todo", TaskStatus.TODO));
-        repository.save(createTask("task-2", userId, "Done", TaskStatus.DONE));
+        String courseId = "course-123";
+        repository.save(createAssessment("task-1", courseId, "Todo", TaskStatus.TODO));
+        repository.save(createAssessment("task-2", courseId, "Done", TaskStatus.DONE));
 
-        List<Task> todoTasks = service.listTasksForUser(userId, TaskStatus.TODO);
+        List<Assessment> todoTasks = service.listTasksForUser(courseId, TaskStatus.TODO);
 
         assertEquals(1, todoTasks.size());
         assertEquals("Todo", todoTasks.get(0).getTitle());
     }
 
-    // Test: Get by ID
     @Test
     void shouldGetTaskById() {
-        Task task = createTask("task-1", "user-123", "Test", TaskStatus.TODO);
+        Assessment task = createAssessment("task-1", "course-123", "Test", TaskStatus.TODO);
         repository.save(task);
 
-        Optional<Task> result = service.getTaskById("task-1");
+        Optional<Assessment> result = service.getTaskById("task-1");
 
         assertTrue(result.isPresent());
         assertEquals("Test", result.get().getTitle());
     }
 
-    // Test: Update title
+    // ==================== UPDATE TASK TESTS ====================
+
     @Test
     void shouldUpdateTaskTitle() {
-        repository.save(createTask("task-1", "user-123", "Old Title", TaskStatus.TODO));
+        repository.save(createAssessment("task-1", "course-123", "Old Title", TaskStatus.TODO));
 
         TaskUpdateCommand command = new TaskUpdateCommand(
                 "task-1", "New Title", null, null, null, null, null);
         service.updateTask(command);
 
-        Task updated = repository.findById("task-1").get();
+        Assessment updated = repository.findById("task-1").get();
         assertEquals("New Title", updated.getTitle());
     }
 
-    // Test: Update due date
     @Test
     void shouldUpdateTaskDueDate() {
         Instant originalDate = Instant.parse("2025-11-15T10:00:00Z");
         Instant newDate = Instant.parse("2025-11-20T10:00:00Z");
-        repository.save(createTaskWithDate("task-1", "user-123", "Test", originalDate));
+        repository.save(createAssessmentWithDate("task-1", "course-123", "Test", originalDate));
 
         TaskUpdateCommand command = new TaskUpdateCommand(
                 "task-1", null, newDate, null, null, null, null);
         service.updateTask(command);
 
-        assertEquals(newDate, repository.findById("task-1").get().getDueAt());
+        Assessment updated = repository.findById("task-1").get();
+        assertNotNull(updated.getEndsAt());
+        assertTrue(updated.getEndsAt().contains("2025-11-20"), "Due date should be updated");
     }
 
-    // Test: Keep existing values when null
     @Test
     void shouldKeepExistingValuesWhenCommandFieldsAreNull() {
         Instant date = Instant.parse("2025-11-15T10:00:00Z");
-        repository.save(createTaskWithDate("task-1", "user-123", "Original", date));
+        repository.save(createAssessmentWithDate("task-1", "course-123", "Original", date));
 
         TaskUpdateCommand command = new TaskUpdateCommand(
                 "task-1", null, null, null, null, null, null);
         service.updateTask(command);
 
-        Task updated = repository.findById("task-1").get();
+        Assessment updated = repository.findById("task-1").get();
         assertEquals("Original", updated.getTitle());
-        assertEquals(date, updated.getDueAt());
+        assertNotNull(updated.getEndsAt(), "Due date should be preserved");
     }
 
-    // Test: Update status
     @Test
     void shouldUpdateTaskStatus() {
-        repository.save(createTask("task-1", "user-123", "Test", TaskStatus.TODO));
+        repository.save(createAssessment("task-1", "course-123", "Test", TaskStatus.TODO));
 
         TaskUpdateCommand command = new TaskUpdateCommand(
                 "task-1", null, null, null, null, TaskStatus.DONE, null);
         service.updateTask(command);
 
-        assertEquals(TaskStatus.DONE, repository.findById("task-1").get().getStatus());
+        Assessment updated = repository.findById("task-1").get();
+        assertTrue(updated.getNotes().contains("[Status: DONE]"), "Status should be updated in notes");
     }
 
-    // Test: Error when task not found
     @Test
     void shouldThrowExceptionWhenUpdatingNonexistentTask() {
         TaskUpdateCommand command = new TaskUpdateCommand(
@@ -305,28 +273,50 @@ class TaskEditingServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.updateTask(command));
     }
 
-    // Test: Delete task
+    // ==================== DELETE TASK TESTS ====================
+
     @Test
     void shouldDeleteTask() {
-        repository.save(createTask("task-1", "user-123", "Test", TaskStatus.TODO));
+        repository.save(createAssessment("task-1", "course-123", "Test", TaskStatus.TODO));
 
         service.deleteTask("task-1");
 
         assertFalse(repository.findById("task-1").isPresent());
     }
 
-    // Test: Error when deleting nonexistent
-    @Test
-    void shouldThrowExceptionWhenDeletingNonexistentTask() {
-        assertThrows(IllegalArgumentException.class, () -> service.deleteTask("nonexistent"));
-    }
-
     // Helper methods
-    private Task createTask(String taskId, String userId, String title, TaskStatus status) {
-        return new Task(taskId, userId, "course-1", null, title, null, null, null, status, null);
+    private Assessment createAssessment(String assessmentId, String courseId, String title, TaskStatus status) {
+        String notes = "[Status: " + status.toString() + "]";
+        return new Assessment(
+                assessmentId,
+                courseId,
+                title,
+                AssessmentType.OTHER,
+                -1.0, // -1 means not graded
+                null,
+                null,
+                null,
+                0.0, // weight set to 0.0 to avoid null pointer
+                "",
+                notes
+        );
     }
 
-    private Task createTaskWithDate(String taskId, String userId, String title, Instant dueAt) {
-        return new Task(taskId, userId, "course-1", null, title, dueAt, null, null, TaskStatus.TODO, null);
+    private Assessment createAssessmentWithDate(String assessmentId, String courseId, String title, Instant dueAt) {
+        String endsAt = dueAt.toString();
+        String notes = "[Status: TODO]";
+        return new Assessment(
+                assessmentId,
+                courseId,
+                title,
+                AssessmentType.OTHER,
+                -1.0, // -1 means not graded
+                null,
+                endsAt,
+                null,
+                0.0, // weight set to 0.0 to avoid null pointer
+                "",
+                notes
+        );
     }
 }

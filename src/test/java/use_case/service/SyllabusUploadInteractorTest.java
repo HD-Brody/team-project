@@ -172,6 +172,12 @@ public class SyllabusUploadInteractorTest {
         public void save(Assessment assessment) { savedAssessments.add(assessment); }
         @Override
         public List<Assessment> findByCourseId(String courseId) { return new ArrayList<>(); }
+        @Override
+        public java.util.Optional<Assessment> findById(String id) { return java.util.Optional.empty(); }
+        @Override
+        public void update(Assessment assessment) { /* no-op */ }
+        @Override
+        public void deleteById(String id) { /* no-op */ }
     }
 
     private static class MockPresenter implements SyllabusUploadOutputBoundary {

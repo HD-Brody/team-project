@@ -12,19 +12,14 @@ import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
 import use_case.repository.SyllabusRepository;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import entity.Assessment;
 import entity.Course;
-import entity.MarkingScheme;
 import entity.Syllabus;
-import entity.WeightComponent;
 
 /**
  * Coordinates the ingestion pipeline from raw syllabus files to domain entities.
