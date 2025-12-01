@@ -1,8 +1,8 @@
 package interface_adapter.grade_calculator;
 
 import entity.Assessment;
-import use_case.dto.GradeCalculationRequest;
-import use_case.dto.GradeCalculationResponse;
+import use_case.dto.GradeCalculationInputData;
+import use_case.dto.GradeCalculationOutputData;
 import use_case.port.incoming.GradeCalculationUseCase;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.CourseRepository;
@@ -58,12 +58,12 @@ public class GradeCalculatorController {
             List<Assessment> assessments = assessmentRepository.findByCourseId(courseId);
             
             // Create request
-            GradeCalculationRequest request = new GradeCalculationRequest(
+            GradeCalculationInputData request = new GradeCalculationInputData(
                 courseId, userId, targetPercent, assessments
             );
             
             // Calculate
-            GradeCalculationResponse response = gradeCalculationUseCase.calculateTargets(request);
+            GradeCalculationOutputData response = gradeCalculationUseCase.calculateTargets(request);
             
             presenter.presentCalculationResult(response);
         } catch (Exception e) {

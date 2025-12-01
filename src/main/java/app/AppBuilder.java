@@ -30,8 +30,6 @@ import interface_adapter.grade_calculator.GradeCalculatorViewModel;
 import interface_adapter.welcome.WelcomeController;
 import interface_adapter.welcome.WelcomePresenter;
 import interface_adapter.welcome.WelcomeViewModel;
-import interface_adapter.outbound.calendar.IcsCalendarRenderer;
-import interface_adapter.outbound.calendar.InMemoryCalendarExportGateway;
 import use_case.port.incoming.LoadDashboardInputBoundary;
 import use_case.port.incoming.LoginUseCase;
 import use_case.port.incoming.SignUpUseCase;
@@ -40,7 +38,6 @@ import use_case.port.incoming.GradeCalculationUseCase;
 import use_case.port.incoming.UploadSyllabusInputBoundary;
 import use_case.port.incoming.WelcomeUseCase;
 import use_case.port.outgoing.AiExtractionDataAccessInterface;
-import use_case.port.outgoing.CalendarExportOutputPort;
 import use_case.port.outgoing.CalendarRenderPort;
 import use_case.port.outgoing.LoadDashboardOutputBoundary;
 import use_case.port.outgoing.LoginOutputPort;
@@ -55,13 +52,13 @@ import use_case.repository.ScheduleEventRepository;
 import use_case.repository.SignUpRepository;
 import use_case.repository.SyllabusRepository;
 import use_case.service.LoadDashboardInteractor;
-import use_case.service.LoginService;
-import use_case.service.SignUpService;
+import use_case.service.LoginInteractor;
+import use_case.service.SignUpInteractor;
 import use_case.service.SyllabusUploadInteractor;
-import use_case.service.TaskEditingService;
-import use_case.service.GradeCalculationService;
-import use_case.service.WelcomeService;
-import use_case.service.CalendarExportService;
+import use_case.service.TaskEditingInteractor;
+import use_case.service.GradeCalculationInteractor;
+import use_case.service.WelcomeInteractor;
+import use_case.service.CalendarExportInteractor;
 import view.CalendarExportView;
 import view.DashboardView;
 import view.GradeCalculatorView;
@@ -155,7 +152,7 @@ public class AppBuilder {
                 dashboardView.getDashboardController()
         );
 
-        final LoginUseCase interactor = new LoginService(
+        final LoginUseCase interactor = new LoginInteractor(
                 loginRepository,
                 sessionDB,
                 outputBoundary
@@ -179,7 +176,7 @@ public class AppBuilder {
                 signUpViewModel
         );
 
-        final SignUpUseCase interactor = new SignUpService(
+        final SignUpUseCase interactor = new SignUpInteractor(
                 signUpRepository,
                 outputBoundary
         );
@@ -250,7 +247,7 @@ public class AppBuilder {
 
     public AppBuilder addWelcomeUseCase() {
         final WelcomePort port = new WelcomePresenter(welcomeViewModel, viewManagerModel);
-        final WelcomeUseCase useCase = new WelcomeService(port);
+        final WelcomeUseCase useCase = new WelcomeInteractor(port);
         final WelcomeController welcomeController = new WelcomeController(useCase);
         welcomeView.setWelcomeViewController(welcomeController);
         return this;
@@ -272,7 +269,7 @@ public class AppBuilder {
         final CalendarExportPresenter presenter = new CalendarExportPresenter(calendarExportViewModel);
         
         // Service with all required dependencies
-        final CalendarExportService service = new CalendarExportService(
+        final CalendarExportInteractor service = new CalendarExportInteractor(
             assessmentRepository,
             scheduleEventRepository,
             calendarRenderer,
@@ -314,7 +311,7 @@ public class AppBuilder {
         final TaskListPresenter presenter = new TaskListPresenter(taskListViewModel);
         
         // Service (uses AssessmentRepository)
-        final TaskEditingUseCase service = new TaskEditingService(assessmentRepository);
+        final TaskEditingUseCase service = new TaskEditingInteractor(assessmentRepository);
         
         // Controller
         final TaskListController controller = new TaskListController(
@@ -349,7 +346,7 @@ public class AppBuilder {
         final GradeCalculatorPresenter presenter = new GradeCalculatorPresenter(gradeCalculatorViewModel);
         
         // Service (uses AssessmentRepository)
-        final GradeCalculationUseCase service = new GradeCalculationService(null); // null means it will use request assessments
+        final GradeCalculationUseCase service = new GradeCalculationInteractor(null); // null means it will use request assessments
         
         // Controller
         final GradeCalculatorController controller = new GradeCalculatorController(

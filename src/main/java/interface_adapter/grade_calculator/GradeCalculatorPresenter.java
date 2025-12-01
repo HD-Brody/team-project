@@ -1,7 +1,7 @@
 package interface_adapter.grade_calculator;
 
 import entity.Assessment;
-import use_case.dto.GradeCalculationResponse;
+import use_case.dto.GradeCalculationOutputData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class GradeCalculatorPresenter {
         viewModel.firePropertyChange();
     }
 
-    public void presentCalculationResult(GradeCalculationResponse response) {
+    public void presentCalculationResult(GradeCalculationOutputData response) {
         GradeCalculatorState state = viewModel.getState();
         
         // Extract summary values from response

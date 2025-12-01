@@ -1,33 +1,25 @@
 package use_case.service;
 
-import data_access.persistence.sqlite.Login;
 import entity.Session;
 import entity.User;
 import use_case.port.outgoing.LoginOutputPort;
 import use_case.dto.LoginInputData;
 import use_case.port.incoming.LoginUseCase;
-import use_case.port.outgoing.PasswordHashingPort;
 import use_case.repository.SessionRepository;
 import use_case.repository.LoginRepository;
 import use_case.dto.LoginOutputData;
 import use_case.util.HashUtil;
 import use_case.util.ValidationUtil;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public class LoginService implements LoginUseCase {
+public class LoginInteractor implements LoginUseCase {
 
     private final LoginRepository userRepository;
     private final LoginOutputPort loginOutputPort;
     private final SessionRepository sessionRepository;
 
-    public LoginService(LoginRepository loginRepository,
-                        SessionRepository sessionRepository,
-                        LoginOutputPort loginOutputPort
+    public LoginInteractor(LoginRepository loginRepository,
+                           SessionRepository sessionRepository,
+                           LoginOutputPort loginOutputPort
                         ) {
         this.userRepository = loginRepository;
         this.loginOutputPort = loginOutputPort;

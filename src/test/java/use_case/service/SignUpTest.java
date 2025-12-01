@@ -13,19 +13,19 @@ public class SignUpTest {
 
     private InMemorySignUpDataAccessObject db;
     private MockPresenter signUpPresenter;
-    private SignUpService signUpService;
+    private SignUpInteractor signUpInteractor;
 
     @BeforeEach
     void setup() {
         db = new InMemorySignUpDataAccessObject();
         signUpPresenter = new MockPresenter();
-        signUpService = new SignUpService(db, signUpPresenter);
+        signUpInteractor = new SignUpInteractor(db, signUpPresenter);
     }
 
     @Test
     void SignUpServicePwdEmptyTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123@abc.com", null, "1111"));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", null, "1111"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
@@ -33,7 +33,7 @@ public class SignUpTest {
     @Test
     void SignUpServicePwdEmptyStringTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123@abc.com", "", "1111"));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", "", "1111"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Password is empty, please try again", signUpPresenter.getMessage());
     }
@@ -41,7 +41,7 @@ public class SignUpTest {
     @Test
     void SignUpServiceSuccessTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123@abc.com", "123123", "1111"));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", "123123", "1111"));
         assertTrue(signUpPresenter.getIsSuccess());
         assertEquals("success", signUpPresenter.getMessage());
         assertEquals("123@abc.com", db.getUserByEmail("123@abc.com").getEmail());
@@ -50,7 +50,7 @@ public class SignUpTest {
     @Test
     void SignUpServiceEmailInvalidTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123", "123123", "1111"));
+        signUpInteractor.execute(new SignUpInputData("123", "123123", "1111"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Email is invalid, please try again", signUpPresenter.getMessage());
     }
@@ -58,10 +58,10 @@ public class SignUpTest {
     @Test
     void SignUpServiceNicknameInvalidTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123@abc.com", "123123", ""));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", "123123", ""));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Name is empty, please try again", signUpPresenter.getMessage());
-        signUpService.execute(new SignUpInputData("123@abc.com", "123123", null));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", "123123", null));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Name is empty, please try again", signUpPresenter.getMessage());
     }
@@ -69,11 +69,11 @@ public class SignUpTest {
     @Test
     void SignUpServiceNameRepeatingTest() {
         db.cleanDB();
-        signUpService.execute(new SignUpInputData("123@abc.com", "123123", "admin"));
+        signUpInteractor.execute(new SignUpInputData("123@abc.com", "123123", "admin"));
         assertTrue(signUpPresenter.getIsSuccess());
         assertEquals("success", signUpPresenter.getMessage());
         assertEquals("123@abc.com", db.getUserByEmail("123@abc.com").getEmail());
-        signUpService.execute(new SignUpInputData("345@ads.ca", "122243", "admin"));
+        signUpInteractor.execute(new SignUpInputData("345@ads.ca", "122243", "admin"));
         assertFalse(signUpPresenter.getIsSuccess());
         assertEquals("Name has been used, please try again", signUpPresenter.getMessage());
     }
@@ -81,7 +81,7 @@ public class SignUpTest {
     @Test
     void SignUpServiceSwitchViewTest() {
         db.cleanDB();
-        signUpService.switchView();
+        signUpInteractor.switchView();
         assertTrue(signUpPresenter.getIsSuccess());
     }
 

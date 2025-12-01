@@ -12,13 +12,13 @@ public final class SyllabusParseResultData {
     private final String courseName;
     private final String term; 
     private final String instructor;
-    private final List<AssessmentDraft> assessments;
+    private final List<AssessmentDraftData> assessments;
 
     public SyllabusParseResultData(String courseCode,
                                    String courseName,
                                    String term,
                                    String instructor,
-                                   List<AssessmentDraft> assessments) {
+                                   List<AssessmentDraftData> assessments) {
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.term = term;
@@ -43,7 +43,7 @@ public final class SyllabusParseResultData {
         return instructor;
     }
 
-    public List<AssessmentDraft> getAssessments() {
+    public List<AssessmentDraftData> getAssessments() {
         return assessments;
     }
 

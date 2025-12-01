@@ -8,20 +8,15 @@ import use_case.repository.SignUpRepository;
 import use_case.util.HashUtil;
 import use_case.util.ValidationUtil;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class SignUpService implements SignUpUseCase {
+public class SignUpInteractor implements SignUpUseCase {
 
     private final SignUpRepository signUpRepository;
     private final SignUpPort signUpPort;
 
-    public SignUpService(SignUpRepository signUpRepository, SignUpPort signUpPort) {
+    public SignUpInteractor(SignUpRepository signUpRepository, SignUpPort signUpPort) {
         this.signUpRepository = signUpRepository;
         this.signUpPort = signUpPort;
     }

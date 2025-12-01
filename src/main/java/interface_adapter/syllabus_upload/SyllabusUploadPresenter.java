@@ -22,10 +22,6 @@ public class SyllabusUploadPresenter implements SyllabusUploadOutputBoundary {
         state.setError(null);
         syllabusUploadViewModel.setState(state);
         syllabusUploadViewModel.firePropertyChange();
-        
-        // TODO: When dashboard is implemented, switch to it
-        // viewManagerModel.setState("dashboard");
-        // viewManagerModel.firePropertyChange();
     }
 
     @Override

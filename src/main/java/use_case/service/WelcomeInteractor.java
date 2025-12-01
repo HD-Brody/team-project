@@ -5,11 +5,11 @@ import use_case.dto.WelcomeOutputData;
 import use_case.port.incoming.WelcomeUseCase;
 import use_case.port.outgoing.WelcomePort;
 
-public class WelcomeService implements WelcomeUseCase {
+public class WelcomeInteractor implements WelcomeUseCase {
 
     private final WelcomePort welcomePort;
 
-    public WelcomeService(WelcomePort welcomePort) {
+    public WelcomeInteractor(WelcomePort welcomePort) {
         this.welcomePort = welcomePort;
     }
 

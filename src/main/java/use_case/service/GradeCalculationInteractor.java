@@ -5,23 +5,23 @@ import entity.AssessmentType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import use_case.dto.GradeCalculationRequest;
-import use_case.dto.GradeCalculationResponse;
+import use_case.dto.GradeCalculationInputData;
+import use_case.dto.GradeCalculationOutputData;
 import use_case.port.incoming.GradeCalculationUseCase;
 
 
 /**
  * Provides weighted grade projections for a course.
  */
-public class GradeCalculationService implements GradeCalculationUseCase {
+public class GradeCalculationInteractor implements GradeCalculationUseCase {
     private final List<Assessment> allAssessments;
 
-    public GradeCalculationService(List<Assessment> allAssessments) {
+    public GradeCalculationInteractor(List<Assessment> allAssessments) {
         this.allAssessments = allAssessments;
     }
 
     @Override
-    public GradeCalculationResponse calculateTargets(GradeCalculationRequest request) {
+    public GradeCalculationOutputData calculateTargets(GradeCalculationInputData request) {
         Objects.requireNonNull(request, "GradeCalculationRequest must not be null");
         String courseID = request.getCourseId();
         double targetPercent = request.getTargetPercent();
@@ -82,7 +82,7 @@ public class GradeCalculationService implements GradeCalculationUseCase {
             }
         }
 
-        return new GradeCalculationResponse(requiredScores, currentPercent);
+        return new GradeCalculationOutputData(requiredScores, currentPercent);
     }
 
     private Assessment buildSummaryAssessment(String assessmentId, String courseId, String title,
