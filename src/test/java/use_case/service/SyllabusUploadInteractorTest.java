@@ -6,7 +6,7 @@ import entity.Course;
 import entity.Syllabus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import use_case.dto.AssessmentDraft;
+import use_case.dto.AssessmentDraftData;
 import use_case.dto.SyllabusParseResultData;
 import use_case.dto.SyllabusUploadInputData;
 import use_case.dto.SyllabusUploadOutputData;
@@ -62,10 +62,10 @@ public class SyllabusUploadInteractorTest {
         String filePath = "/path/to/syllabus.pdf";
         String rawText = "Sample syllabus text";
 
-        List<AssessmentDraft> assessmentDrafts = Arrays.asList(
-            new AssessmentDraft("Assignment 1", AssessmentType.ASSIGNMENT, "2025-01-15T23:59:00Z", 20.0),
-            new AssessmentDraft("Midterm Exam", AssessmentType.EXAM, "2025-02-20T14:00:00Z", 30.0),
-            new AssessmentDraft("Final Exam", AssessmentType.EXAM, "2025-04-15T09:00:00Z", 50.0)
+        List<AssessmentDraftData> assessmentDrafts = Arrays.asList(
+            new AssessmentDraftData("Assignment 1", AssessmentType.ASSIGNMENT, "2025-01-15T23:59:00Z", 20.0),
+            new AssessmentDraftData("Midterm Exam", AssessmentType.EXAM, "2025-02-20T14:00:00Z", 30.0),
+            new AssessmentDraftData("Final Exam", AssessmentType.EXAM, "2025-04-15T09:00:00Z", 50.0)
         );
 
         SyllabusParseResultData parseResult = new SyllabusParseResultData(

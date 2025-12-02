@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 /**
  * Handles creating, viewing, updating, and deleting user-managed assessments (formerly tasks).
  */
-public class TaskEditingService implements TaskEditingUseCase {
+public class TaskEditingInteractor implements TaskEditingUseCase {
     private final AssessmentRepository assessmentRepository;
 
-    public TaskEditingService(AssessmentRepository assessmentRepository) {
+    public TaskEditingInteractor(AssessmentRepository assessmentRepository) {
         this.assessmentRepository = Objects.requireNonNull(assessmentRepository, "assessmentRepository");
     }
 

@@ -25,12 +25,11 @@ import use_case.dto.CalendarRenderResult;
 import use_case.port.outgoing.CalendarRenderPort;
 import use_case.repository.AssessmentRepository;
 import use_case.repository.ScheduleEventRepository;
-import use_case.service.PreviewType;
 
 /**
- * Unit tests for {@link CalendarExportService}.
+ * Unit tests for {@link CalendarExportInteractor}.
  */
-class CalendarExportServiceTest {
+class CalendarExportInteractorTest {
 
     private StubAssessmentRepository assessmentRepository;
     private StubScheduleEventRepository scheduleEventRepository;

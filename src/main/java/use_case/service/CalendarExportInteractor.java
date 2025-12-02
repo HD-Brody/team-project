@@ -27,7 +27,7 @@ import use_case.repository.ScheduleEventRepository;
 /**
  * Aggregates assessments and events before exporting them through a calendar renderer.
  */
-public class CalendarExportService implements CalendarExportUseCase {
+public class CalendarExportInteractor implements CalendarExportUseCase {
     private static final String DEFAULT_PRODUCT_ID = "-//MARBLE//Calendar Export//EN";
     private static final Duration DEFAULT_DURATION = Duration.ofHours(1);
 
@@ -36,10 +36,10 @@ public class CalendarExportService implements CalendarExportUseCase {
     private final CalendarRenderPort calendarRenderPort;
     private final use_case.port.outgoing.CalendarExportOutputPort outputPort;
 
-    public CalendarExportService(AssessmentRepository assessmentRepository,
-                                 ScheduleEventRepository scheduleEventRepository,
-                                 CalendarRenderPort calendarRenderPort,
-                                 use_case.port.outgoing.CalendarExportOutputPort outputPort) {
+    public CalendarExportInteractor(AssessmentRepository assessmentRepository,
+                                    ScheduleEventRepository scheduleEventRepository,
+                                    CalendarRenderPort calendarRenderPort,
+                                    use_case.port.outgoing.CalendarExportOutputPort outputPort) {
         this.assessmentRepository = Objects.requireNonNull(assessmentRepository,
                 "assessmentRepository");
         this.scheduleEventRepository = Objects.requireNonNull(scheduleEventRepository,

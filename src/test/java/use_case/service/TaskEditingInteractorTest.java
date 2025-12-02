@@ -15,14 +15,14 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskEditingServiceTest {
+class TaskEditingInteractorTest {
     private AssessmentRepository repository;
-    private TaskEditingService service;
+    private TaskEditingInteractor service;
 
     @BeforeEach
     void setUp() {
         repository = new InMemoryAssessmentRepository();
-        service = new TaskEditingService(repository);
+        service = new TaskEditingInteractor(repository);
     }
 
     // ==================== CREATE TASK TESTS ====================

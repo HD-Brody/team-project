@@ -1,6 +1,6 @@
 package use_case.service;
 
-import use_case.dto.AssessmentDraft;
+import use_case.dto.AssessmentDraftData;
 import use_case.dto.SyllabusParseResultData;
 import use_case.dto.SyllabusUploadInputData;
 import use_case.dto.SyllabusUploadOutputData;
@@ -94,10 +94,10 @@ public class SyllabusUploadInteractor implements UploadSyllabusInputBoundary {
         
     }
 
-    private List<Assessment> draftAssessmentsToAssessments(List<AssessmentDraft> drafts, String courseId) {
+    private List<Assessment> draftAssessmentsToAssessments(List<AssessmentDraftData> drafts, String courseId) {
         // Create a map from Component Name to Component ID
         List<Assessment> assessments = new ArrayList<>();
-        for (AssessmentDraft draft : drafts) {
+        for (AssessmentDraftData draft : drafts) {
             Assessment assessment = new Assessment(
                     UUID.randomUUID().toString(),
                     courseId,

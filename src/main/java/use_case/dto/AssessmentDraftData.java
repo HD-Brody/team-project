@@ -6,14 +6,14 @@ import java.util.Objects;
 /**
  * Intermediate parsed representation of an assessment awaiting validation.
  */
-public final class AssessmentDraft {
+public final class AssessmentDraftData {
     private final String title;
     private final AssessmentType type;
     private final String dueDateIso;
     private final Double weight;
 
-    public AssessmentDraft(String title, AssessmentType type, String dueDateIso,
-                           Double weight) {
+    public AssessmentDraftData(String title, AssessmentType type, String dueDateIso,
+                               Double weight) {
         this.title = Objects.requireNonNull(title, "title");
         this.type = Objects.requireNonNull(type, "type");
         this.dueDateIso = dueDateIso;
