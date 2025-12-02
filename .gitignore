@@ -45,3 +45,5 @@ build/
 doc/others
 
 src/main/resources/config.properties
+
+/.chrome-tmp/

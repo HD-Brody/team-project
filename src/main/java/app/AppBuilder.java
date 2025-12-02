@@ -58,7 +58,7 @@ import use_case.service.SyllabusUploadInteractor;
 import use_case.service.TaskEditingInteractor;
 import use_case.service.GradeCalculationInteractor;
 import use_case.service.WelcomeInteractor;
-import use_case.service.CalendarExportInteractor;
+import use_case.service.CalendarExportService;
 import view.CalendarExportView;
 import view.DashboardView;
 import view.GradeCalculatorView;
@@ -269,7 +269,7 @@ public class AppBuilder {
         final CalendarExportPresenter presenter = new CalendarExportPresenter(calendarExportViewModel);
         
         // Service with all required dependencies
-        final CalendarExportInteractor service = new CalendarExportInteractor(
+        final CalendarExportService service = new CalendarExportService(
             assessmentRepository,
             scheduleEventRepository,
             calendarRenderer,

@@ -27,9 +27,9 @@ import use_case.repository.AssessmentRepository;
 import use_case.repository.ScheduleEventRepository;
 
 /**
- * Unit tests for {@link CalendarExportInteractor}.
+ * Unit tests for {@link CalendarExportService}.
  */
-class CalendarExportInteractorTest {
+class CalendarExportServiceTest {
 
     private StubAssessmentRepository assessmentRepository;
     private StubScheduleEventRepository scheduleEventRepository;

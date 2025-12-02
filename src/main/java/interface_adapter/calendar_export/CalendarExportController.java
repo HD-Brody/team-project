@@ -3,7 +3,7 @@ package interface_adapter.calendar_export;
 import data_access.persistence.in_memory.InMemorySessionInfoDataAccessObject;
 import entity.Course;
 import use_case.dto.CalendarExportRequest;
-import use_case.service.CalendarExportInteractor;
+import use_case.service.CalendarExportService;
 import use_case.service.PreviewType;
 import use_case.repository.CourseRepository;
 
@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CalendarExportController implements view.CalendarExportView.Listener {
-    private final CalendarExportInteractor calendarExportInteractor;
+    private final CalendarExportService calendarExportService;
     private final CourseRepository courseRepository;
     private final InMemorySessionInfoDataAccessObject sessionDB;
     private final CalendarExportPresenter presenter;
     private view.CalendarExportView view;
 
-    public CalendarExportController(CalendarExportInteractor calendarExportInteractor,
+    public CalendarExportController(CalendarExportService calendarExportService,
                                     CourseRepository courseRepository,
                                     InMemorySessionInfoDataAccessObject sessionDB,
                                     CalendarExportPresenter presenter) {
-        this.calendarExportInteractor = calendarExportInteractor;
+        this.calendarExportService = calendarExportService;
         this.courseRepository = courseRepository;
         this.sessionDB = sessionDB;
         this.presenter = presenter;
@@ -49,7 +49,7 @@ public class CalendarExportController implements view.CalendarExportView.Listene
                 "schedule"
             );
             
-            List<String> previewLines = calendarExportInteractor.generatePreviewTexts(request, previewType);
+            List<String> previewLines = calendarExportService.generatePreviewTexts(request, previewType);
             presenter.presentPreview(previewLines);
             if (view != null) {
                 view.setPreviewLines(previewLines);
@@ -76,7 +76,7 @@ public class CalendarExportController implements view.CalendarExportView.Listene
                 "schedule"
             );
             
-            calendarExportInteractor.exportCalendar(request);
+            calendarExportService.exportCalendar(request);
         } catch (Exception e) {
             presenter.presentError("Failed to export calendar: " + e.getMessage());
         }
